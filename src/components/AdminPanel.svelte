@@ -10,6 +10,11 @@
   let currentState = 'home';
   let mturk;
   let loading = false;
+  let mturkReady = false;
+  let sandbox = true;
+  $: endpoint = sandbox
+    ? 'https://mturk-requester-sandbox.us-east-1.amazonaws.com'
+    : 'https://mturk-requester.us-east-1.amazonaws.com';
   const stateMap = [
     {
       state: 'home',
@@ -55,10 +60,11 @@
     // eslint-disable-next-line no-undef
     mturk = new AWS.MTurk({
       region: 'us-east-1',
-      endpoint: 'https://mturk-requester-sandbox.us-east-1.amazonaws.com',
+      endpoint,
       accessKeyId: cred.accessKeyId,
       secretAccessKey: cred.secretAccessKey
     });
+    mturkReady = true;
   };
 
   const accountBalance = async () => {
@@ -69,8 +75,9 @@
         type: 'is-primary',
         position: 'top-center',
         pauseonHover: true,
+        dismissible: true,
         duration: 5000,
-        animate: { in: 'fadeIn', out: 'fadeOut' }
+        animate: { in: 'fadeInDown', out: 'fadeOutUp' }
       });
     } catch (error) {
       console.error(error);
@@ -166,6 +173,15 @@
     <header class="dashboard-panel-header">
       <div class="has-text-centered">
         <h1 class="is-size-3">Svelte-Turk</h1>
+        <span class="tag" class:is-primary={mturkReady} class:is-danger={!mturkReady}>
+          Mturk
+          {#if !mturkReady}Not{/if}
+          Ready
+        </span>
+        <label class="checkbox is-block">
+          <input type="checkbox" bind:checked={sandbox} on:change={initMTurk} />
+          Sandbox
+        </label>
         <hr />
       </div>
     </header>

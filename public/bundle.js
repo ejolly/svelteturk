@@ -28785,7 +28785,7 @@ var app = (function () {
     var child_ctx = ctx.slice();
     child_ctx[4] = list[i];
     return child_ctx;
-  } // (150:10) {#each participants as participant}
+  } // (148:10) {#each participants as participant}
 
 
   function create_each_block$1(ctx) {
@@ -28851,19 +28851,19 @@ var app = (function () {
         t10 = text(t10_value);
         t11 = space();
         attr_dev(td0, "type", "text");
-        add_location(td0, file$4, 151, 14, 4229);
+        add_location(td0, file$4, 149, 14, 4190);
         attr_dev(td1, "type", "text");
-        add_location(td1, file$4, 152, 14, 4287);
+        add_location(td1, file$4, 150, 14, 4248);
         attr_dev(td2, "type", "number");
-        add_location(td2, file$4, 153, 14, 4349);
+        add_location(td2, file$4, 151, 14, 4310);
         attr_dev(td3, "type", "text");
-        add_location(td3, file$4, 154, 14, 4413);
+        add_location(td3, file$4, 152, 14, 4374);
         attr_dev(td4, "type", "text");
-        add_location(td4, file$4, 155, 14, 4484);
+        add_location(td4, file$4, 153, 14, 4445);
         attr_dev(td5, "type", "text");
-        add_location(td5, file$4, 156, 14, 4539);
+        add_location(td5, file$4, 154, 14, 4500);
         attr_dev(tr, "class", "table-row");
-        add_location(tr, file$4, 150, 12, 4171);
+        add_location(tr, file$4, 148, 12, 4132);
         dispose = listen_dev(tr, "click",
         /*selectRow*/
         ctx[2], false, false, false);
@@ -28932,7 +28932,7 @@ var app = (function () {
       block: block,
       id: create_each_block$1.name,
       type: "each",
-      source: "(150:10) {#each participants as participant}",
+      source: "(148:10) {#each participants as participant}",
       ctx: ctx
     });
     return block;
@@ -29054,57 +29054,57 @@ var app = (function () {
           each_blocks[_i].c();
         }
 
-        add_location(strong, file$4, 109, 10, 3031);
-        add_location(p0, file$4, 108, 8, 3017);
+        add_location(strong, file$4, 107, 10, 2992);
+        add_location(p0, file$4, 106, 8, 2978);
         attr_dev(div0, "class", "column is-full");
-        add_location(div0, file$4, 107, 6, 2980);
+        add_location(div0, file$4, 105, 6, 2941);
         attr_dev(button0, "class", "button is-link");
-        add_location(button0, file$4, 116, 12, 3242);
+        add_location(button0, file$4, 114, 12, 3203);
         attr_dev(p1, "class", "control");
-        add_location(p1, file$4, 115, 10, 3210);
+        add_location(p1, file$4, 113, 10, 3171);
         attr_dev(div1, "class", "field is-grouped");
-        add_location(div1, file$4, 114, 8, 3169);
+        add_location(div1, file$4, 112, 8, 3130);
         attr_dev(div2, "class", "column is-full");
-        add_location(div2, file$4, 113, 6, 3132);
+        add_location(div2, file$4, 111, 6, 3093);
         attr_dev(div3, "class", "columns is-multiline");
-        add_location(div3, file$4, 106, 4, 2939);
+        add_location(div3, file$4, 104, 4, 2900);
         attr_dev(div4, "class", "column has-text-left");
-        add_location(div4, file$4, 105, 2, 2900);
+        add_location(div4, file$4, 103, 2, 2861);
         attr_dev(button1, "class", "button is-danger");
-        add_location(button1, file$4, 125, 8, 3503);
+        add_location(button1, file$4, 123, 8, 3464);
         attr_dev(p2, "class", "control");
-        add_location(p2, file$4, 124, 6, 3475);
+        add_location(p2, file$4, 122, 6, 3436);
         attr_dev(button2, "class", "button is-success");
-        add_location(button2, file$4, 128, 8, 3605);
+        add_location(button2, file$4, 126, 8, 3566);
         attr_dev(p3, "class", "control");
-        add_location(p3, file$4, 127, 6, 3577);
+        add_location(p3, file$4, 125, 6, 3538);
         attr_dev(div5, "class", "field is-grouped");
         toggle_class(div5, "is-invisible", !
         /*rowSelected*/
         ctx[1]);
-        add_location(div5, file$4, 123, 4, 3404);
+        add_location(div5, file$4, 121, 4, 3365);
         attr_dev(div6, "class", "column has-text-right");
-        add_location(div6, file$4, 122, 2, 3364);
+        add_location(div6, file$4, 120, 2, 3325);
         attr_dev(div7, "class", "columns");
-        add_location(div7, file$4, 104, 0, 2876);
-        add_location(hr, file$4, 133, 0, 3698);
-        add_location(th0, file$4, 140, 12, 3876);
-        add_location(th1, file$4, 141, 12, 3907);
-        add_location(th2, file$4, 142, 12, 3945);
-        add_location(th3, file$4, 143, 12, 3980);
-        add_location(th4, file$4, 144, 12, 4013);
-        add_location(th5, file$4, 145, 12, 4041);
-        add_location(tr, file$4, 139, 10, 3859);
-        add_location(thead, file$4, 138, 8, 3841);
-        add_location(tbody, file$4, 148, 8, 4105);
+        add_location(div7, file$4, 102, 0, 2837);
+        add_location(hr, file$4, 131, 0, 3659);
+        add_location(th0, file$4, 138, 12, 3837);
+        add_location(th1, file$4, 139, 12, 3868);
+        add_location(th2, file$4, 140, 12, 3906);
+        add_location(th3, file$4, 141, 12, 3941);
+        add_location(th4, file$4, 142, 12, 3974);
+        add_location(th5, file$4, 143, 12, 4002);
+        add_location(tr, file$4, 137, 10, 3820);
+        add_location(thead, file$4, 136, 8, 3802);
+        add_location(tbody, file$4, 146, 8, 4066);
         attr_dev(table, "class", "table is-hoverable");
-        add_location(table, file$4, 137, 6, 3798);
+        add_location(table, file$4, 135, 6, 3759);
         attr_dev(div8, "class", "table-container");
-        add_location(div8, file$4, 136, 4, 3762);
+        add_location(div8, file$4, 134, 4, 3723);
         attr_dev(div9, "class", "column is-full");
-        add_location(div9, file$4, 135, 2, 3729);
+        add_location(div9, file$4, 133, 2, 3690);
         attr_dev(div10, "class", "columns");
-        add_location(div10, file$4, 134, 0, 3705);
+        add_location(div10, file$4, 132, 0, 3666);
       },
       l: function claim(nodes) {
         throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -29311,35 +29311,24 @@ var app = (function () {
     };
 
     onMount(function _callee() {
-      var query;
       return regeneratorRuntime.async(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _context.prev = 0;
-              _context.next = 3;
-              return regeneratorRuntime.awrap(db.ref("participants").once("value"));
-
-            case 3:
-              query = _context.sent;
-              query.forEach(function (doc) {
-                participants.push(doc.val());
+              db.ref("participants").on("value", function (snapshot) {
+                $$invalidate(0, participants = []);
+                snapshot.forEach(function (doc) {
+                  participants.push(doc.val());
+                });
+                $$invalidate(0, participants);
               });
-              $$invalidate(0, participants);
-              _context.next = 11;
-              break;
 
-            case 8:
-              _context.prev = 8;
-              _context.t0 = _context["catch"](0);
-              console.error(_context.t0);
-
-            case 11:
+            case 1:
             case "end":
               return _context.stop();
           }
         }
-      }, null, null, [[0, 8]]);
+      });
     });
 
     $$self.$capture_state = function () {
@@ -29379,7 +29368,30 @@ var app = (function () {
   }(SvelteComponentDev);
 
   var console_1 = globals.console;
-  var file$5 = "src/components/AdminPanel.svelte";
+  var file$5 = "src/components/AdminPanel.svelte"; // (178:10) {#if !mturkReady}
+
+  function create_if_block$1(ctx) {
+    var t;
+    var block = {
+      c: function create() {
+        t = text("Not");
+      },
+      m: function mount(target, anchor) {
+        insert_dev(target, t, anchor);
+      },
+      d: function destroy(detaching) {
+        if (detaching) detach_dev(t);
+      }
+    };
+    dispatch_dev("SvelteRegisterBlock", {
+      block: block,
+      id: create_if_block$1.name,
+      type: "if",
+      source: "(178:10) {#if !mturkReady}",
+      ctx: ctx
+    });
+    return block;
+  }
 
   function create_fragment$5(ctx) {
     var script;
@@ -29391,67 +29403,78 @@ var app = (function () {
     var div0;
     var h1;
     var t2;
-    var hr0;
+    var span;
     var t3;
+    var t4;
+    var t5;
+    var label;
+    var input;
+    var t6;
+    var t7;
+    var hr0;
+    var t8;
     var div1;
     var aside;
     var p0;
-    var t5;
+    var t10;
     var ul0;
     var li0;
     var a0;
-    var t7;
+    var t12;
     var li1;
     var a1;
-    var t9;
+    var t14;
     var p1;
-    var t11;
+    var t16;
     var ul1;
     var li2;
     var a2;
-    var t13;
+    var t18;
     var a3;
-    var t15;
+    var t20;
     var p2;
-    var t17;
+    var t22;
     var ul2;
     var li3;
     var a4;
-    var t19;
+    var t24;
     var li4;
     var a5;
-    var t21;
+    var t26;
     var li5;
     var a6;
-    var t23;
+    var t28;
     var li6;
     var a7;
-    var t25;
+    var t30;
     var p3;
-    var t27;
+    var t32;
     var ul3;
     var li7;
     var a8;
-    var t29;
+    var t34;
     var li8;
     var a9;
-    var t31;
+    var t36;
     var p4;
     var button;
-    var t33;
+    var t38;
     var div3;
     var section1;
     var p5;
-    var t34;
-    var t35;
+    var t39;
+    var t40;
     var hr1;
-    var t36;
+    var t41;
     var section0;
     var current;
     var dispose;
+    var if_block = !
+    /*mturkReady*/
+    ctx[2] && create_if_block$1(ctx);
     var switch_value =
     /*component*/
-    ctx[3];
+    ctx[5];
 
     function switch_props(ctx) {
       return {
@@ -29474,182 +29497,207 @@ var app = (function () {
         h1 = element("h1");
         h1.textContent = "Svelte-Turk";
         t2 = space();
+        span = element("span");
+        t3 = text("Mturk\n          ");
+        if (if_block) if_block.c();
+        t4 = text("\n          Ready");
+        t5 = space();
+        label = element("label");
+        input = element("input");
+        t6 = text("\n          Sandbox");
+        t7 = space();
         hr0 = element("hr");
-        t3 = space();
+        t8 = space();
         div1 = element("div");
         aside = element("aside");
         p0 = element("p");
         p0.textContent = "Home";
-        t5 = space();
+        t10 = space();
         ul0 = element("ul");
         li0 = element("li");
         a0 = element("a");
         a0.textContent = "Overview";
-        t7 = space();
+        t12 = space();
         li1 = element("li");
         a1 = element("a");
         a1.textContent = "Account Balance";
-        t9 = space();
+        t14 = space();
         p1 = element("p");
         p1.textContent = "Firebase";
-        t11 = space();
+        t16 = space();
         ul1 = element("ul");
         li2 = element("li");
         a2 = element("a");
         a2.textContent = "Participants";
-        t13 = space();
+        t18 = space();
         a3 = element("a");
         a3.textContent = "Stimuli";
-        t15 = space();
+        t20 = space();
         p2 = element("p");
         p2.textContent = "HITs";
-        t17 = space();
+        t22 = space();
         ul2 = element("ul");
         li3 = element("li");
         a4 = element("a");
         a4.textContent = "Create HITs";
-        t19 = space();
+        t24 = space();
         li4 = element("li");
         a5 = element("a");
         a5.textContent = "Replenish HITs";
-        t21 = space();
+        t26 = space();
         li5 = element("li");
         a6 = element("a");
         a6.textContent = "End HITs";
-        t23 = space();
+        t28 = space();
         li6 = element("li");
         a7 = element("a");
         a7.textContent = "Review HITs";
-        t25 = space();
+        t30 = space();
         p3 = element("p");
         p3.textContent = "Assignments";
-        t27 = space();
+        t32 = space();
         ul3 = element("ul");
         li7 = element("li");
         a8 = element("a");
         a8.textContent = "Approve Assignments";
-        t29 = space();
+        t34 = space();
         li8 = element("li");
         a9 = element("a");
         a9.textContent = "See Assignments";
-        t31 = space();
+        t36 = space();
         p4 = element("p");
         button = element("button");
         button.textContent = "Log Out";
-        t33 = space();
+        t38 = space();
         div3 = element("div");
         section1 = element("section");
         p5 = element("p");
-        t34 = text(
+        t39 = text(
         /*title*/
-        ctx[2]);
-        t35 = space();
+        ctx[4]);
+        t40 = space();
         hr1 = element("hr");
-        t36 = space();
+        t41 = space();
         section0 = element("section");
         if (switch_instance) create_component(switch_instance.$$.fragment);
         if (script.src !== (script_src_value = "https://sdk.amazonaws.com/js/aws-sdk-2.590.0.min.js")) attr_dev(script, "src", script_src_value);
-        add_location(script, file$5, 159, 2, 3305);
+        add_location(script, file$5, 166, 2, 3495);
         attr_dev(h1, "class", "is-size-3");
-        add_location(h1, file$5, 167, 8, 3637);
-        add_location(hr0, file$5, 168, 8, 3684);
+        add_location(h1, file$5, 174, 8, 3827);
+        attr_dev(span, "class", "tag");
+        toggle_class(span, "is-primary",
+        /*mturkReady*/
+        ctx[2]);
+        toggle_class(span, "is-danger", !
+        /*mturkReady*/
+        ctx[2]);
+        add_location(span, file$5, 175, 8, 3874);
+        attr_dev(input, "type", "checkbox");
+        add_location(input, file$5, 181, 10, 4089);
+        attr_dev(label, "class", "checkbox is-block");
+        add_location(label, file$5, 180, 8, 4045);
+        add_location(hr0, file$5, 184, 8, 4203);
         attr_dev(div0, "class", "has-text-centered");
-        add_location(div0, file$5, 166, 6, 3597);
+        add_location(div0, file$5, 173, 6, 3787);
         attr_dev(header, "class", "dashboard-panel-header svelte-dje9vs");
-        add_location(header, file$5, 165, 4, 3551);
+        add_location(header, file$5, 172, 4, 3741);
         attr_dev(p0, "class", "menu-label");
-        add_location(p0, file$5, 173, 8, 3810);
+        add_location(p0, file$5, 189, 8, 4329);
         attr_dev(a0, "href", "javascript:;");
-        add_location(a0, file$5, 176, 12, 3899);
-        add_location(li0, file$5, 175, 10, 3882);
+        add_location(a0, file$5, 192, 12, 4418);
+        add_location(li0, file$5, 191, 10, 4401);
         attr_dev(a1, "href", "javascript:;");
-        add_location(a1, file$5, 179, 12, 4019);
-        add_location(li1, file$5, 178, 10, 4002);
+        add_location(a1, file$5, 195, 12, 4538);
+        add_location(li1, file$5, 194, 10, 4521);
         attr_dev(ul0, "class", "menu-list");
-        add_location(ul0, file$5, 174, 8, 3849);
+        add_location(ul0, file$5, 190, 8, 4368);
         attr_dev(p1, "class", "menu-label");
-        add_location(p1, file$5, 182, 8, 4126);
+        add_location(p1, file$5, 198, 8, 4645);
         attr_dev(a2, "href", "javascript:;");
-        add_location(a2, file$5, 185, 12, 4219);
+        add_location(a2, file$5, 201, 12, 4738);
         attr_dev(a3, "href", "javascript:;");
-        add_location(a3, file$5, 188, 12, 4357);
-        add_location(li2, file$5, 184, 10, 4202);
+        add_location(a3, file$5, 204, 12, 4876);
+        add_location(li2, file$5, 200, 10, 4721);
         attr_dev(ul1, "class", "menu-list");
-        add_location(ul1, file$5, 183, 8, 4169);
+        add_location(ul1, file$5, 199, 8, 4688);
         attr_dev(p2, "class", "menu-label");
-        add_location(p2, file$5, 191, 8, 4451);
+        add_location(p2, file$5, 207, 8, 4970);
         attr_dev(a4, "href", "javascript:;");
-        add_location(a4, file$5, 194, 12, 4540);
-        add_location(li3, file$5, 193, 10, 4523);
+        add_location(a4, file$5, 210, 12, 5059);
+        add_location(li3, file$5, 209, 10, 5042);
         attr_dev(a5, "href", "javascript:;");
-        add_location(a5, file$5, 199, 12, 4702);
-        add_location(li4, file$5, 198, 10, 4685);
+        add_location(a5, file$5, 215, 12, 5221);
+        add_location(li4, file$5, 214, 10, 5204);
         attr_dev(a6, "href", "javascript:;");
-        add_location(a6, file$5, 202, 12, 4808);
-        add_location(li5, file$5, 201, 10, 4791);
+        add_location(a6, file$5, 218, 12, 5327);
+        add_location(li5, file$5, 217, 10, 5310);
         attr_dev(a7, "href", "javascript:;");
-        add_location(a7, file$5, 205, 12, 4908);
-        add_location(li6, file$5, 204, 10, 4891);
+        add_location(a7, file$5, 221, 12, 5427);
+        add_location(li6, file$5, 220, 10, 5410);
         attr_dev(ul2, "class", "menu-list");
-        add_location(ul2, file$5, 192, 8, 4490);
+        add_location(ul2, file$5, 208, 8, 5009);
         attr_dev(p3, "class", "menu-label");
-        add_location(p3, file$5, 208, 8, 5006);
+        add_location(p3, file$5, 224, 8, 5525);
         attr_dev(a8, "href", "javascript:;");
-        add_location(a8, file$5, 211, 12, 5102);
-        add_location(li7, file$5, 210, 10, 5085);
+        add_location(a8, file$5, 227, 12, 5621);
+        add_location(li7, file$5, 226, 10, 5604);
         attr_dev(a9, "href", "javascript:;");
-        add_location(a9, file$5, 214, 12, 5213);
-        add_location(li8, file$5, 213, 10, 5196);
+        add_location(a9, file$5, 230, 12, 5732);
+        add_location(li8, file$5, 229, 10, 5715);
         attr_dev(ul3, "class", "menu-list");
-        add_location(ul3, file$5, 209, 8, 5052);
+        add_location(ul3, file$5, 225, 8, 5571);
         attr_dev(button, "class", "button is-primary");
         toggle_class(button, "is-loading",
         /*loading*/
         ctx[1]);
-        add_location(button, file$5, 218, 10, 5348);
+        add_location(button, file$5, 234, 10, 5867);
         attr_dev(p4, "class", "menu-label");
-        add_location(p4, file$5, 217, 8, 5315);
+        add_location(p4, file$5, 233, 8, 5834);
         attr_dev(aside, "class", "menu has-text-white");
-        add_location(aside, file$5, 172, 6, 3766);
+        add_location(aside, file$5, 188, 6, 4285);
         attr_dev(div1, "class", "dashboard-panel-content");
-        add_location(div1, file$5, 171, 4, 3722);
+        add_location(div1, file$5, 187, 4, 4241);
         attr_dev(div2, "class", "dashboard-panel is-medium has-thick-padding has-background-grey-lighter svelte-dje9vs");
-        add_location(div2, file$5, 164, 2, 3461);
+        add_location(div2, file$5, 171, 2, 3651);
         attr_dev(p5, "class", "title is-size-2");
-        add_location(p5, file$5, 227, 6, 5597);
-        add_location(hr1, file$5, 228, 6, 5642);
-        add_location(section0, file$5, 229, 6, 5655);
+        add_location(p5, file$5, 243, 6, 6116);
+        add_location(hr1, file$5, 244, 6, 6161);
+        add_location(section0, file$5, 245, 6, 6174);
         attr_dev(section1, "class", "section");
-        add_location(section1, file$5, 226, 4, 5565);
+        add_location(section1, file$5, 242, 4, 6084);
         attr_dev(div3, "class", "dashboard-main is-scrollable svelte-dje9vs");
-        add_location(div3, file$5, 225, 2, 5518);
+        add_location(div3, file$5, 241, 2, 6037);
         attr_dev(div4, "class", "dashboard is-full-height svelte-dje9vs");
-        add_location(div4, file$5, 163, 0, 3420);
+        add_location(div4, file$5, 170, 0, 3610);
         dispose = [listen_dev(script, "load",
         /*initMTurk*/
-        ctx[6], false, false, false), listen_dev(a0, "click",
+        ctx[8], false, false, false), listen_dev(input, "change",
+        /*input_change_handler*/
+        ctx[15]), listen_dev(input, "change",
+        /*initMTurk*/
+        ctx[8], false, false, false), listen_dev(a0, "click",
         /*click_handler*/
-        ctx[12], false, false, false), listen_dev(a1, "click",
+        ctx[16], false, false, false), listen_dev(a1, "click",
         /*accountBalance*/
-        ctx[7], false, false, false), listen_dev(a2, "click",
+        ctx[9], false, false, false), listen_dev(a2, "click",
         /*click_handler_1*/
-        ctx[13], false, false, false), listen_dev(a3, "click",
+        ctx[17], false, false, false), listen_dev(a3, "click",
         /*createHIT*/
-        ctx[5], false, false, false), listen_dev(a4, "click",
+        ctx[7], false, false, false), listen_dev(a4, "click",
         /*click_handler_2*/
-        ctx[14], false, false, false), listen_dev(a5, "click",
+        ctx[18], false, false, false), listen_dev(a5, "click",
         /*createHIT*/
-        ctx[5], false, false, false), listen_dev(a6, "click",
+        ctx[7], false, false, false), listen_dev(a6, "click",
         /*createHIT*/
-        ctx[5], false, false, false), listen_dev(a7, "click",
+        ctx[7], false, false, false), listen_dev(a7, "click",
         /*createHIT*/
-        ctx[5], false, false, false), listen_dev(a8, "click",
+        ctx[7], false, false, false), listen_dev(a8, "click",
         /*createHIT*/
-        ctx[5], false, false, false), listen_dev(a9, "click",
+        ctx[7], false, false, false), listen_dev(a9, "click",
         /*createHIT*/
-        ctx[5], false, false, false), listen_dev(button, "click",
+        ctx[7], false, false, false), listen_dev(button, "click",
         /*logout*/
-        ctx[4], false, false, false)];
+        ctx[6], false, false, false)];
       },
       l: function claim(nodes) {
         throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -29663,61 +29711,73 @@ var app = (function () {
         append_dev(header, div0);
         append_dev(div0, h1);
         append_dev(div0, t2);
+        append_dev(div0, span);
+        append_dev(span, t3);
+        if (if_block) if_block.m(span, null);
+        append_dev(span, t4);
+        append_dev(div0, t5);
+        append_dev(div0, label);
+        append_dev(label, input);
+        input.checked =
+        /*sandbox*/
+        ctx[3];
+        append_dev(label, t6);
+        append_dev(div0, t7);
         append_dev(div0, hr0);
-        append_dev(div2, t3);
+        append_dev(div2, t8);
         append_dev(div2, div1);
         append_dev(div1, aside);
         append_dev(aside, p0);
-        append_dev(aside, t5);
+        append_dev(aside, t10);
         append_dev(aside, ul0);
         append_dev(ul0, li0);
         append_dev(li0, a0);
-        append_dev(ul0, t7);
+        append_dev(ul0, t12);
         append_dev(ul0, li1);
         append_dev(li1, a1);
-        append_dev(aside, t9);
+        append_dev(aside, t14);
         append_dev(aside, p1);
-        append_dev(aside, t11);
+        append_dev(aside, t16);
         append_dev(aside, ul1);
         append_dev(ul1, li2);
         append_dev(li2, a2);
-        append_dev(li2, t13);
+        append_dev(li2, t18);
         append_dev(li2, a3);
-        append_dev(aside, t15);
+        append_dev(aside, t20);
         append_dev(aside, p2);
-        append_dev(aside, t17);
+        append_dev(aside, t22);
         append_dev(aside, ul2);
         append_dev(ul2, li3);
         append_dev(li3, a4);
-        append_dev(ul2, t19);
+        append_dev(ul2, t24);
         append_dev(ul2, li4);
         append_dev(li4, a5);
-        append_dev(ul2, t21);
+        append_dev(ul2, t26);
         append_dev(ul2, li5);
         append_dev(li5, a6);
-        append_dev(ul2, t23);
+        append_dev(ul2, t28);
         append_dev(ul2, li6);
         append_dev(li6, a7);
-        append_dev(aside, t25);
+        append_dev(aside, t30);
         append_dev(aside, p3);
-        append_dev(aside, t27);
+        append_dev(aside, t32);
         append_dev(aside, ul3);
         append_dev(ul3, li7);
         append_dev(li7, a8);
-        append_dev(ul3, t29);
+        append_dev(ul3, t34);
         append_dev(ul3, li8);
         append_dev(li8, a9);
-        append_dev(aside, t31);
+        append_dev(aside, t36);
         append_dev(aside, p4);
         append_dev(p4, button);
-        append_dev(div4, t33);
+        append_dev(div4, t38);
         append_dev(div4, div3);
         append_dev(div3, section1);
         append_dev(section1, p5);
-        append_dev(p5, t34);
-        append_dev(section1, t35);
+        append_dev(p5, t39);
+        append_dev(section1, t40);
         append_dev(section1, hr1);
-        append_dev(section1, t36);
+        append_dev(section1, t41);
         append_dev(section1, section0);
 
         if (switch_instance) {
@@ -29727,6 +29787,43 @@ var app = (function () {
         current = true;
       },
       p: function update(ctx, dirty) {
+        if (!
+        /*mturkReady*/
+        ctx[2]) {
+          if (!if_block) {
+            if_block = create_if_block$1(ctx);
+            if_block.c();
+            if_block.m(span, t4);
+          }
+        } else if (if_block) {
+          if_block.d(1);
+          if_block = null;
+        }
+
+        if (dirty[0] &
+        /*mturkReady*/
+        4) {
+          toggle_class(span, "is-primary",
+          /*mturkReady*/
+          ctx[2]);
+        }
+
+        if (dirty[0] &
+        /*mturkReady*/
+        4) {
+          toggle_class(span, "is-danger", !
+          /*mturkReady*/
+          ctx[2]);
+        }
+
+        if (dirty[0] &
+        /*sandbox*/
+        8) {
+          input.checked =
+          /*sandbox*/
+          ctx[3];
+        }
+
         if (dirty[0] &
         /*loading*/
         2) {
@@ -29737,13 +29834,13 @@ var app = (function () {
 
         if (!current || dirty[0] &
         /*title*/
-        4) set_data_dev(t34,
+        16) set_data_dev(t39,
         /*title*/
-        ctx[2]);
+        ctx[4]);
 
         if (switch_value !== (switch_value =
         /*component*/
-        ctx[3])) {
+        ctx[5])) {
           if (switch_instance) {
             group_outros();
             var old_component = switch_instance;
@@ -29776,6 +29873,7 @@ var app = (function () {
         detach_dev(script);
         if (detaching) detach_dev(t0);
         if (detaching) detach_dev(div4);
+        if (if_block) if_block.d();
         if (switch_instance) destroy_component(switch_instance);
         run_all(dispose);
       }
@@ -29795,6 +29893,8 @@ var app = (function () {
     var currentState = "home";
     var mturk;
     var loading = false;
+    var mturkReady = false;
+    var sandbox = true;
     var stateMap = [{
       state: "home",
       title: "Home",
@@ -29850,10 +29950,11 @@ var app = (function () {
     var initMTurk = function initMTurk() {
       mturk = new AWS.MTurk({
         region: "us-east-1",
-        endpoint: "https://mturk-requester-sandbox.us-east-1.amazonaws.com",
+        endpoint: endpoint,
         accessKeyId: cred.accessKeyId,
         secretAccessKey: cred.secretAccessKey
       });
+      $$invalidate(2, mturkReady = true);
     };
 
     var accountBalance = function accountBalance() {
@@ -29873,10 +29974,11 @@ var app = (function () {
                 type: "is-primary",
                 position: "top-center",
                 pauseonHover: true,
+                dismissible: true,
                 duration: 5000,
                 animate: {
-                  in: "fadeIn",
-                  out: "fadeOut"
+                  in: "fadeInDown",
+                  out: "fadeOutUp"
                 }
               });
               _context2.next = 10;
@@ -29900,6 +30002,11 @@ var app = (function () {
       if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn("<AdminPanel> was created with unknown prop '".concat(key, "'"));
     });
 
+    function input_change_handler() {
+      sandbox = this.checked;
+      $$invalidate(3, sandbox);
+    }
+
     var click_handler = function click_handler() {
       return $$invalidate(0, currentState = "home");
     };
@@ -29913,7 +30020,7 @@ var app = (function () {
     };
 
     $$self.$set = function ($$props) {
-      if ("cred" in $$props) $$invalidate(8, cred = $$props.cred);
+      if ("cred" in $$props) $$invalidate(10, cred = $$props.cred);
     };
 
     $$self.$capture_state = function () {
@@ -29922,6 +30029,9 @@ var app = (function () {
         currentState: currentState,
         mturk: mturk,
         loading: loading,
+        mturkReady: mturkReady,
+        sandbox: sandbox,
+        endpoint: endpoint,
         currentObj: currentObj,
         title: title,
         component: component
@@ -29929,44 +30039,54 @@ var app = (function () {
     };
 
     $$self.$inject_state = function ($$props) {
-      if ("cred" in $$props) $$invalidate(8, cred = $$props.cred);
+      if ("cred" in $$props) $$invalidate(10, cred = $$props.cred);
       if ("currentState" in $$props) $$invalidate(0, currentState = $$props.currentState);
       if ("mturk" in $$props) mturk = $$props.mturk;
       if ("loading" in $$props) $$invalidate(1, loading = $$props.loading);
-      if ("currentObj" in $$props) $$invalidate(10, currentObj = $$props.currentObj);
-      if ("title" in $$props) $$invalidate(2, title = $$props.title);
-      if ("component" in $$props) $$invalidate(3, component = $$props.component);
+      if ("mturkReady" in $$props) $$invalidate(2, mturkReady = $$props.mturkReady);
+      if ("sandbox" in $$props) $$invalidate(3, sandbox = $$props.sandbox);
+      if ("endpoint" in $$props) endpoint = $$props.endpoint;
+      if ("currentObj" in $$props) $$invalidate(13, currentObj = $$props.currentObj);
+      if ("title" in $$props) $$invalidate(4, title = $$props.title);
+      if ("component" in $$props) $$invalidate(5, component = $$props.component);
     };
 
+    var endpoint;
     var currentObj;
     var title;
     var component;
 
     $$self.$$.update = function () {
       if ($$self.$$.dirty[0] &
+      /*sandbox*/
+      8) {
+         endpoint = sandbox ? "https://mturk-requester-sandbox.us-east-1.amazonaws.com" : "https://mturk-requester.us-east-1.amazonaws.com";
+      }
+
+      if ($$self.$$.dirty[0] &
       /*currentState*/
       1) {
         var _stateMap$filter, _stateMap$filter2;
 
-         $$invalidate(10, (_stateMap$filter = stateMap.filter(function (obj) {
+         $$invalidate(13, (_stateMap$filter = stateMap.filter(function (obj) {
           return obj.state === currentState;
         }), _stateMap$filter2 = _slicedToArray(_stateMap$filter, 1), currentObj = _stateMap$filter2[0], _stateMap$filter), currentObj);
       }
 
       if ($$self.$$.dirty[0] &
       /*currentObj*/
-      1024) {
-         $$invalidate(2, title = currentObj.title);
+      8192) {
+         $$invalidate(4, title = currentObj.title);
       }
 
       if ($$self.$$.dirty[0] &
       /*currentObj*/
-      1024) {
-         $$invalidate(3, component = currentObj.component);
+      8192) {
+         $$invalidate(5, component = currentObj.component);
       }
     };
 
-    return [currentState, loading, title, component, logout, createHIT, initMTurk, accountBalance, cred, mturk, currentObj, stateMap, click_handler, click_handler_1, click_handler_2];
+    return [currentState, loading, mturkReady, sandbox, title, component, logout, createHIT, initMTurk, accountBalance, cred, mturk, endpoint, currentObj, stateMap, input_change_handler, click_handler, click_handler_1, click_handler_2];
   }
 
   var AdminPanel =
@@ -29981,7 +30101,7 @@ var app = (function () {
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(AdminPanel).call(this, options));
       init(_assertThisInitialized(_this), options, instance$3, create_fragment$5, safe_not_equal, {
-        cred: 8
+        cred: 10
       });
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
@@ -29994,7 +30114,7 @@ var app = (function () {
 
       if (
       /*cred*/
-      ctx[8] === undefined && !("cred" in props)) {
+      ctx[10] === undefined && !("cred" in props)) {
         console_1.warn("<AdminPanel> was created without expected prop 'cred'");
       }
 
@@ -30149,7 +30269,7 @@ var app = (function () {
   } // (30:0) {#if loading}
 
 
-  function create_if_block$1(ctx) {
+  function create_if_block$2(ctx) {
     var current;
     var loading_1 = new Loading({
       props: {
@@ -30199,7 +30319,7 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_if_block$1.name,
+      id: create_if_block$2.name,
       type: "if",
       source: "(30:0) {#if loading}",
       ctx: ctx
@@ -30236,7 +30356,7 @@ var app = (function () {
     var if_block;
     var if_block_anchor;
     var current;
-    var if_block_creators = [create_if_block$1, create_if_block_1$1, create_else_block];
+    var if_block_creators = [create_if_block$2, create_if_block_1$1, create_else_block];
     var if_blocks = [];
 
     function select_block_type(ctx, dirty) {
