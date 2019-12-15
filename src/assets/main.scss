@@ -1,0 +1,22 @@
+// Use this file to make alteration to Bulma's default variables
+@charset "utf-8";
+
+// Set personal colors from https://coolors.co/eac435-345995-03cea4-fb4d3d-d90429
+
+$saffron: #EAC435;
+$bdazzled_blue: #345995;
+$caribbean_green: #03CEA4;
+$tart_orange: #FB4D3D;
+$medium_candy_apply_red: #D90429;
+
+// Override bulma component defaults
+// Tabs
+$tabs-link-hover-border-bottom-color: hsl(0, 0%, 86%);
+$tabs-link-active-border-bottom-color: $medium_candy_apply_red;
+$tabs-link-hover-color: $medium_candy_apply_red;
+$tabs-border-bottom-width: 2px;
+$tabs-link-active-color: hsl(0, 0%, 29%);
+$has-text-link: $bdazzled_blue;
+
+// Finally import bulma *after* customization
+@import "~bulma/bulma.sass"
