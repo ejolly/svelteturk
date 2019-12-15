@@ -90,15 +90,13 @@
     return `${month}/${day}/${year} - ${hours}:${minutes}${ampm}`;
   };
   onMount(async () => {
-    try {
-      const query = await db.ref('participants').once('value');
-      query.forEach((doc) => {
+    db.ref('participants').on('value', (snapshot) => {
+      participants = [];
+      snapshot.forEach((doc) => {
         participants.push(doc.val());
       });
       participants = participants;
-    } catch (error) {
-      console.error(error);
-    }
+    });
   });
 </script>
 
