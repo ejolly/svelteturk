@@ -27913,20 +27913,84 @@ var app = (function () {
     });
   }
 
+  var $includes = arrayIncludes.includes;
+
+
+  // `Array.prototype.includes` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.includes
+  _export({ target: 'Array', proto: true }, {
+    includes: function includes(el /* , fromIndex = 0 */) {
+      return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables('includes');
+
+  var TO_STRING$1 = 'toString';
+  var RegExpPrototype = RegExp.prototype;
+  var nativeToString = RegExpPrototype[TO_STRING$1];
+
+  var NOT_GENERIC = fails(function () { return nativeToString.call({ source: 'a', flags: 'b' }) != '/a/b'; });
+  // FF44- RegExp#toString has a wrong name
+  var INCORRECT_NAME = nativeToString.name != TO_STRING$1;
+
+  // `RegExp.prototype.toString` method
+  // https://tc39.github.io/ecma262/#sec-regexp.prototype.tostring
+  if (NOT_GENERIC || INCORRECT_NAME) {
+    redefine(RegExp.prototype, TO_STRING$1, function toString() {
+      var R = anObject(this);
+      var p = String(R.source);
+      var rf = R.flags;
+      var f = String(rf === undefined && R instanceof RegExp && !('flags' in RegExpPrototype) ? regexpFlags.call(R) : rf);
+      return '/' + p + '/' + f;
+    }, { unsafe: true });
+  }
+
+  var notARegexp = function (it) {
+    if (isRegexp(it)) {
+      throw TypeError("The method doesn't accept regular expressions");
+    } return it;
+  };
+
+  var MATCH$1 = wellKnownSymbol('match');
+
+  var correctIsRegexpLogic = function (METHOD_NAME) {
+    var regexp = /./;
+    try {
+      '/./'[METHOD_NAME](regexp);
+    } catch (e) {
+      try {
+        regexp[MATCH$1] = false;
+        return '/./'[METHOD_NAME](regexp);
+      } catch (f) { /* empty */ }
+    } return false;
+  };
+
+  // `String.prototype.includes` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
+  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
+    includes: function includes(searchString /* , position = 0 */) {
+      return !!~String(requireObjectCoercible(this))
+        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var console_1 = globals.console;
   var file$3 = "src/components/CreateHIT.svelte";
 
   function get_each_context(ctx, list, i) {
     var child_ctx = ctx.slice();
-    child_ctx[23] = list[i];
+    child_ctx[25] = list[i];
     return child_ctx;
-  } // (128:16) {#each qualifications as qual}
+  } // (212:16) {#each qualifications as qual}
 
 
   function create_each_block(ctx) {
     var option;
     var t_value =
     /*qual*/
-    ctx[23] + "";
+    ctx[25] + "";
     var t;
     var option_value_value;
     var block = {
@@ -27935,9 +27999,9 @@ var app = (function () {
         t = text(t_value);
         option.__value = option_value_value =
         /*qual*/
-        ctx[23];
+        ctx[25];
         option.value = option.__value;
-        add_location(option, file$3, 128, 18, 4115);
+        add_location(option, file$3, 212, 18, 7133);
       },
       m: function mount(target, anchor) {
         insert_dev(target, option, anchor);
@@ -27952,14 +28016,14 @@ var app = (function () {
       block: block,
       id: create_each_block.name,
       type: "each",
-      source: "(128:16) {#each qualifications as qual}",
+      source: "(212:16) {#each qualifications as qual}",
       ctx: ctx
     });
     return block;
   }
 
   function create_fragment$3(ctx) {
-    var div38;
+    var div41;
     var form;
     var div9;
     var div2;
@@ -28047,11 +28111,16 @@ var app = (function () {
     var div30;
     var textarea;
     var t41;
-    var div37;
+    var div40;
     var div36;
     var div35;
     var div34;
-    var button;
+    var button0;
+    var t43;
+    var div39;
+    var div38;
+    var div37;
+    var button1;
     var dispose;
     var each_value =
     /*qualifications*/
@@ -28064,7 +28133,7 @@ var app = (function () {
 
     var block = {
       c: function create() {
-        div38 = element("div");
+        div41 = element("div");
         form = element("form");
         div9 = element("div");
         div2 = element("div");
@@ -28173,192 +28242,208 @@ var app = (function () {
         div30 = element("div");
         textarea = element("textarea");
         t41 = space();
-        div37 = element("div");
+        div40 = element("div");
         div36 = element("div");
         div35 = element("div");
         div34 = element("div");
-        button = element("button");
-        button.textContent = "Create HIT";
+        button0 = element("button");
+        button0.textContent = "Create HIT";
+        t43 = space();
+        div39 = element("div");
+        div38 = element("div");
+        div37 = element("div");
+        button1 = element("button");
+        button1.textContent = "Test";
         attr_dev(label0, "class", "label");
-        add_location(label0, file$3, 49, 10, 1356);
+        add_location(label0, file$3, 133, 10, 4374);
         attr_dev(input0, "type", "text");
         attr_dev(input0, "class", "input");
         input0.required = true;
-        add_location(input0, file$3, 51, 12, 1435);
+        add_location(input0, file$3, 135, 12, 4453);
         attr_dev(div0, "class", "control");
-        add_location(div0, file$3, 50, 10, 1401);
+        add_location(div0, file$3, 134, 10, 4419);
         attr_dev(div1, "class", "field");
-        add_location(div1, file$3, 48, 8, 1326);
+        add_location(div1, file$3, 132, 8, 4344);
         attr_dev(div2, "class", "column");
-        add_location(div2, file$3, 47, 6, 1297);
+        add_location(div2, file$3, 131, 6, 4315);
         attr_dev(label1, "class", "label");
-        add_location(label1, file$3, 57, 10, 1609);
+        add_location(label1, file$3, 141, 10, 4627);
         attr_dev(input1, "type", "text");
         attr_dev(input1, "class", "input");
         input1.required = true;
-        add_location(input1, file$3, 59, 12, 1691);
+        add_location(input1, file$3, 143, 12, 4709);
         attr_dev(p0, "class", "help");
-        add_location(p0, file$3, 60, 12, 1770);
+        add_location(p0, file$3, 144, 12, 4788);
         attr_dev(div3, "class", "control");
-        add_location(div3, file$3, 58, 10, 1657);
+        add_location(div3, file$3, 142, 10, 4675);
         attr_dev(div4, "class", "field");
-        add_location(div4, file$3, 56, 8, 1579);
+        add_location(div4, file$3, 140, 8, 4597);
         attr_dev(div5, "class", "column");
-        add_location(div5, file$3, 55, 6, 1550);
+        add_location(div5, file$3, 139, 6, 4568);
         attr_dev(label2, "class", "label");
-        add_location(label2, file$3, 66, 10, 1931);
+        add_location(label2, file$3, 150, 10, 4949);
         attr_dev(input2, "type", "text");
         attr_dev(input2, "class", "input");
         input2.required = true;
-        add_location(input2, file$3, 68, 12, 2019);
+        add_location(input2, file$3, 152, 12, 5037);
         attr_dev(div6, "class", "control");
-        add_location(div6, file$3, 67, 10, 1985);
+        add_location(div6, file$3, 151, 10, 5003);
         attr_dev(div7, "class", "field");
-        add_location(div7, file$3, 65, 8, 1901);
+        add_location(div7, file$3, 149, 8, 4919);
         attr_dev(div8, "class", "column");
-        add_location(div8, file$3, 64, 6, 1872);
+        add_location(div8, file$3, 148, 6, 4890);
         attr_dev(div9, "class", "columns");
-        add_location(div9, file$3, 46, 4, 1269);
+        add_location(div9, file$3, 130, 4, 4287);
         attr_dev(label3, "class", "label");
-        add_location(label3, file$3, 76, 10, 2236);
+        add_location(label3, file$3, 160, 10, 5254);
         attr_dev(input3, "type", "text");
         attr_dev(input3, "class", "input");
         input3.required = true;
-        add_location(input3, file$3, 78, 12, 2316);
+        add_location(input3, file$3, 162, 12, 5334);
         attr_dev(p1, "class", "help");
-        add_location(p1, file$3, 79, 12, 2393);
+        add_location(p1, file$3, 163, 12, 5411);
         attr_dev(div10, "class", "control");
-        add_location(div10, file$3, 77, 10, 2282);
+        add_location(div10, file$3, 161, 10, 5300);
         attr_dev(div11, "class", "field");
-        add_location(div11, file$3, 75, 8, 2206);
+        add_location(div11, file$3, 159, 8, 5224);
         attr_dev(div12, "class", "column");
-        add_location(div12, file$3, 74, 6, 2177);
+        add_location(div12, file$3, 158, 6, 5195);
         attr_dev(label4, "class", "label");
-        add_location(label4, file$3, 85, 10, 2539);
+        add_location(label4, file$3, 169, 10, 5557);
         attr_dev(input4, "type", "text");
         attr_dev(input4, "class", "input");
         input4.required = true;
-        add_location(input4, file$3, 87, 12, 2627);
+        add_location(input4, file$3, 171, 12, 5645);
         attr_dev(p2, "class", "help");
-        add_location(p2, file$3, 88, 12, 2715);
+        add_location(p2, file$3, 172, 12, 5733);
         attr_dev(div13, "class", "control");
-        add_location(div13, file$3, 86, 10, 2593);
+        add_location(div13, file$3, 170, 10, 5611);
         attr_dev(div14, "class", "field");
-        add_location(div14, file$3, 84, 8, 2509);
+        add_location(div14, file$3, 168, 8, 5527);
         attr_dev(div15, "class", "column");
-        add_location(div15, file$3, 83, 6, 2480);
+        add_location(div15, file$3, 167, 6, 5498);
         attr_dev(label5, "class", "label");
-        add_location(label5, file$3, 94, 10, 2856);
+        add_location(label5, file$3, 178, 10, 5874);
         attr_dev(input5, "type", "text");
         attr_dev(input5, "class", "input");
         input5.required = true;
-        add_location(input5, file$3, 96, 12, 2938);
+        add_location(input5, file$3, 180, 12, 5956);
         attr_dev(p3, "class", "help");
-        add_location(p3, file$3, 97, 12, 3027);
+        add_location(p3, file$3, 181, 12, 6045);
         attr_dev(div16, "class", "control");
-        add_location(div16, file$3, 95, 10, 2904);
+        add_location(div16, file$3, 179, 10, 5922);
         attr_dev(div17, "class", "field");
-        add_location(div17, file$3, 93, 8, 2826);
+        add_location(div17, file$3, 177, 8, 5844);
         attr_dev(div18, "class", "column");
-        add_location(div18, file$3, 92, 6, 2797);
+        add_location(div18, file$3, 176, 6, 5815);
         attr_dev(label6, "class", "label");
-        add_location(label6, file$3, 103, 10, 3182);
+        add_location(label6, file$3, 187, 10, 6200);
         attr_dev(input6, "type", "text");
         attr_dev(input6, "class", "input");
         input6.required = true;
-        add_location(input6, file$3, 105, 12, 3264);
+        add_location(input6, file$3, 189, 12, 6282);
         attr_dev(p4, "class", "help");
-        add_location(p4, file$3, 106, 12, 3343);
+        add_location(p4, file$3, 190, 12, 6361);
         attr_dev(div19, "class", "control");
-        add_location(div19, file$3, 104, 10, 3230);
+        add_location(div19, file$3, 188, 10, 6248);
         attr_dev(div20, "class", "field");
-        add_location(div20, file$3, 102, 8, 3152);
+        add_location(div20, file$3, 186, 8, 6170);
         attr_dev(div21, "class", "column");
-        add_location(div21, file$3, 101, 6, 3123);
+        add_location(div21, file$3, 185, 6, 6141);
         attr_dev(label7, "class", "label");
-        add_location(label7, file$3, 112, 10, 3484);
+        add_location(label7, file$3, 196, 10, 6502);
         attr_dev(input7, "type", "text");
         attr_dev(input7, "class", "input");
         input7.required = true;
-        add_location(input7, file$3, 114, 12, 3573);
+        add_location(input7, file$3, 198, 12, 6591);
         attr_dev(p5, "class", "help");
-        add_location(p5, file$3, 115, 12, 3658);
+        add_location(p5, file$3, 199, 12, 6676);
         attr_dev(div22, "class", "control");
-        add_location(div22, file$3, 113, 10, 3539);
+        add_location(div22, file$3, 197, 10, 6557);
         attr_dev(div23, "class", "field");
-        add_location(div23, file$3, 111, 8, 3454);
+        add_location(div23, file$3, 195, 8, 6472);
         attr_dev(div24, "class", "column");
-        add_location(div24, file$3, 110, 6, 3425);
+        add_location(div24, file$3, 194, 6, 6443);
         attr_dev(div25, "class", "columns");
-        add_location(div25, file$3, 73, 4, 2149);
+        add_location(div25, file$3, 157, 4, 5167);
         attr_dev(label8, "class", "label");
-        add_location(label8, file$3, 123, 10, 3860);
+        add_location(label8, file$3, 207, 10, 6878);
         select.multiple = true;
         if (
         /*selectedQuals*/
         ctx[9] === void 0) add_render_callback(function () {
           return (
             /*select_change_handler*/
-            ctx[21].call(select)
+            ctx[23].call(select)
           );
         });
-        add_location(select, file$3, 126, 14, 4005);
+        add_location(select, file$3, 210, 14, 7023);
         attr_dev(div26, "class", "select is-multiple minheight svelte-18l2pvj");
-        add_location(div26, file$3, 125, 12, 3948);
+        add_location(div26, file$3, 209, 12, 6966);
         attr_dev(div27, "class", "control");
-        add_location(div27, file$3, 124, 10, 3914);
+        add_location(div27, file$3, 208, 10, 6932);
         attr_dev(div28, "class", "field");
-        add_location(div28, file$3, 122, 8, 3830);
+        add_location(div28, file$3, 206, 8, 6848);
         attr_dev(div29, "class", "column is-narrow");
-        add_location(div29, file$3, 121, 6, 3791);
+        add_location(div29, file$3, 205, 6, 6809);
         attr_dev(label9, "class", "label");
-        add_location(label9, file$3, 137, 10, 4329);
+        add_location(label9, file$3, 221, 10, 7347);
         attr_dev(textarea, "class", "textarea minheight svelte-18l2pvj");
         attr_dev(textarea, "placeholder", "");
         textarea.required = true;
-        add_location(textarea, file$3, 139, 12, 4414);
+        add_location(textarea, file$3, 223, 12, 7432);
         attr_dev(div30, "class", "control");
-        add_location(div30, file$3, 138, 10, 4380);
+        add_location(div30, file$3, 222, 10, 7398);
         attr_dev(div31, "class", "field");
-        add_location(div31, file$3, 136, 8, 4299);
+        add_location(div31, file$3, 220, 8, 7317);
         attr_dev(div32, "class", "column");
-        add_location(div32, file$3, 135, 6, 4270);
+        add_location(div32, file$3, 219, 6, 7288);
         attr_dev(div33, "class", "columns");
-        add_location(div33, file$3, 120, 4, 3763);
-        attr_dev(button, "class", "button is-success");
-        add_location(button, file$3, 148, 12, 4684);
+        add_location(div33, file$3, 204, 4, 6781);
+        attr_dev(button0, "class", "button is-success");
+        add_location(button0, file$3, 232, 12, 7702);
         attr_dev(div34, "class", "control");
-        add_location(div34, file$3, 147, 10, 4650);
+        add_location(div34, file$3, 231, 10, 7668);
         attr_dev(div35, "class", "field");
-        add_location(div35, file$3, 146, 8, 4620);
+        add_location(div35, file$3, 230, 8, 7638);
         attr_dev(div36, "class", "column");
-        add_location(div36, file$3, 145, 6, 4591);
-        attr_dev(div37, "class", "columns");
-        add_location(div37, file$3, 144, 4, 4563);
-        add_location(form, file$3, 45, 2, 1221);
-        attr_dev(div38, "class", "container");
-        add_location(div38, file$3, 44, 0, 1195);
+        add_location(div36, file$3, 229, 6, 7609);
+        attr_dev(button1, "class", "button is-success");
+        add_location(button1, file$3, 239, 12, 7900);
+        attr_dev(div37, "class", "control");
+        add_location(div37, file$3, 238, 10, 7866);
+        attr_dev(div38, "class", "field");
+        add_location(div38, file$3, 237, 8, 7836);
+        attr_dev(div39, "class", "column");
+        add_location(div39, file$3, 236, 6, 7807);
+        attr_dev(div40, "class", "columns");
+        add_location(div40, file$3, 228, 4, 7581);
+        add_location(form, file$3, 129, 2, 4239);
+        attr_dev(div41, "class", "container");
+        add_location(div41, file$3, 128, 0, 4213);
         dispose = [listen_dev(input0, "input",
         /*input0_input_handler*/
-        ctx[13]), listen_dev(input1, "input",
+        ctx[15]), listen_dev(input1, "input",
         /*input1_input_handler*/
-        ctx[14]), listen_dev(input2, "input",
+        ctx[16]), listen_dev(input2, "input",
         /*input2_input_handler*/
-        ctx[15]), listen_dev(input3, "input",
+        ctx[17]), listen_dev(input3, "input",
         /*input3_input_handler*/
-        ctx[16]), listen_dev(input4, "input",
+        ctx[18]), listen_dev(input4, "input",
         /*input4_input_handler*/
-        ctx[17]), listen_dev(input5, "input",
+        ctx[19]), listen_dev(input5, "input",
         /*input5_input_handler*/
-        ctx[18]), listen_dev(input6, "input",
+        ctx[20]), listen_dev(input6, "input",
         /*input6_input_handler*/
-        ctx[19]), listen_dev(input7, "input",
+        ctx[21]), listen_dev(input7, "input",
         /*input7_input_handler*/
-        ctx[20]), listen_dev(select, "change",
+        ctx[22]), listen_dev(select, "change",
         /*select_change_handler*/
-        ctx[21]), listen_dev(textarea, "input",
+        ctx[23]), listen_dev(textarea, "input",
         /*textarea_input_handler*/
-        ctx[22]), listen_dev(form, "submit", prevent_default(
+        ctx[24]), listen_dev(button1, "click", prevent_default(
+        /*test*/
+        ctx[12]), false, true, false), listen_dev(form, "submit", prevent_default(
         /*createHIT*/
         ctx[11]), false, true, false)];
       },
@@ -28366,8 +28451,8 @@ var app = (function () {
         throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
       },
       m: function mount(target, anchor) {
-        insert_dev(target, div38, anchor);
-        append_dev(div38, form);
+        insert_dev(target, div41, anchor);
+        append_dev(div41, form);
         append_dev(form, div9);
         append_dev(div9, div2);
         append_dev(div2, div1);
@@ -28489,11 +28574,16 @@ var app = (function () {
         /*description*/
         ctx[1]);
         append_dev(form, t41);
-        append_dev(form, div37);
-        append_dev(div37, div36);
+        append_dev(form, div40);
+        append_dev(div40, div36);
         append_dev(div36, div35);
         append_dev(div35, div34);
-        append_dev(div34, button);
+        append_dev(div34, button0);
+        append_dev(div40, t43);
+        append_dev(div40, div39);
+        append_dev(div39, div38);
+        append_dev(div38, div37);
+        append_dev(div37, button1);
       },
       p: function update(ctx, dirty) {
         if (dirty[0] &
@@ -28625,7 +28715,7 @@ var app = (function () {
       i: noop,
       o: noop,
       d: function destroy(detaching) {
-        if (detaching) detach_dev(div38);
+        if (detaching) detach_dev(div41);
         destroy_each(each_blocks, detaching);
         run_all(dispose);
       }
@@ -28641,6 +28731,7 @@ var app = (function () {
   }
 
   function instance$1($$self, $$props, $$invalidate) {
+    var mturk = $$props.mturk;
     var assignmentDuration = 3600;
     var description = "";
     var lifetime = 86400;
@@ -28648,26 +28739,131 @@ var app = (function () {
     var title = "";
     var autoApprovalDelay = 10;
     var keywords = "research,experiment";
-    var maxAssignments = 5;
-    var externalURL = "https://something-autogenerated.netlify.com";
-    var selectedQuals = [];
-    var qualifications = ["> 95% Approval", "Adult only", "US Only", "Masters"];
+    var maxAssignments = 2;
+    var externalURL = "https://jovial-murdock-ae4d0b.netlify.com/";
+    var selectedQuals = ["--Unselect All--"];
+    var qualifications = ["--Unselect All--", "> 95% Approval", "Adult only", "US Only", "Masters"];
 
     var createHIT = function createHIT() {
+      var resp;
       return regeneratorRuntime.async(function createHIT$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
               console.log("create HIT");
-              console.log(assignmentDuration, description, lifetime, reward, title, autoApprovalDelay, keywords, maxAssignments);
+              _context.prev = 1;
+              _context.next = 4;
+              return regeneratorRuntime.awrap(mturk.createHIT({
+                AssignmentDurationInSeconds: assignmentDuration,
+                Description: description,
+                LifetimeInSeconds: lifetime,
+                Reward: reward,
+                Title: title,
+                AutoApprovalDelayInSeconds: autoApprovalDelay,
+                Keywords: keywords,
+                MaxAssignments: maxAssignments,
+                Question: externalQuestion
+              }).promise());
 
-            case 2:
+            case 4:
+              resp = _context.sent;
+              _context.next = 7;
+              return regeneratorRuntime.awrap(db.ref("hits/".concat(resp.HIT.HITId)).set({
+                HITId: resp.HIT.HITId,
+                HITTypeId: resp.HIT.HITTypeId,
+                CreationTIme: resp.HIT.CreationTime.toString(),
+                Title: resp.HIT.Title,
+                Description: resp.HIT.Description,
+                Keywords: resp.HIT.Keywords,
+                HITStatus: resp.HIT.HITStatus,
+                MaxAssignments: resp.HIT.MaxAssignments,
+                Reward: resp.HIT.Reward,
+                AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
+                Expiration: resp.HIT.Expiration.toString(),
+                AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
+                HITReviewStatus: resp.HIT.HITReviewStatus,
+                NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
+                NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
+                NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted
+              }));
+
+            case 7:
+              toast.toast({
+                message: "HIT successfully created: ".concat(resp.HIT.HITId),
+                type: "is-success",
+                position: "top-center",
+                pauseonHover: true,
+                dismissible: true,
+                duration: 5000,
+                animate: {
+                  in: "fadeInDown",
+                  out: "fadeOutUp"
+                }
+              });
+              window.x = resp.HIT.CreationTime;
+              _context.next = 15;
+              break;
+
+            case 11:
+              _context.prev = 11;
+              _context.t0 = _context["catch"](1);
+              toast.toast({
+                message: "".concat(_context.t0),
+                type: "is-danger",
+                position: "top-center",
+                pauseonHover: true,
+                dismissible: true,
+                duration: 5000,
+                animate: {
+                  in: "fadeInDown",
+                  out: "fadeOutUp"
+                }
+              });
+              console.error(_context.t0);
+
+            case 15:
             case "end":
               return _context.stop();
           }
         }
-      });
+      }, null, null, [[1, 11]]);
     };
+
+    var test = function test() {
+      var resp;
+      return regeneratorRuntime.async(function test$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _context2.prev = 0;
+              _context2.next = 3;
+              return regeneratorRuntime.awrap(mturk.getHIT({
+                HITId: "3TZ0XG8CBUEU4B7DXAODGY7MD7M98N"
+              }).promise());
+
+            case 3:
+              resp = _context2.sent;
+              console.log(resp);
+              _context2.next = 10;
+              break;
+
+            case 7:
+              _context2.prev = 7;
+              _context2.t0 = _context2["catch"](0);
+              console.error(_context2.t0);
+
+            case 10:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, null, null, [[0, 7]]);
+    };
+
+    var writable_props = ["mturk"];
+    Object.keys($$props).forEach(function (key) {
+      if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn("<CreateHIT> was created with unknown prop '".concat(key, "'"));
+    });
 
     function input0_input_handler() {
       title = this.value;
@@ -28720,11 +28916,29 @@ var app = (function () {
       $$invalidate(1, description);
     }
 
+    $$self.$set = function ($$props) {
+      if ("mturk" in $$props) $$invalidate(13, mturk = $$props.mturk);
+    };
+
     $$self.$capture_state = function () {
-      return {};
+      return {
+        mturk: mturk,
+        assignmentDuration: assignmentDuration,
+        description: description,
+        lifetime: lifetime,
+        reward: reward,
+        title: title,
+        autoApprovalDelay: autoApprovalDelay,
+        keywords: keywords,
+        maxAssignments: maxAssignments,
+        externalURL: externalURL,
+        selectedQuals: selectedQuals,
+        externalQuestion: externalQuestion
+      };
     };
 
     $$self.$inject_state = function ($$props) {
+      if ("mturk" in $$props) $$invalidate(13, mturk = $$props.mturk);
       if ("assignmentDuration" in $$props) $$invalidate(0, assignmentDuration = $$props.assignmentDuration);
       if ("description" in $$props) $$invalidate(1, description = $$props.description);
       if ("lifetime" in $$props) $$invalidate(2, lifetime = $$props.lifetime);
@@ -28742,13 +28956,23 @@ var app = (function () {
 
     $$self.$$.update = function () {
       if ($$self.$$.dirty[0] &
+      /*selectedQuals*/
+      512) {
+         {
+          if (selectedQuals.includes("--Unselect All--")) {
+            $$invalidate(9, selectedQuals = []);
+          }
+        }
+      }
+
+      if ($$self.$$.dirty[0] &
       /*externalURL*/
       256) {
-         externalQuestion = "\n  <ExternalQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd\">\n  <ExternalURL>".concat(externalURL, "</ExternalURL>\n  <FrameHeight>300</FrameHeight>\n  </ExternalQuestion>");
+         externalQuestion = "\n  <ExternalQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd\">\n  <ExternalURL>".concat(externalURL, "</ExternalURL>\n  <FrameHeight>900</FrameHeight>\n  </ExternalQuestion>");
       }
     };
 
-    return [assignmentDuration, description, lifetime, reward, title, autoApprovalDelay, keywords, maxAssignments, externalURL, selectedQuals, qualifications, createHIT, externalQuestion, input0_input_handler, input1_input_handler, input2_input_handler, input3_input_handler, input4_input_handler, input5_input_handler, input6_input_handler, input7_input_handler, select_change_handler, textarea_input_handler];
+    return [assignmentDuration, description, lifetime, reward, title, autoApprovalDelay, keywords, maxAssignments, externalURL, selectedQuals, qualifications, createHIT, test, mturk, externalQuestion, input0_input_handler, input1_input_handler, input2_input_handler, input3_input_handler, input4_input_handler, input5_input_handler, input6_input_handler, input7_input_handler, select_change_handler, textarea_input_handler];
   }
 
   var CreateHIT =
@@ -28762,15 +28986,36 @@ var app = (function () {
       _classCallCheck(this, CreateHIT);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(CreateHIT).call(this, options));
-      init(_assertThisInitialized(_this), options, instance$1, create_fragment$3, safe_not_equal, {});
+      init(_assertThisInitialized(_this), options, instance$1, create_fragment$3, safe_not_equal, {
+        mturk: 13
+      });
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
         tagName: "CreateHIT",
         options: options,
         id: create_fragment$3.name
       });
+      var ctx = _this.$$.ctx;
+      var props = options.props || {};
+
+      if (
+      /*mturk*/
+      ctx[13] === undefined && !("mturk" in props)) {
+        console_1.warn("<CreateHIT> was created without expected prop 'mturk'");
+      }
+
       return _this;
     }
+
+    _createClass(CreateHIT, [{
+      key: "mturk",
+      get: function get() {
+        throw new Error("<CreateHIT>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+      },
+      set: function set(value) {
+        throw new Error("<CreateHIT>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+      }
+    }]);
 
     return CreateHIT;
   }(SvelteComponentDev);
@@ -28779,13 +29024,125 @@ var app = (function () {
   // https://tc39.github.io/ecma262/#sec-symbol.iterator
   defineWellKnownSymbol('iterator');
 
+  var propertyIsEnumerable = objectPropertyIsEnumerable.f;
+
+  // `Object.{ entries, values }` methods implementation
+  var createMethod$3 = function (TO_ENTRIES) {
+    return function (it) {
+      var O = toIndexedObject(it);
+      var keys = objectKeys(O);
+      var length = keys.length;
+      var i = 0;
+      var result = [];
+      var key;
+      while (length > i) {
+        key = keys[i++];
+        if (!descriptors || propertyIsEnumerable.call(O, key)) {
+          result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
+        }
+      }
+      return result;
+    };
+  };
+
+  var objectToArray = {
+    // `Object.entries` method
+    // https://tc39.github.io/ecma262/#sec-object.entries
+    entries: createMethod$3(true),
+    // `Object.values` method
+    // https://tc39.github.io/ecma262/#sec-object.values
+    values: createMethod$3(false)
+  };
+
+  var $values = objectToArray.values;
+
+  // `Object.values` method
+  // https://tc39.github.io/ecma262/#sec-object.values
+  _export({ target: 'Object', stat: true }, {
+    values: function values(O) {
+      return $values(O);
+    }
+  });
+
+  // `SameValue` abstract operation
+  // https://tc39.github.io/ecma262/#sec-samevalue
+  var sameValue = Object.is || function is(x, y) {
+    // eslint-disable-next-line no-self-compare
+    return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+  };
+
+  // @@search logic
+  fixRegexpWellKnownSymbolLogic('search', 1, function (SEARCH, nativeSearch, maybeCallNative) {
+    return [
+      // `String.prototype.search` method
+      // https://tc39.github.io/ecma262/#sec-string.prototype.search
+      function search(regexp) {
+        var O = requireObjectCoercible(this);
+        var searcher = regexp == undefined ? undefined : regexp[SEARCH];
+        return searcher !== undefined ? searcher.call(regexp, O) : new RegExp(regexp)[SEARCH](String(O));
+      },
+      // `RegExp.prototype[@@search]` method
+      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@search
+      function (regexp) {
+        var res = maybeCallNative(nativeSearch, regexp, this);
+        if (res.done) return res.value;
+
+        var rx = anObject(regexp);
+        var S = String(this);
+
+        var previousLastIndex = rx.lastIndex;
+        if (!sameValue(previousLastIndex, 0)) rx.lastIndex = 0;
+        var result = regexpExecAbstract(rx, S);
+        if (!sameValue(rx.lastIndex, previousLastIndex)) rx.lastIndex = previousLastIndex;
+        return result === null ? -1 : result.index;
+      }
+    ];
+  });
+
   var file$4 = "src/components/Participants.svelte";
 
   function get_each_context$1(ctx, list, i) {
     var child_ctx = ctx.slice();
-    child_ctx[4] = list[i];
+    child_ctx[11] = list[i];
     return child_ctx;
-  } // (148:10) {#each participants as participant}
+  } // (186:14) {#if search}
+
+
+  function create_if_block$1(ctx) {
+    var span;
+    var i;
+    var dispose;
+    var block = {
+      c: function create() {
+        span = element("span");
+        i = element("i");
+        attr_dev(i, "class", "fas fa-times");
+        add_location(i, file$4, 187, 18, 5217);
+        attr_dev(span, "class", "icon is-small is-right svelte-1qq3a4b");
+        add_location(span, file$4, 186, 16, 5138);
+        dispose = listen_dev(span, "click",
+        /*clearSearch*/
+        ctx[6], false, false, false);
+      },
+      m: function mount(target, anchor) {
+        insert_dev(target, span, anchor);
+        append_dev(span, i);
+      },
+      p: noop,
+      d: function destroy(detaching) {
+        if (detaching) detach_dev(span);
+        dispose();
+      }
+    };
+    dispatch_dev("SvelteRegisterBlock", {
+      block: block,
+      id: create_if_block$1.name,
+      type: "if",
+      source: "(186:14) {#if search}",
+      ctx: ctx
+    });
+    return block;
+  } // (210:10) {#each participantsFiltered as participant}
 
 
   function create_each_block$1(ctx) {
@@ -28793,41 +29150,44 @@ var app = (function () {
     var td0;
     var t0_value =
     /*participant*/
-    ctx[4].workerId + "";
+    ctx[11].workerId + "";
     var t0;
     var t1;
     var td1;
     var t2_value =
     /*participant*/
-    ctx[4].currentState + "";
+    ctx[11].currentState + "";
     var t2;
     var t3;
     var td2;
     var t4_value =
     /*participant*/
-    ctx[4].currentTrial + "";
+    ctx[11].currentTrial + "";
     var t4;
     var t5;
     var td3;
     var t6_value =
     /*formatDate*/
-    ctx[3](
+    ctx[4](
     /*participant*/
-    ctx[4].startTime) + "";
+    ctx[11].startTime) + "";
     var t6;
     var t7;
     var td4;
     var t8_value =
     /*participant*/
-    ctx[4].hitId + "";
+    ctx[11].hitId + "";
     var t8;
     var t9;
     var td5;
     var t10_value =
     /*participant*/
-    ctx[4].assignmentId + "";
+    ctx[11].assignmentId + "";
     var t10;
     var t11;
+    var td6;
+    var span;
+    var t13;
     var dispose;
     var block = {
       c: function create() {
@@ -28850,23 +29210,30 @@ var app = (function () {
         td5 = element("td");
         t10 = text(t10_value);
         t11 = space();
+        td6 = element("td");
+        span = element("span");
+        span.textContent = "Complete";
+        t13 = space();
         attr_dev(td0, "type", "text");
-        add_location(td0, file$4, 149, 14, 4190);
+        add_location(td0, file$4, 211, 14, 5868);
         attr_dev(td1, "type", "text");
-        add_location(td1, file$4, 150, 14, 4248);
+        add_location(td1, file$4, 212, 14, 5926);
         attr_dev(td2, "type", "number");
-        add_location(td2, file$4, 151, 14, 4310);
+        add_location(td2, file$4, 213, 14, 5988);
         attr_dev(td3, "type", "text");
-        add_location(td3, file$4, 152, 14, 4374);
+        add_location(td3, file$4, 214, 14, 6052);
         attr_dev(td4, "type", "text");
-        add_location(td4, file$4, 153, 14, 4445);
+        add_location(td4, file$4, 215, 14, 6123);
         attr_dev(td5, "type", "text");
-        add_location(td5, file$4, 154, 14, 4500);
+        add_location(td5, file$4, 216, 14, 6178);
+        attr_dev(span, "class", "tag is-primary status svelte-1qq3a4b");
+        add_location(span, file$4, 218, 16, 6261);
+        add_location(td6, file$4, 217, 14, 6240);
         attr_dev(tr, "class", "table-row");
-        add_location(tr, file$4, 148, 12, 4132);
+        add_location(tr, file$4, 210, 12, 5810);
         dispose = listen_dev(tr, "click",
         /*selectRow*/
-        ctx[2], false, false, false);
+        ctx[3], false, false, false);
       },
       m: function mount(target, anchor) {
         insert_dev(target, tr, anchor);
@@ -28888,40 +29255,43 @@ var app = (function () {
         append_dev(tr, td5);
         append_dev(td5, t10);
         append_dev(tr, t11);
+        append_dev(tr, td6);
+        append_dev(td6, span);
+        append_dev(tr, t13);
       },
       p: function update(ctx, dirty) {
         if (dirty[0] &
-        /*participants*/
-        1 && t0_value !== (t0_value =
+        /*participantsFiltered*/
+        4 && t0_value !== (t0_value =
         /*participant*/
-        ctx[4].workerId + "")) set_data_dev(t0, t0_value);
+        ctx[11].workerId + "")) set_data_dev(t0, t0_value);
         if (dirty[0] &
-        /*participants*/
-        1 && t2_value !== (t2_value =
+        /*participantsFiltered*/
+        4 && t2_value !== (t2_value =
         /*participant*/
-        ctx[4].currentState + "")) set_data_dev(t2, t2_value);
+        ctx[11].currentState + "")) set_data_dev(t2, t2_value);
         if (dirty[0] &
-        /*participants*/
-        1 && t4_value !== (t4_value =
+        /*participantsFiltered*/
+        4 && t4_value !== (t4_value =
         /*participant*/
-        ctx[4].currentTrial + "")) set_data_dev(t4, t4_value);
+        ctx[11].currentTrial + "")) set_data_dev(t4, t4_value);
         if (dirty[0] &
-        /*participants*/
-        1 && t6_value !== (t6_value =
+        /*participantsFiltered*/
+        4 && t6_value !== (t6_value =
         /*formatDate*/
-        ctx[3](
+        ctx[4](
         /*participant*/
-        ctx[4].startTime) + "")) set_data_dev(t6, t6_value);
+        ctx[11].startTime) + "")) set_data_dev(t6, t6_value);
         if (dirty[0] &
-        /*participants*/
-        1 && t8_value !== (t8_value =
+        /*participantsFiltered*/
+        4 && t8_value !== (t8_value =
         /*participant*/
-        ctx[4].hitId + "")) set_data_dev(t8, t8_value);
+        ctx[11].hitId + "")) set_data_dev(t8, t8_value);
         if (dirty[0] &
-        /*participants*/
-        1 && t10_value !== (t10_value =
+        /*participantsFiltered*/
+        4 && t10_value !== (t10_value =
         /*participant*/
-        ctx[4].assignmentId + "")) set_data_dev(t10, t10_value);
+        ctx[11].assignmentId + "")) set_data_dev(t10, t10_value);
       },
       d: function destroy(detaching) {
         if (detaching) detach_dev(tr);
@@ -28932,62 +29302,77 @@ var app = (function () {
       block: block,
       id: create_each_block$1.name,
       type: "each",
-      source: "(148:10) {#each participants as participant}",
+      source: "(210:10) {#each participantsFiltered as participant}",
       ctx: ctx
     });
     return block;
   }
 
   function create_fragment$4(ctx) {
-    var div7;
-    var div4;
+    var div6;
     var div3;
-    var div0;
-    var p0;
-    var strong;
-    var t1;
-    var t2_value =
-    /*participants*/
-    ctx[0].length + "";
-    var t2;
-    var t3;
     var div2;
     var div1;
-    var p1;
+    var div0;
+    var p0;
     var button0;
-    var t5;
-    var div6;
+    var t1;
     var div5;
-    var p2;
+    var div4;
+    var p1;
     var button1;
-    var t7;
-    var p3;
+    var t3;
+    var p2;
     var button2;
-    var t9;
+    var t5;
     var hr;
+    var t6;
+    var div15;
+    var div14;
+    var div12;
+    var div8;
+    var div7;
+    var p3;
+    var strong;
+    var t8;
+    var t9_value =
+    /*participantsFiltered*/
+    ctx[2].length + "";
+    var t9;
     var t10;
+    var div11;
     var div10;
     var div9;
-    var div8;
+    var p4;
+    var input;
+    var t11;
+    var t12;
+    var div13;
     var table;
     var thead;
     var tr;
     var th0;
-    var t12;
-    var th1;
     var t14;
-    var th2;
+    var th1;
     var t16;
-    var th3;
+    var th2;
     var t18;
-    var th4;
+    var th3;
     var t20;
-    var th5;
+    var th4;
     var t22;
+    var th5;
+    var t24;
+    var th6;
+    var t26;
     var tbody;
+    var dispose;
+    var if_block =
+    /*search*/
+    ctx[1] && create_if_block$1(ctx);
     var each_value =
-    /*participants*/
-    ctx[0];
+    /*participantsFiltered*/
+    ctx[2];
     var each_blocks = [];
 
     for (var i = 0; i < each_value.length; i += 1) {
@@ -28996,162 +29381,212 @@ var app = (function () {
 
     var block = {
       c: function create() {
-        div7 = element("div");
-        div4 = element("div");
+        div6 = element("div");
         div3 = element("div");
-        div0 = element("div");
-        p0 = element("p");
-        strong = element("strong");
-        strong.textContent = "Total Participants:";
-        t1 = space();
-        t2 = text(t2_value);
-        t3 = space();
         div2 = element("div");
         div1 = element("div");
-        p1 = element("p");
+        div0 = element("div");
+        p0 = element("p");
         button0 = element("button");
         button0.textContent = "Approve All HITs";
-        t5 = space();
-        div6 = element("div");
+        t1 = space();
         div5 = element("div");
-        p2 = element("p");
+        div4 = element("div");
+        p1 = element("p");
         button1 = element("button");
         button1.textContent = "End Experiment";
-        t7 = space();
-        p3 = element("p");
+        t3 = space();
+        p2 = element("p");
         button2 = element("button");
         button2.textContent = "Approve HIT";
-        t9 = space();
+        t5 = space();
         hr = element("hr");
+        t6 = space();
+        div15 = element("div");
+        div14 = element("div");
+        div12 = element("div");
+        div8 = element("div");
+        div7 = element("div");
+        p3 = element("p");
+        strong = element("strong");
+        strong.textContent = "Total Participants:";
+        t8 = space();
+        t9 = text(t9_value);
         t10 = space();
+        div11 = element("div");
         div10 = element("div");
         div9 = element("div");
-        div8 = element("div");
+        p4 = element("p");
+        input = element("input");
+        t11 = space();
+        if (if_block) if_block.c();
+        t12 = space();
+        div13 = element("div");
         table = element("table");
         thead = element("thead");
         tr = element("tr");
         th0 = element("th");
         th0.textContent = "Worker Id";
-        t12 = space();
+        t14 = space();
         th1 = element("th");
         th1.textContent = "Experiment State";
-        t14 = space();
+        t16 = space();
         th2 = element("th");
         th2.textContent = "Current Trial";
-        t16 = space();
+        t18 = space();
         th3 = element("th");
         th3.textContent = "Started HIT";
-        t18 = space();
+        t20 = space();
         th4 = element("th");
         th4.textContent = "HIT Id";
-        t20 = space();
+        t22 = space();
         th5 = element("th");
         th5.textContent = "Assignment Id";
-        t22 = space();
+        t24 = space();
+        th6 = element("th");
+        th6.textContent = "Status";
+        t26 = space();
         tbody = element("tbody");
 
         for (var _i = 0; _i < each_blocks.length; _i += 1) {
           each_blocks[_i].c();
         }
 
-        add_location(strong, file$4, 107, 10, 2992);
-        add_location(p0, file$4, 106, 8, 2978);
-        attr_dev(div0, "class", "column is-full");
-        add_location(div0, file$4, 105, 6, 2941);
         attr_dev(button0, "class", "button is-link");
-        add_location(button0, file$4, 114, 12, 3203);
-        attr_dev(p1, "class", "control");
-        add_location(p1, file$4, 113, 10, 3171);
-        attr_dev(div1, "class", "field is-grouped");
-        add_location(div1, file$4, 112, 8, 3130);
-        attr_dev(div2, "class", "column is-full");
-        add_location(div2, file$4, 111, 6, 3093);
-        attr_dev(div3, "class", "columns is-multiline");
-        add_location(div3, file$4, 104, 4, 2900);
-        attr_dev(div4, "class", "column has-text-left");
-        add_location(div4, file$4, 103, 2, 2861);
+        add_location(button0, file$4, 146, 12, 3984);
+        attr_dev(p0, "class", "control");
+        add_location(p0, file$4, 145, 10, 3952);
+        attr_dev(div0, "class", "field is-grouped");
+        add_location(div0, file$4, 144, 8, 3911);
+        attr_dev(div1, "class", "column is-full");
+        add_location(div1, file$4, 143, 6, 3874);
+        attr_dev(div2, "class", "columns");
+        add_location(div2, file$4, 142, 4, 3846);
+        attr_dev(div3, "class", "column has-text-left");
+        add_location(div3, file$4, 141, 2, 3807);
         attr_dev(button1, "class", "button is-danger");
-        add_location(button1, file$4, 123, 8, 3464);
-        attr_dev(p2, "class", "control");
-        add_location(p2, file$4, 122, 6, 3436);
+        add_location(button1, file$4, 155, 8, 4245);
+        attr_dev(p1, "class", "control");
+        add_location(p1, file$4, 154, 6, 4217);
         attr_dev(button2, "class", "button is-success");
-        add_location(button2, file$4, 126, 8, 3566);
-        attr_dev(p3, "class", "control");
-        add_location(p3, file$4, 125, 6, 3538);
-        attr_dev(div5, "class", "field is-grouped");
-        toggle_class(div5, "is-invisible", !
+        add_location(button2, file$4, 158, 8, 4347);
+        attr_dev(p2, "class", "control");
+        add_location(p2, file$4, 157, 6, 4319);
+        attr_dev(div4, "class", "field is-grouped");
+        toggle_class(div4, "is-invisible", !
         /*rowSelected*/
-        ctx[1]);
-        add_location(div5, file$4, 121, 4, 3365);
-        attr_dev(div6, "class", "column has-text-right");
-        add_location(div6, file$4, 120, 2, 3325);
-        attr_dev(div7, "class", "columns");
-        add_location(div7, file$4, 102, 0, 2837);
-        add_location(hr, file$4, 131, 0, 3659);
-        add_location(th0, file$4, 138, 12, 3837);
-        add_location(th1, file$4, 139, 12, 3868);
-        add_location(th2, file$4, 140, 12, 3906);
-        add_location(th3, file$4, 141, 12, 3941);
-        add_location(th4, file$4, 142, 12, 3974);
-        add_location(th5, file$4, 143, 12, 4002);
-        add_location(tr, file$4, 137, 10, 3820);
-        add_location(thead, file$4, 136, 8, 3802);
-        add_location(tbody, file$4, 146, 8, 4066);
+        ctx[0]);
+        add_location(div4, file$4, 153, 4, 4146);
+        attr_dev(div5, "class", "column has-text-right");
+        add_location(div5, file$4, 152, 2, 4106);
+        attr_dev(div6, "class", "columns");
+        add_location(div6, file$4, 140, 0, 3783);
+        add_location(hr, file$4, 163, 0, 4440);
+        add_location(strong, file$4, 170, 12, 4614);
+        add_location(p3, file$4, 169, 10, 4598);
+        attr_dev(div7, "class", "level-item");
+        add_location(div7, file$4, 168, 8, 4563);
+        attr_dev(div8, "class", "level-left");
+        add_location(div8, file$4, 167, 6, 4530);
+        attr_dev(input, "class", "input");
+        attr_dev(input, "type", "text");
+        attr_dev(input, "placeholder", "Find a participant");
+        add_location(input, file$4, 179, 14, 4893);
+        attr_dev(p4, "class", "control has-icons-right svelte-1qq3a4b");
+        add_location(p4, file$4, 178, 12, 4843);
+        attr_dev(div9, "class", "field");
+        add_location(div9, file$4, 177, 10, 4811);
+        attr_dev(div10, "class", "level-item");
+        add_location(div10, file$4, 176, 8, 4776);
+        attr_dev(div11, "class", "level-right");
+        add_location(div11, file$4, 175, 6, 4742);
+        attr_dev(div12, "class", "level");
+        add_location(div12, file$4, 166, 4, 4504);
+        add_location(th0, file$4, 199, 12, 5479);
+        add_location(th1, file$4, 200, 12, 5510);
+        add_location(th2, file$4, 201, 12, 5548);
+        add_location(th3, file$4, 202, 12, 5583);
+        add_location(th4, file$4, 203, 12, 5616);
+        add_location(th5, file$4, 204, 12, 5644);
+        add_location(th6, file$4, 205, 12, 5679);
+        add_location(tr, file$4, 198, 10, 5462);
+        add_location(thead, file$4, 197, 8, 5444);
+        add_location(tbody, file$4, 208, 8, 5736);
         attr_dev(table, "class", "table is-hoverable");
-        add_location(table, file$4, 135, 6, 3759);
-        attr_dev(div8, "class", "table-container");
-        add_location(div8, file$4, 134, 4, 3723);
-        attr_dev(div9, "class", "column is-full");
-        add_location(div9, file$4, 133, 2, 3690);
-        attr_dev(div10, "class", "columns");
-        add_location(div10, file$4, 132, 0, 3666);
+        add_location(table, file$4, 196, 6, 5401);
+        attr_dev(div13, "class", "table-container");
+        add_location(div13, file$4, 195, 4, 5365);
+        attr_dev(div14, "class", "column is-full");
+        add_location(div14, file$4, 165, 2, 4471);
+        attr_dev(div15, "class", "columns");
+        add_location(div15, file$4, 164, 0, 4447);
+        dispose = [listen_dev(input, "input",
+        /*input_input_handler*/
+        ctx[9]), listen_dev(input, "keyup",
+        /*keyup_handler*/
+        ctx[10], false, false, false)];
       },
       l: function claim(nodes) {
         throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
       },
       m: function mount(target, anchor) {
-        insert_dev(target, div7, anchor);
-        append_dev(div7, div4);
-        append_dev(div4, div3);
-        append_dev(div3, div0);
-        append_dev(div0, p0);
-        append_dev(p0, strong);
-        append_dev(p0, t1);
-        append_dev(p0, t2);
-        append_dev(div3, t3);
+        insert_dev(target, div6, anchor);
+        append_dev(div6, div3);
         append_dev(div3, div2);
         append_dev(div2, div1);
-        append_dev(div1, p1);
-        append_dev(p1, button0);
-        append_dev(div7, t5);
-        append_dev(div7, div6);
+        append_dev(div1, div0);
+        append_dev(div0, p0);
+        append_dev(p0, button0);
+        append_dev(div6, t1);
         append_dev(div6, div5);
-        append_dev(div5, p2);
-        append_dev(p2, button1);
-        append_dev(div5, t7);
-        append_dev(div5, p3);
-        append_dev(p3, button2);
-        insert_dev(target, t9, anchor);
+        append_dev(div5, div4);
+        append_dev(div4, p1);
+        append_dev(p1, button1);
+        append_dev(div4, t3);
+        append_dev(div4, p2);
+        append_dev(p2, button2);
+        insert_dev(target, t5, anchor);
         insert_dev(target, hr, anchor);
-        insert_dev(target, t10, anchor);
-        insert_dev(target, div10, anchor);
+        insert_dev(target, t6, anchor);
+        insert_dev(target, div15, anchor);
+        append_dev(div15, div14);
+        append_dev(div14, div12);
+        append_dev(div12, div8);
+        append_dev(div8, div7);
+        append_dev(div7, p3);
+        append_dev(p3, strong);
+        append_dev(p3, t8);
+        append_dev(p3, t9);
+        append_dev(div12, t10);
+        append_dev(div12, div11);
+        append_dev(div11, div10);
         append_dev(div10, div9);
-        append_dev(div9, div8);
-        append_dev(div8, table);
+        append_dev(div9, p4);
+        append_dev(p4, input);
+        set_input_value(input,
+        /*search*/
+        ctx[1]);
+        append_dev(p4, t11);
+        if (if_block) if_block.m(p4, null);
+        append_dev(div14, t12);
+        append_dev(div14, div13);
+        append_dev(div13, table);
         append_dev(table, thead);
         append_dev(thead, tr);
         append_dev(tr, th0);
-        append_dev(tr, t12);
-        append_dev(tr, th1);
         append_dev(tr, t14);
-        append_dev(tr, th2);
+        append_dev(tr, th1);
         append_dev(tr, t16);
-        append_dev(tr, th3);
+        append_dev(tr, th2);
         append_dev(tr, t18);
-        append_dev(tr, th4);
+        append_dev(tr, th3);
         append_dev(tr, t20);
+        append_dev(tr, th4);
+        append_dev(tr, t22);
         append_dev(tr, th5);
-        append_dev(table, t22);
+        append_dev(tr, t24);
+        append_dev(tr, th6);
+        append_dev(table, t26);
         append_dev(table, tbody);
 
         for (var _i2 = 0; _i2 < each_blocks.length; _i2 += 1) {
@@ -29160,25 +29595,50 @@ var app = (function () {
       },
       p: function update(ctx, dirty) {
         if (dirty[0] &
-        /*participants*/
-        1 && t2_value !== (t2_value =
-        /*participants*/
-        ctx[0].length + "")) set_data_dev(t2, t2_value);
-
-        if (dirty[0] &
         /*rowSelected*/
-        2) {
-          toggle_class(div5, "is-invisible", !
+        1) {
+          toggle_class(div4, "is-invisible", !
           /*rowSelected*/
-          ctx[1]);
+          ctx[0]);
         }
 
         if (dirty[0] &
-        /*selectRow, participants, formatDate*/
-        13) {
+        /*participantsFiltered*/
+        4 && t9_value !== (t9_value =
+        /*participantsFiltered*/
+        ctx[2].length + "")) set_data_dev(t9, t9_value);
+
+        if (dirty[0] &
+        /*search*/
+        2 && input.value !==
+        /*search*/
+        ctx[1]) {
+          set_input_value(input,
+          /*search*/
+          ctx[1]);
+        }
+
+        if (
+        /*search*/
+        ctx[1]) {
+          if (if_block) {
+            if_block.p(ctx, dirty);
+          } else {
+            if_block = create_if_block$1(ctx);
+            if_block.c();
+            if_block.m(p4, null);
+          }
+        } else if (if_block) {
+          if_block.d(1);
+          if_block = null;
+        }
+
+        if (dirty[0] &
+        /*selectRow, participantsFiltered, formatDate*/
+        28) {
           each_value =
-          /*participants*/
-          ctx[0];
+          /*participantsFiltered*/
+          ctx[2];
 
           var _i3;
 
@@ -29206,12 +29666,14 @@ var app = (function () {
       i: noop,
       o: noop,
       d: function destroy(detaching) {
-        if (detaching) detach_dev(div7);
-        if (detaching) detach_dev(t9);
+        if (detaching) detach_dev(div6);
+        if (detaching) detach_dev(t5);
         if (detaching) detach_dev(hr);
-        if (detaching) detach_dev(t10);
-        if (detaching) detach_dev(div10);
+        if (detaching) detach_dev(t6);
+        if (detaching) detach_dev(div15);
+        if (if_block) if_block.d();
         destroy_each(each_blocks, detaching);
+        run_all(dispose);
       }
     };
     dispatch_dev("SvelteRegisterBlock", {
@@ -29227,6 +29689,9 @@ var app = (function () {
   function instance$2($$self, $$props, $$invalidate) {
     var participants = [];
     var rowSelected = false;
+    var search = "";
+    var timer;
+    var participantsFiltered = [];
 
     var selectRow = function selectRow(ev) {
       var rows = document.getElementsByClassName("table-row");
@@ -29257,7 +29722,7 @@ var app = (function () {
           }
         }
 
-        $$invalidate(1, rowSelected = false);
+        $$invalidate(0, rowSelected = false);
       } else {
         var _iteratorNormalCompletion2 = true;
         var _didIteratorError2 = false;
@@ -29284,7 +29749,7 @@ var app = (function () {
         }
 
         row.className += " is-selected";
-        $$invalidate(1, rowSelected = true);
+        $$invalidate(0, rowSelected = true);
       }
     };
 
@@ -29307,7 +29772,34 @@ var app = (function () {
 
       hours = hours > 12 ? hours - 12 : hours;
       var minutes = dateTime.getMinutes();
+      minutes = minutes < 10 ? "0".concat(minutes) : minutes;
       return "".concat(month, "/").concat(day, "/").concat(year, " - ").concat(hours, ":").concat(minutes).concat(ampm);
+    };
+
+    var filterEntries = function filterEntries() {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        $$invalidate(2, participantsFiltered = participants.filter(function (obj) {
+          var vals = Object.values(obj);
+          var filteredVals = vals.filter(function (val) {
+            var formattedVal;
+
+            if (typeof val === "number" && val > 1000) {
+              formattedVal = formatDate(val);
+            } else {
+              formattedVal = String(val);
+            }
+
+            return formattedVal.indexOf(search) !== -1;
+          });
+          return filteredVals.length !== 0;
+        }));
+      }, 400);
+    };
+
+    var clearSearch = function clearSearch() {
+      $$invalidate(1, search = "");
+      filterEntries();
     };
 
     onMount(function _callee() {
@@ -29316,11 +29808,12 @@ var app = (function () {
           switch (_context.prev = _context.next) {
             case 0:
               db.ref("participants").on("value", function (snapshot) {
-                $$invalidate(0, participants = []);
+                participants = [];
                 snapshot.forEach(function (doc) {
                   participants.push(doc.val());
                 });
-                $$invalidate(0, participants);
+                participants = participants;
+                $$invalidate(2, participantsFiltered = participants);
               });
 
             case 1:
@@ -29331,16 +29824,28 @@ var app = (function () {
       });
     });
 
+    function input_input_handler() {
+      search = this.value;
+      $$invalidate(1, search);
+    }
+
+    var keyup_handler = function keyup_handler() {
+      return filterEntries();
+    };
+
     $$self.$capture_state = function () {
       return {};
     };
 
     $$self.$inject_state = function ($$props) {
-      if ("participants" in $$props) $$invalidate(0, participants = $$props.participants);
-      if ("rowSelected" in $$props) $$invalidate(1, rowSelected = $$props.rowSelected);
+      if ("participants" in $$props) participants = $$props.participants;
+      if ("rowSelected" in $$props) $$invalidate(0, rowSelected = $$props.rowSelected);
+      if ("search" in $$props) $$invalidate(1, search = $$props.search);
+      if ("timer" in $$props) timer = $$props.timer;
+      if ("participantsFiltered" in $$props) $$invalidate(2, participantsFiltered = $$props.participantsFiltered);
     };
 
-    return [participants, rowSelected, selectRow, formatDate];
+    return [rowSelected, search, participantsFiltered, selectRow, formatDate, filterEntries, clearSearch, participants, timer, input_input_handler, keyup_handler];
   }
 
   var Participants =
@@ -29367,10 +29872,10 @@ var app = (function () {
     return Participants;
   }(SvelteComponentDev);
 
-  var console_1 = globals.console;
+  var console_1$1 = globals.console;
   var file$5 = "src/components/AdminPanel.svelte"; // (178:10) {#if !mturkReady}
 
-  function create_if_block$1(ctx) {
+  function create_if_block$2(ctx) {
     var t;
     var block = {
       c: function create() {
@@ -29385,7 +29890,7 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_if_block$1.name,
+      id: create_if_block$2.name,
       type: "if",
       source: "(178:10) {#if !mturkReady}",
       ctx: ctx
@@ -29471,19 +29976,24 @@ var app = (function () {
     var dispose;
     var if_block = !
     /*mturkReady*/
-    ctx[2] && create_if_block$1(ctx);
+    ctx[3] && create_if_block$2(ctx);
     var switch_value =
     /*component*/
-    ctx[5];
+    ctx[6];
 
     function switch_props(ctx) {
       return {
+        props: {
+          mturk:
+          /*mturk*/
+          ctx[1]
+        },
         $$inline: true
       };
     }
 
     if (switch_value) {
-      var switch_instance = new switch_value(switch_props());
+      var switch_instance = new switch_value(switch_props(ctx));
     }
 
     var block = {
@@ -29574,7 +30084,7 @@ var app = (function () {
         p5 = element("p");
         t39 = text(
         /*title*/
-        ctx[4]);
+        ctx[5]);
         t40 = space();
         hr1 = element("hr");
         t41 = space();
@@ -29587,10 +30097,10 @@ var app = (function () {
         attr_dev(span, "class", "tag");
         toggle_class(span, "is-primary",
         /*mturkReady*/
-        ctx[2]);
+        ctx[3]);
         toggle_class(span, "is-danger", !
         /*mturkReady*/
-        ctx[2]);
+        ctx[3]);
         add_location(span, file$5, 175, 8, 3874);
         attr_dev(input, "type", "checkbox");
         add_location(input, file$5, 181, 10, 4089);
@@ -29649,7 +30159,7 @@ var app = (function () {
         attr_dev(button, "class", "button is-primary");
         toggle_class(button, "is-loading",
         /*loading*/
-        ctx[1]);
+        ctx[2]);
         add_location(button, file$5, 234, 10, 5867);
         attr_dev(p4, "class", "menu-label");
         add_location(p4, file$5, 233, 8, 5834);
@@ -29671,33 +30181,33 @@ var app = (function () {
         add_location(div4, file$5, 170, 0, 3610);
         dispose = [listen_dev(script, "load",
         /*initMTurk*/
-        ctx[8], false, false, false), listen_dev(input, "change",
+        ctx[9], false, false, false), listen_dev(input, "change",
         /*input_change_handler*/
         ctx[15]), listen_dev(input, "change",
         /*initMTurk*/
-        ctx[8], false, false, false), listen_dev(a0, "click",
+        ctx[9], false, false, false), listen_dev(a0, "click",
         /*click_handler*/
         ctx[16], false, false, false), listen_dev(a1, "click",
         /*accountBalance*/
-        ctx[9], false, false, false), listen_dev(a2, "click",
+        ctx[10], false, false, false), listen_dev(a2, "click",
         /*click_handler_1*/
         ctx[17], false, false, false), listen_dev(a3, "click",
         /*createHIT*/
-        ctx[7], false, false, false), listen_dev(a4, "click",
+        ctx[8], false, false, false), listen_dev(a4, "click",
         /*click_handler_2*/
         ctx[18], false, false, false), listen_dev(a5, "click",
         /*createHIT*/
-        ctx[7], false, false, false), listen_dev(a6, "click",
+        ctx[8], false, false, false), listen_dev(a6, "click",
         /*createHIT*/
-        ctx[7], false, false, false), listen_dev(a7, "click",
+        ctx[8], false, false, false), listen_dev(a7, "click",
         /*createHIT*/
-        ctx[7], false, false, false), listen_dev(a8, "click",
+        ctx[8], false, false, false), listen_dev(a8, "click",
         /*createHIT*/
-        ctx[7], false, false, false), listen_dev(a9, "click",
+        ctx[8], false, false, false), listen_dev(a9, "click",
         /*createHIT*/
-        ctx[7], false, false, false), listen_dev(button, "click",
+        ctx[8], false, false, false), listen_dev(button, "click",
         /*logout*/
-        ctx[6], false, false, false)];
+        ctx[7], false, false, false)];
       },
       l: function claim(nodes) {
         throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -29720,7 +30230,7 @@ var app = (function () {
         append_dev(label, input);
         input.checked =
         /*sandbox*/
-        ctx[3];
+        ctx[4];
         append_dev(label, t6);
         append_dev(div0, t7);
         append_dev(div0, hr0);
@@ -29789,9 +30299,9 @@ var app = (function () {
       p: function update(ctx, dirty) {
         if (!
         /*mturkReady*/
-        ctx[2]) {
+        ctx[3]) {
           if (!if_block) {
-            if_block = create_if_block$1(ctx);
+            if_block = create_if_block$2(ctx);
             if_block.c();
             if_block.m(span, t4);
           }
@@ -29802,45 +30312,51 @@ var app = (function () {
 
         if (dirty[0] &
         /*mturkReady*/
-        4) {
+        8) {
           toggle_class(span, "is-primary",
           /*mturkReady*/
-          ctx[2]);
+          ctx[3]);
         }
 
         if (dirty[0] &
         /*mturkReady*/
-        4) {
+        8) {
           toggle_class(span, "is-danger", !
           /*mturkReady*/
-          ctx[2]);
+          ctx[3]);
         }
 
         if (dirty[0] &
         /*sandbox*/
-        8) {
+        16) {
           input.checked =
           /*sandbox*/
-          ctx[3];
+          ctx[4];
         }
 
         if (dirty[0] &
         /*loading*/
-        2) {
+        4) {
           toggle_class(button, "is-loading",
           /*loading*/
-          ctx[1]);
+          ctx[2]);
         }
 
         if (!current || dirty[0] &
         /*title*/
-        16) set_data_dev(t39,
+        32) set_data_dev(t39,
         /*title*/
-        ctx[4]);
+        ctx[5]);
+        var switch_instance_changes = {};
+        if (dirty[0] &
+        /*mturk*/
+        2) switch_instance_changes.mturk =
+        /*mturk*/
+        ctx[1];
 
         if (switch_value !== (switch_value =
         /*component*/
-        ctx[5])) {
+        ctx[6])) {
           if (switch_instance) {
             group_outros();
             var old_component = switch_instance;
@@ -29851,13 +30367,15 @@ var app = (function () {
           }
 
           if (switch_value) {
-            switch_instance = new switch_value(switch_props());
+            switch_instance = new switch_value(switch_props(ctx));
             create_component(switch_instance.$$.fragment);
             transition_in(switch_instance.$$.fragment, 1);
             mount_component(switch_instance, section0, null);
           } else {
             switch_instance = null;
           }
+        } else if (switch_value) {
+          switch_instance.$set(switch_instance_changes);
         }
       },
       i: function intro(local) {
@@ -29919,7 +30437,7 @@ var app = (function () {
           switch (_context.prev = _context.next) {
             case 0:
               _context.prev = 0;
-              $$invalidate(1, loading = true);
+              $$invalidate(2, loading = true);
               _context.next = 4;
               return regeneratorRuntime.awrap(auth.signOut());
 
@@ -29933,7 +30451,7 @@ var app = (function () {
               console.error(_context.t0);
 
             case 9:
-              $$invalidate(1, loading = false);
+              $$invalidate(2, loading = false);
 
             case 10:
             case "end":
@@ -29948,13 +30466,13 @@ var app = (function () {
     };
 
     var initMTurk = function initMTurk() {
-      mturk = new AWS.MTurk({
+      $$invalidate(1, mturk = new AWS.MTurk({
         region: "us-east-1",
         endpoint: endpoint,
         accessKeyId: cred.accessKeyId,
         secretAccessKey: cred.secretAccessKey
-      });
-      $$invalidate(2, mturkReady = true);
+      }));
+      $$invalidate(3, mturkReady = true);
     };
 
     var accountBalance = function accountBalance() {
@@ -29999,12 +30517,12 @@ var app = (function () {
 
     var writable_props = ["cred"];
     Object.keys($$props).forEach(function (key) {
-      if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn("<AdminPanel> was created with unknown prop '".concat(key, "'"));
+      if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1$1.warn("<AdminPanel> was created with unknown prop '".concat(key, "'"));
     });
 
     function input_change_handler() {
       sandbox = this.checked;
-      $$invalidate(3, sandbox);
+      $$invalidate(4, sandbox);
     }
 
     var click_handler = function click_handler() {
@@ -30020,7 +30538,7 @@ var app = (function () {
     };
 
     $$self.$set = function ($$props) {
-      if ("cred" in $$props) $$invalidate(10, cred = $$props.cred);
+      if ("cred" in $$props) $$invalidate(11, cred = $$props.cred);
     };
 
     $$self.$capture_state = function () {
@@ -30039,16 +30557,16 @@ var app = (function () {
     };
 
     $$self.$inject_state = function ($$props) {
-      if ("cred" in $$props) $$invalidate(10, cred = $$props.cred);
+      if ("cred" in $$props) $$invalidate(11, cred = $$props.cred);
       if ("currentState" in $$props) $$invalidate(0, currentState = $$props.currentState);
-      if ("mturk" in $$props) mturk = $$props.mturk;
-      if ("loading" in $$props) $$invalidate(1, loading = $$props.loading);
-      if ("mturkReady" in $$props) $$invalidate(2, mturkReady = $$props.mturkReady);
-      if ("sandbox" in $$props) $$invalidate(3, sandbox = $$props.sandbox);
+      if ("mturk" in $$props) $$invalidate(1, mturk = $$props.mturk);
+      if ("loading" in $$props) $$invalidate(2, loading = $$props.loading);
+      if ("mturkReady" in $$props) $$invalidate(3, mturkReady = $$props.mturkReady);
+      if ("sandbox" in $$props) $$invalidate(4, sandbox = $$props.sandbox);
       if ("endpoint" in $$props) endpoint = $$props.endpoint;
       if ("currentObj" in $$props) $$invalidate(13, currentObj = $$props.currentObj);
-      if ("title" in $$props) $$invalidate(4, title = $$props.title);
-      if ("component" in $$props) $$invalidate(5, component = $$props.component);
+      if ("title" in $$props) $$invalidate(5, title = $$props.title);
+      if ("component" in $$props) $$invalidate(6, component = $$props.component);
     };
 
     var endpoint;
@@ -30059,7 +30577,7 @@ var app = (function () {
     $$self.$$.update = function () {
       if ($$self.$$.dirty[0] &
       /*sandbox*/
-      8) {
+      16) {
          endpoint = sandbox ? "https://mturk-requester-sandbox.us-east-1.amazonaws.com" : "https://mturk-requester.us-east-1.amazonaws.com";
       }
 
@@ -30076,17 +30594,17 @@ var app = (function () {
       if ($$self.$$.dirty[0] &
       /*currentObj*/
       8192) {
-         $$invalidate(4, title = currentObj.title);
+         $$invalidate(5, title = currentObj.title);
       }
 
       if ($$self.$$.dirty[0] &
       /*currentObj*/
       8192) {
-         $$invalidate(5, component = currentObj.component);
+         $$invalidate(6, component = currentObj.component);
       }
     };
 
-    return [currentState, loading, mturkReady, sandbox, title, component, logout, createHIT, initMTurk, accountBalance, cred, mturk, endpoint, currentObj, stateMap, input_change_handler, click_handler, click_handler_1, click_handler_2];
+    return [currentState, mturk, loading, mturkReady, sandbox, title, component, logout, createHIT, initMTurk, accountBalance, cred, endpoint, currentObj, stateMap, input_change_handler, click_handler, click_handler_1, click_handler_2];
   }
 
   var AdminPanel =
@@ -30101,7 +30619,7 @@ var app = (function () {
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(AdminPanel).call(this, options));
       init(_assertThisInitialized(_this), options, instance$3, create_fragment$5, safe_not_equal, {
-        cred: 10
+        cred: 11
       });
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
@@ -30114,8 +30632,8 @@ var app = (function () {
 
       if (
       /*cred*/
-      ctx[10] === undefined && !("cred" in props)) {
-        console_1.warn("<AdminPanel> was created without expected prop 'cred'");
+      ctx[11] === undefined && !("cred" in props)) {
+        console_1$1.warn("<AdminPanel> was created without expected prop 'cred'");
       }
 
       return _this;
@@ -30269,7 +30787,7 @@ var app = (function () {
   } // (30:0) {#if loading}
 
 
-  function create_if_block$2(ctx) {
+  function create_if_block$3(ctx) {
     var current;
     var loading_1 = new Loading({
       props: {
@@ -30319,7 +30837,7 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_if_block$2.name,
+      id: create_if_block$3.name,
       type: "if",
       source: "(30:0) {#if loading}",
       ctx: ctx
@@ -30356,7 +30874,7 @@ var app = (function () {
     var if_block;
     var if_block_anchor;
     var current;
-    var if_block_creators = [create_if_block$2, create_if_block_1$1, create_else_block];
+    var if_block_creators = [create_if_block$3, create_if_block_1$1, create_else_block];
     var if_blocks = [];
 
     function select_block_type(ctx, dirty) {
