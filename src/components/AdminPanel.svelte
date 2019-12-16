@@ -244,7 +244,7 @@
       <p class="title is-size-2">{title}</p>
       <hr />
       <section>
-        <svelte:component this={component} />
+        <svelte:component this={component} {mturk} />
       </section>
     </section>
   </div>
