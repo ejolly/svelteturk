@@ -6551,7 +6551,7 @@ var app = (function () {
   exports.validateCallback = validateCallback;
   exports.validateContextObject = validateContextObject;
   exports.validateNamespace = validateNamespace;
-  //# sourceMappingURL=index.cjs.js.map
+
   });
 
   unwrapExports(index_cjs);
@@ -6910,7 +6910,7 @@ var app = (function () {
   exports.Component = Component;
   exports.ComponentContainer = ComponentContainer;
   exports.Provider = Provider;
-  //# sourceMappingURL=index.cjs.js.map
+
   });
 
   unwrapExports(index_cjs$1);
@@ -7135,7 +7135,6 @@ var app = (function () {
           inst.logLevel = level;
       });
   }
-  //# sourceMappingURL=index.esm.js.map
 
   var index_esm = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -7807,7 +7806,7 @@ var app = (function () {
 
   exports.default = firebase$1;
   exports.firebase = firebase$1;
-  //# sourceMappingURL=index.cjs.js.map
+
   });
 
   var firebase = unwrapExports(index_cjs$2);
@@ -23000,7 +22999,7 @@ var app = (function () {
   exports.ServerValue = ServerValue;
   exports.enableLogging = enableLogging;
   exports.registerDatabase = registerDatabase;
-  //# sourceMappingURL=index.cjs.js.map
+
   });
 
   unwrapExports(index_cjs$4);
@@ -26572,7 +26571,6 @@ var app = (function () {
       instance.registerVersion(name$1, version$2);
   }
   registerStorage(firebase);
-  //# sourceMappingURL=index.esm.js.map
 
   (function() {var k,aa="function"==typeof Object.defineProperties?Object.defineProperty:function(a,b,c){a!=Array.prototype&&a!=Object.prototype&&(a[b]=c.value);},ba="undefined"!=typeof window&&window===this?this:"undefined"!=typeof global&&null!=global?global:this;function ca(a,b){if(b){var c=ba;a=a.split(".");for(var d=0;d<a.length-1;d++){var e=a[d];e in c||(c[e]={});c=c[e];}a=a[a.length-1];d=c[a];b=b(d);b!=d&&null!=b&&aa(c,a,{configurable:!0,writable:!0,value:b});}}
   function da(a){var b=0;return function(){return b<a.length?{done:!1,value:a[b++]}:{done:!0}}}function ea(a){var b="undefined"!=typeof Symbol&&Symbol.iterator&&a[Symbol.iterator];return b?b.call(a):{next:da(a)}}
@@ -26910,9 +26908,7 @@ var app = (function () {
   wg,[V("providerId")]);Z(a,"PhoneAuthProvider",Tg,[Dn()]);Z(a,"RecaptchaVerifier",wn,[X(V(),Cn(),"recaptchaContainer"),W("recaptchaParameters",!0),En()]);Z(a,"ActionCodeURL",qf,[]);firebase.INTERNAL.registerComponent({name:"auth",instanceFactory:function(b){b=b.getProvider("app").getImmediate();return new Km(b)},multipleInstances:!1,serviceProps:a,instantiationMode:"LAZY",type:"PUBLIC"});firebase.INTERNAL.registerComponent({name:"auth-internal",instanceFactory:function(b){b=b.getProvider("auth").getImmediate();
   return {getUid:t(b.getUid,b),getToken:t(b.cc,b),addAuthTokenListener:t(b.Wb,b),removeAuthTokenListener:t(b.Ec,b)}},multipleInstances:!1,instantiationMode:"LAZY",type:"PRIVATE"});firebase.registerVersion("@firebase/auth","0.13.3");firebase.INTERNAL.extendNamespace({User:Q});}else throw Error("Cannot find the firebase namespace; be sure to include firebase-app.js before this library.");})();}).apply(typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : {});
 
-  //# sourceMappingURL=auth.esm.js.map
-
-  // Initialize firebase
+  // ADD YOUR FIREBASE CREDENTIALS HERE
   var firebaseConfig = {
     apiKey: 'AIzaSyBSDQTQrnklilGdmyZcEXMGhIwg0dFpNlY',
     authDomain: 'thought-segmentation.firebaseapp.com',
@@ -26921,8 +26917,15 @@ var app = (function () {
     storageBucket: 'thought-segmentation.appspot.com',
     messagingSenderId: '456731753647',
     appId: '1:456731753647:web:079b4e850e4c03f2e1a85a'
+  }; // ADD YOUR AWS CREDENTIALS HERE
+
+  var AWSConfig = {
+    accessKeyId: 'AKIAZMRDQRJINY4CHFLX',
+    secretAccessKey: 'TlmnG0pb5kh37IxSxZhLRUWW97QsznSmXFyFWN4v'
   };
-  index_cjs$3.initializeApp(firebaseConfig); // Export firebase globals for use elsewhere in the app
+
+  // Initialize firebase
+  index_cjs$3.initializeApp(firebaseConfig); // Setup and export firebase globals for use elsewhere in the app
 
   var db = index_cjs$3.database();
   var storage = index_cjs$3.storage();
@@ -30091,9 +30094,9 @@ var app = (function () {
         section0 = element("section");
         if (switch_instance) create_component(switch_instance.$$.fragment);
         if (script.src !== (script_src_value = "https://sdk.amazonaws.com/js/aws-sdk-2.590.0.min.js")) attr_dev(script, "src", script_src_value);
-        add_location(script, file$5, 166, 2, 3495);
+        add_location(script, file$5, 166, 2, 3510);
         attr_dev(h1, "class", "is-size-3");
-        add_location(h1, file$5, 174, 8, 3827);
+        add_location(h1, file$5, 174, 8, 3842);
         attr_dev(span, "class", "tag");
         toggle_class(span, "is-primary",
         /*mturkReady*/
@@ -30101,84 +30104,84 @@ var app = (function () {
         toggle_class(span, "is-danger", !
         /*mturkReady*/
         ctx[3]);
-        add_location(span, file$5, 175, 8, 3874);
+        add_location(span, file$5, 175, 8, 3889);
         attr_dev(input, "type", "checkbox");
-        add_location(input, file$5, 181, 10, 4089);
+        add_location(input, file$5, 181, 10, 4104);
         attr_dev(label, "class", "checkbox is-block");
-        add_location(label, file$5, 180, 8, 4045);
-        add_location(hr0, file$5, 184, 8, 4203);
+        add_location(label, file$5, 180, 8, 4060);
+        add_location(hr0, file$5, 184, 8, 4218);
         attr_dev(div0, "class", "has-text-centered");
-        add_location(div0, file$5, 173, 6, 3787);
+        add_location(div0, file$5, 173, 6, 3802);
         attr_dev(header, "class", "dashboard-panel-header svelte-dje9vs");
-        add_location(header, file$5, 172, 4, 3741);
+        add_location(header, file$5, 172, 4, 3756);
         attr_dev(p0, "class", "menu-label");
-        add_location(p0, file$5, 189, 8, 4329);
+        add_location(p0, file$5, 189, 8, 4344);
         attr_dev(a0, "href", "javascript:;");
-        add_location(a0, file$5, 192, 12, 4418);
-        add_location(li0, file$5, 191, 10, 4401);
+        add_location(a0, file$5, 192, 12, 4433);
+        add_location(li0, file$5, 191, 10, 4416);
         attr_dev(a1, "href", "javascript:;");
-        add_location(a1, file$5, 195, 12, 4538);
-        add_location(li1, file$5, 194, 10, 4521);
+        add_location(a1, file$5, 195, 12, 4553);
+        add_location(li1, file$5, 194, 10, 4536);
         attr_dev(ul0, "class", "menu-list");
-        add_location(ul0, file$5, 190, 8, 4368);
+        add_location(ul0, file$5, 190, 8, 4383);
         attr_dev(p1, "class", "menu-label");
-        add_location(p1, file$5, 198, 8, 4645);
+        add_location(p1, file$5, 198, 8, 4660);
         attr_dev(a2, "href", "javascript:;");
-        add_location(a2, file$5, 201, 12, 4738);
+        add_location(a2, file$5, 201, 12, 4753);
         attr_dev(a3, "href", "javascript:;");
-        add_location(a3, file$5, 204, 12, 4876);
-        add_location(li2, file$5, 200, 10, 4721);
+        add_location(a3, file$5, 204, 12, 4891);
+        add_location(li2, file$5, 200, 10, 4736);
         attr_dev(ul1, "class", "menu-list");
-        add_location(ul1, file$5, 199, 8, 4688);
+        add_location(ul1, file$5, 199, 8, 4703);
         attr_dev(p2, "class", "menu-label");
-        add_location(p2, file$5, 207, 8, 4970);
+        add_location(p2, file$5, 207, 8, 4985);
         attr_dev(a4, "href", "javascript:;");
-        add_location(a4, file$5, 210, 12, 5059);
-        add_location(li3, file$5, 209, 10, 5042);
+        add_location(a4, file$5, 210, 12, 5074);
+        add_location(li3, file$5, 209, 10, 5057);
         attr_dev(a5, "href", "javascript:;");
-        add_location(a5, file$5, 215, 12, 5221);
-        add_location(li4, file$5, 214, 10, 5204);
+        add_location(a5, file$5, 215, 12, 5236);
+        add_location(li4, file$5, 214, 10, 5219);
         attr_dev(a6, "href", "javascript:;");
-        add_location(a6, file$5, 218, 12, 5327);
-        add_location(li5, file$5, 217, 10, 5310);
+        add_location(a6, file$5, 218, 12, 5342);
+        add_location(li5, file$5, 217, 10, 5325);
         attr_dev(a7, "href", "javascript:;");
-        add_location(a7, file$5, 221, 12, 5427);
-        add_location(li6, file$5, 220, 10, 5410);
+        add_location(a7, file$5, 221, 12, 5442);
+        add_location(li6, file$5, 220, 10, 5425);
         attr_dev(ul2, "class", "menu-list");
-        add_location(ul2, file$5, 208, 8, 5009);
+        add_location(ul2, file$5, 208, 8, 5024);
         attr_dev(p3, "class", "menu-label");
-        add_location(p3, file$5, 224, 8, 5525);
+        add_location(p3, file$5, 224, 8, 5540);
         attr_dev(a8, "href", "javascript:;");
-        add_location(a8, file$5, 227, 12, 5621);
-        add_location(li7, file$5, 226, 10, 5604);
+        add_location(a8, file$5, 227, 12, 5636);
+        add_location(li7, file$5, 226, 10, 5619);
         attr_dev(a9, "href", "javascript:;");
-        add_location(a9, file$5, 230, 12, 5732);
-        add_location(li8, file$5, 229, 10, 5715);
+        add_location(a9, file$5, 230, 12, 5747);
+        add_location(li8, file$5, 229, 10, 5730);
         attr_dev(ul3, "class", "menu-list");
-        add_location(ul3, file$5, 225, 8, 5571);
+        add_location(ul3, file$5, 225, 8, 5586);
         attr_dev(button, "class", "button is-primary");
         toggle_class(button, "is-loading",
         /*loading*/
         ctx[2]);
-        add_location(button, file$5, 234, 10, 5867);
+        add_location(button, file$5, 234, 10, 5882);
         attr_dev(p4, "class", "menu-label");
-        add_location(p4, file$5, 233, 8, 5834);
+        add_location(p4, file$5, 233, 8, 5849);
         attr_dev(aside, "class", "menu has-text-white");
-        add_location(aside, file$5, 188, 6, 4285);
+        add_location(aside, file$5, 188, 6, 4300);
         attr_dev(div1, "class", "dashboard-panel-content");
-        add_location(div1, file$5, 187, 4, 4241);
+        add_location(div1, file$5, 187, 4, 4256);
         attr_dev(div2, "class", "dashboard-panel is-medium has-thick-padding has-background-grey-lighter svelte-dje9vs");
-        add_location(div2, file$5, 171, 2, 3651);
+        add_location(div2, file$5, 171, 2, 3666);
         attr_dev(p5, "class", "title is-size-2");
-        add_location(p5, file$5, 243, 6, 6116);
-        add_location(hr1, file$5, 244, 6, 6161);
-        add_location(section0, file$5, 245, 6, 6174);
+        add_location(p5, file$5, 243, 6, 6131);
+        add_location(hr1, file$5, 244, 6, 6176);
+        add_location(section0, file$5, 245, 6, 6189);
         attr_dev(section1, "class", "section");
-        add_location(section1, file$5, 242, 4, 6084);
+        add_location(section1, file$5, 242, 4, 6099);
         attr_dev(div3, "class", "dashboard-main is-scrollable svelte-dje9vs");
-        add_location(div3, file$5, 241, 2, 6037);
+        add_location(div3, file$5, 241, 2, 6052);
         attr_dev(div4, "class", "dashboard is-full-height svelte-dje9vs");
-        add_location(div4, file$5, 170, 0, 3610);
+        add_location(div4, file$5, 170, 0, 3625);
         dispose = [listen_dev(script, "load",
         /*initMTurk*/
         ctx[9], false, false, false), listen_dev(input, "change",
@@ -30407,7 +30410,7 @@ var app = (function () {
   }
 
   function instance$3($$self, $$props, $$invalidate) {
-    var cred = $$props.cred;
+    var AWSConfig = $$props.AWSConfig;
     var currentState = "home";
     var mturk;
     var loading = false;
@@ -30469,8 +30472,8 @@ var app = (function () {
       $$invalidate(1, mturk = new AWS.MTurk({
         region: "us-east-1",
         endpoint: endpoint,
-        accessKeyId: cred.accessKeyId,
-        secretAccessKey: cred.secretAccessKey
+        accessKeyId: AWSConfig.accessKeyId,
+        secretAccessKey: AWSConfig.secretAccessKey
       }));
       $$invalidate(3, mturkReady = true);
     };
@@ -30515,7 +30518,7 @@ var app = (function () {
       }, null, null, [[0, 7]]);
     };
 
-    var writable_props = ["cred"];
+    var writable_props = ["AWSConfig"];
     Object.keys($$props).forEach(function (key) {
       if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1$1.warn("<AdminPanel> was created with unknown prop '".concat(key, "'"));
     });
@@ -30538,12 +30541,12 @@ var app = (function () {
     };
 
     $$self.$set = function ($$props) {
-      if ("cred" in $$props) $$invalidate(11, cred = $$props.cred);
+      if ("AWSConfig" in $$props) $$invalidate(11, AWSConfig = $$props.AWSConfig);
     };
 
     $$self.$capture_state = function () {
       return {
-        cred: cred,
+        AWSConfig: AWSConfig,
         currentState: currentState,
         mturk: mturk,
         loading: loading,
@@ -30557,7 +30560,7 @@ var app = (function () {
     };
 
     $$self.$inject_state = function ($$props) {
-      if ("cred" in $$props) $$invalidate(11, cred = $$props.cred);
+      if ("AWSConfig" in $$props) $$invalidate(11, AWSConfig = $$props.AWSConfig);
       if ("currentState" in $$props) $$invalidate(0, currentState = $$props.currentState);
       if ("mturk" in $$props) $$invalidate(1, mturk = $$props.mturk);
       if ("loading" in $$props) $$invalidate(2, loading = $$props.loading);
@@ -30604,7 +30607,7 @@ var app = (function () {
       }
     };
 
-    return [currentState, mturk, loading, mturkReady, sandbox, title, component, logout, createHIT, initMTurk, accountBalance, cred, endpoint, currentObj, stateMap, input_change_handler, click_handler, click_handler_1, click_handler_2];
+    return [currentState, mturk, loading, mturkReady, sandbox, title, component, logout, createHIT, initMTurk, accountBalance, AWSConfig, endpoint, currentObj, stateMap, input_change_handler, click_handler, click_handler_1, click_handler_2];
   }
 
   var AdminPanel =
@@ -30619,7 +30622,7 @@ var app = (function () {
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(AdminPanel).call(this, options));
       init(_assertThisInitialized(_this), options, instance$3, create_fragment$5, safe_not_equal, {
-        cred: 11
+        AWSConfig: 11
       });
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
@@ -30631,16 +30634,16 @@ var app = (function () {
       var props = options.props || {};
 
       if (
-      /*cred*/
-      ctx[11] === undefined && !("cred" in props)) {
-        console_1$1.warn("<AdminPanel> was created without expected prop 'cred'");
+      /*AWSConfig*/
+      ctx[11] === undefined && !("AWSConfig" in props)) {
+        console_1$1.warn("<AdminPanel> was created without expected prop 'AWSConfig'");
       }
 
       return _this;
     }
 
     _createClass(AdminPanel, [{
-      key: "cred",
+      key: "AWSConfig",
       get: function get() {
         throw new Error("<AdminPanel>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
       },
@@ -30740,9 +30743,7 @@ var app = (function () {
     var current;
     var adminpanel = new AdminPanel({
       props: {
-        cred:
-        /*cred*/
-        ctx[1]
+        AWSConfig: AWSConfig
       },
       $$inline: true
     });
@@ -30754,15 +30755,7 @@ var app = (function () {
         mount_component(adminpanel, target, anchor);
         current = true;
       },
-      p: function update(ctx, dirty) {
-        var adminpanel_changes = {};
-        if (dirty[0] &
-        /*cred*/
-        2) adminpanel_changes.cred =
-        /*cred*/
-        ctx[1];
-        adminpanel.$set(adminpanel_changes);
-      },
+      p: noop,
       i: function intro(local) {
         if (current) return;
         transition_in(adminpanel.$$.fragment, local);
@@ -30813,7 +30806,7 @@ var app = (function () {
 
         if (dirty[0] &
         /*$$scope*/
-        8) {
+        4) {
           loading_1_changes.$$scope = {
             dirty: dirty,
             ctx: ctx
@@ -30880,7 +30873,7 @@ var app = (function () {
     function select_block_type(ctx, dirty) {
       if (
       /*loading*/
-      ctx[2]) return 0;
+      ctx[1]) return 0;
       if (
       /*loggedIn*/
       ctx[0]) return 1;
@@ -30951,7 +30944,6 @@ var app = (function () {
 
   function instance$4($$self, $$props, $$invalidate) {
     var loggedIn;
-    var cred;
     var loading = true;
     onMount(function _callee2() {
       return regeneratorRuntime.async(function _callee2$(_context2) {
@@ -30960,33 +30952,19 @@ var app = (function () {
             case 0:
               try {
                 auth.onAuthStateChanged(function _callee(user) {
-                  var resp;
                   return regeneratorRuntime.async(function _callee$(_context) {
                     while (1) {
                       switch (_context.prev = _context.next) {
                         case 0:
-                          if (user) {
-                            _context.next = 4;
-                            break;
+                          if (!user) {
+                            $$invalidate(0, loggedIn = false);
+                          } else {
+                            $$invalidate(0, loggedIn = true);
                           }
 
-                          $$invalidate(0, loggedIn = false);
-                          _context.next = 9;
-                          break;
+                          $$invalidate(1, loading = false);
 
-                        case 4:
-                          _context.next = 6;
-                          return regeneratorRuntime.awrap(db.ref("admin/cred").once("value"));
-
-                        case 6:
-                          resp = _context.sent;
-                          $$invalidate(1, cred = resp.val());
-                          $$invalidate(0, loggedIn = true);
-
-                        case 9:
-                          $$invalidate(2, loading = false);
-
-                        case 10:
+                        case 2:
                         case "end":
                           return _context.stop();
                       }
@@ -31011,11 +30989,10 @@ var app = (function () {
 
     $$self.$inject_state = function ($$props) {
       if ("loggedIn" in $$props) $$invalidate(0, loggedIn = $$props.loggedIn);
-      if ("cred" in $$props) $$invalidate(1, cred = $$props.cred);
-      if ("loading" in $$props) $$invalidate(2, loading = $$props.loading);
+      if ("loading" in $$props) $$invalidate(1, loading = $$props.loading);
     };
 
-    return [loggedIn, cred, loading];
+    return [loggedIn, loading];
   }
 
   var App =

@@ -4,9 +4,9 @@
   import AdminPanel from './components/AdminPanel.svelte';
   import Loading from './components/Loading.svelte';
   import { db, auth } from './utils.js';
+  import { AWSConfig } from './config.js';
 
   let loggedIn;
-  let cred;
   let loading = true;
 
   onMount(async () => {
@@ -15,8 +15,8 @@
         if (!user) {
           loggedIn = false;
         } else {
-          const resp = await db.ref('admin/cred').once('value');
-          cred = resp.val();
+          // const resp = await db.ref('admin/cred').once('value');
+          // cred = resp.val();
           loggedIn = true;
         }
         loading = false;
@@ -30,7 +30,7 @@
 {#if loading}
   <Loading>Loading...</Loading>
 {:else if loggedIn}
-  <AdminPanel {cred} />
+  <AdminPanel {AWSConfig} />
 {:else}
   <AdminLogin />
 {/if}

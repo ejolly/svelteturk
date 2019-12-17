@@ -6,7 +6,7 @@
   import CreateHIT from './CreateHIT.svelte';
   import Participants from './Participants.svelte';
 
-  export let cred;
+  export let AWSConfig;
   let currentState = 'home';
   let mturk;
   let loading = false;
@@ -61,8 +61,8 @@
     mturk = new AWS.MTurk({
       region: 'us-east-1',
       endpoint,
-      accessKeyId: cred.accessKeyId,
-      secretAccessKey: cred.secretAccessKey
+      accessKeyId: AWSConfig.accessKeyId,
+      secretAccessKey: AWSConfig.secretAccessKey
     });
     mturkReady = true;
   };
