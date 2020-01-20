@@ -1,19 +1,19 @@
 {
-    "eslint.validate": [
-      "javascript",
-      "javascriptreact",
-      {
-        "language": "svelte",
-        "autoFix": true
-      }
-    ],
-    "editor.tabSize": 2,
-    "editor.insertSpaces": true,
-    "editor.detectIndentation": true,
-    "editor.lineHeight": 19,
-    "editor.formatOnSave": true,
-    "svelte.plugin.typescript.enable": false,
-    "javascript.preferences.quoteStyle": "single",
-    "editor.wordWrap": "wordWrapColumn",
-    "editor.wordWrapColumn": 100
-  }
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    {
+      "language": "svelte",
+      "autoFix": true
+    }
+  ],
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.lineHeight": 19,
+  "editor.formatOnSave": true,
+  "svelte.plugin.typescript.enable": false,
+  "javascript.preferences.quoteStyle": "single",
+  "editor.wordWrap": "bounded",
+  "editor.wordWrapColumn": 100
+}
