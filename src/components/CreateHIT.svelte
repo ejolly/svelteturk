@@ -1,4 +1,5 @@
 <script>
+  // Create HIT form component to make a new HIT and persist HIT data to firebase
   import toast from 'bulma-toast';
   import { db } from '../utils.js';
 
@@ -101,23 +102,18 @@
     }
   };
 
-  const test = async () => {
-    try {
-      // let resp = await mturk
-      //   .listAssignmentsForHIT({
-      //     HITId: '3TZ0XG8CBUEU4B7DXAODGY7MD7M98N'
-      //   })
-      //   .promise();
-      let resp = await mturk
-        .getHIT({
-          HITId: '3TZ0XG8CBUEU4B7DXAODGY7MD7M98N'
-        })
-        .promise();
-      console.log(resp);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const test = async () => {
+  //   try {
+  //     let resp = await mturk
+  //       .getHIT({
+  //         HITId: '3TZ0XG8CBUEU4B7DXAODGY7MD7M98N'
+  //       })
+  //       .promise();
+  //     console.log(resp);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 </script>
 
 <style>
