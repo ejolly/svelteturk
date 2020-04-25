@@ -230,13 +230,13 @@
           </div>
         </div>
       </div>
-      <div class="column">
+      <!-- <div class="column">
         <div class="field">
           <div class="control">
             <button class="button is-success" on:click|preventDefault={test}>Test</button>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </form>
 </div>
