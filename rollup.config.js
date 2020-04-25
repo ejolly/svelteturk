@@ -37,7 +37,7 @@ export default {
         handler(warning);
       }
     }),
-    // Babel is being used to make ES2015 features (like arrow functions) available to all browsers. This is called *transpiling*. Additionally babel using using core-js to create *pollyfills* to make turn some JS features that don't exist in some browsers into compatible ones that do exist. This has to increase bundle size a bit but that's the cost of higher compatibility. Refs: 
+    // Babel is being used to make ES2015 features (like arrow functions) available to all browsers. This is called *transpiling*. Additionally babel is using core-js to create *pollyfills* to make turn some JS features that don't exist in some browsers into compatible ones that do exist. This has to increase bundle size a bit but that's the cost of higher compatibility. Refs: 
     // http://simey.me/svelte3-rollup-and-babel7/
     // https://github.com/sveltejs/svelte/issues/3388
     // https://github.com/sveltejs/svelte/issues/2621
