@@ -1,5 +1,5 @@
 {
-  "name": "mturk-control-center",
+  "name": "svelte-turk",
   "version": "1.0.0",
   "devDependencies": {
     "@babel/core": "^7.6.4",
