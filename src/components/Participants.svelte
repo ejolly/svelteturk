@@ -1,52 +1,9 @@
 <script>
+  // Data table component to view hits stored in firebase
   import { onMount } from 'svelte';
   import { db } from '../utils.js';
 
   let participants = [];
-  // For testing
-  // const participants = [
-  //   {
-  //     assignmentId: 'debugdRqEW',
-  //     currentState: 'instructions',
-  //     currentTrial: 1,
-  //     hitId: 'debugzG2yr',
-  //     startTime: 1576279764733,
-  //     trialOrder: [
-  //       's01_TimRiggins.wav',
-  //       's01_CoachTaylor.wav',
-  //       's01_BuddyGarrity.wav',
-  //       's01_LandryClarke.wav',
-  //       's01_JulieTaylor.wav',
-  //       's01_TamiTaylor.wav',
-  //       's01_MattSaracen.wav',
-  //       's01_LylaGarrity.wav',
-  //       's01_JasonStreet.wav',
-  //       's01_SmashWilliams.wav'
-  //     ],
-  //     workerId: 'debugomUfs'
-  //   },
-  //   {
-  //     assignmentId: 'test-assignment',
-  //     currentState: 'quiz',
-  //     currentTrial: 1,
-  //     hitId: 'test-hit',
-  //     quiz_start: 1576340034657,
-  //     startTime: 1576339962895,
-  //     trialOrder: [
-  //       's01_BuddyGarrity.wav',
-  //       's01_SmashWilliams.wav',
-  //       's01_LandryClarke.wav',
-  //       's01_JulieTaylor.wav',
-  //       's01_LylaGarrity.wav',
-  //       's01_JasonStreet.wav',
-  //       's01_MattSaracen.wav',
-  //       's01_TimRiggins.wav',
-  //       's01_TamiTaylor.wav',
-  //       's01_CoachTaylor.wav'
-  //     ],
-  //     workerId: 'test-worker'
-  //   }
-  // ];
   let rowSelected = false;
   let search = '';
   let timer;

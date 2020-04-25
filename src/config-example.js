@@ -8,9 +8,3 @@ export const firebaseConfig = {
   messagingSenderId: '',
   appId: ''
 };
-
-// ADD YOUR AWS CREDENTIALS HERE
-export const AWSConfig = {
-  accessKeyId: '',
-  secretAccessKey: ''
-};

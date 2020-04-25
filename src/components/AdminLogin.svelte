@@ -1,4 +1,5 @@
 <script>
+  // Simple form component to log a user into firebase
   import { auth } from '../utils.js';
 
   let email;
@@ -7,14 +8,21 @@
   let invalidUser = false;
   let invalidMessage = '';
   let invalidUserMessage = '';
+
   let loading = false;
 
   const login = async (ev) => {
+    // Reset values in case they login again
     invalidPassword = false;
     invalidUser = false;
+
+    // Check if they inputted a password and if so run firebase auth
     if (!password) {
       invalidPassword = true;
       invalidMessage = 'A password is required';
+    } else if (!email) {
+      invalidUser = true;
+      invalidUserMessage = 'An email is required';
     } else {
       loading = true;
       try {

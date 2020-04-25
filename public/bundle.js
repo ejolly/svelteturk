@@ -4295,6 +4295,22 @@ var app = (function () {
     get_current_component().$$.on_mount.push(fn);
   }
 
+  function createEventDispatcher() {
+    var component = get_current_component();
+    return function (type, detail) {
+      var callbacks = component.$$.callbacks[type];
+
+      if (callbacks) {
+        // TODO are there situations where events could be dispatched
+        // in a server (non-DOM) environment?
+        var event = custom_event(type, detail);
+        callbacks.slice().forEach(function (fn) {
+          fn.call(component, event);
+        });
+      }
+    };
+  }
+
   var dirty_components = [];
   var binding_callbacks = [];
   var render_callbacks = [];
@@ -6551,7 +6567,7 @@ var app = (function () {
   exports.validateCallback = validateCallback;
   exports.validateContextObject = validateContextObject;
   exports.validateNamespace = validateNamespace;
-
+  //# sourceMappingURL=index.cjs.js.map
   });
 
   unwrapExports(index_cjs);
@@ -6910,7 +6926,7 @@ var app = (function () {
   exports.Component = Component;
   exports.ComponentContainer = ComponentContainer;
   exports.Provider = Provider;
-
+  //# sourceMappingURL=index.cjs.js.map
   });
 
   unwrapExports(index_cjs$1);
@@ -7135,6 +7151,7 @@ var app = (function () {
           inst.logLevel = level;
       });
   }
+  //# sourceMappingURL=index.esm.js.map
 
   var index_esm = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -7806,7 +7823,7 @@ var app = (function () {
 
   exports.default = firebase$1;
   exports.firebase = firebase$1;
-
+  //# sourceMappingURL=index.cjs.js.map
   });
 
   var firebase = unwrapExports(index_cjs$2);
@@ -22999,7 +23016,7 @@ var app = (function () {
   exports.ServerValue = ServerValue;
   exports.enableLogging = enableLogging;
   exports.registerDatabase = registerDatabase;
-
+  //# sourceMappingURL=index.cjs.js.map
   });
 
   unwrapExports(index_cjs$4);
@@ -26571,6 +26588,7 @@ var app = (function () {
       instance.registerVersion(name$1, version$2);
   }
   registerStorage(firebase);
+  //# sourceMappingURL=index.esm.js.map
 
   (function() {var k,aa="function"==typeof Object.defineProperties?Object.defineProperty:function(a,b,c){a!=Array.prototype&&a!=Object.prototype&&(a[b]=c.value);},ba="undefined"!=typeof window&&window===this?this:"undefined"!=typeof global&&null!=global?global:this;function ca(a,b){if(b){var c=ba;a=a.split(".");for(var d=0;d<a.length-1;d++){var e=a[d];e in c||(c[e]={});c=c[e];}a=a[a.length-1];d=c[a];b=b(d);b!=d&&null!=b&&aa(c,a,{configurable:!0,writable:!0,value:b});}}
   function da(a){var b=0;return function(){return b<a.length?{done:!1,value:a[b++]}:{done:!0}}}function ea(a){var b="undefined"!=typeof Symbol&&Symbol.iterator&&a[Symbol.iterator];return b?b.call(a):{next:da(a)}}
@@ -26908,6 +26926,8 @@ var app = (function () {
   wg,[V("providerId")]);Z(a,"PhoneAuthProvider",Tg,[Dn()]);Z(a,"RecaptchaVerifier",wn,[X(V(),Cn(),"recaptchaContainer"),W("recaptchaParameters",!0),En()]);Z(a,"ActionCodeURL",qf,[]);firebase.INTERNAL.registerComponent({name:"auth",instanceFactory:function(b){b=b.getProvider("app").getImmediate();return new Km(b)},multipleInstances:!1,serviceProps:a,instantiationMode:"LAZY",type:"PUBLIC"});firebase.INTERNAL.registerComponent({name:"auth-internal",instanceFactory:function(b){b=b.getProvider("auth").getImmediate();
   return {getUid:t(b.getUid,b),getToken:t(b.cc,b),addAuthTokenListener:t(b.Wb,b),removeAuthTokenListener:t(b.Ec,b)}},multipleInstances:!1,instantiationMode:"LAZY",type:"PRIVATE"});firebase.registerVersion("@firebase/auth","0.13.3");firebase.INTERNAL.extendNamespace({User:Q});}else throw Error("Cannot find the firebase namespace; be sure to include firebase-app.js before this library.");})();}).apply(typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : {});
 
+  //# sourceMappingURL=auth.esm.js.map
+
   // ADD YOUR FIREBASE CREDENTIALS HERE
   var firebaseConfig = {
     apiKey: 'AIzaSyBSDQTQrnklilGdmyZcEXMGhIwg0dFpNlY',
@@ -26918,11 +26938,10 @@ var app = (function () {
     messagingSenderId: '456731753647',
     appId: '1:456731753647:web:079b4e850e4c03f2e1a85a'
   }; // ADD YOUR AWS CREDENTIALS HERE
-
-  var AWSConfig = {
-    accessKeyId: 'AKIAZMRDQRJINY4CHFLX',
-    secretAccessKey: 'TlmnG0pb5kh37IxSxZhLRUWW97QsznSmXFyFWN4v'
-  };
+  // export const AWSConfig = {
+  //   accessKeyId: 'AKIAZMRDQRJINY4CHFLX',
+  //   secretAccessKey: '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'
+  // };
 
   // Initialize firebase
   index_cjs$3.initializeApp(firebaseConfig); // Setup and export firebase globals for use elsewhere in the app
@@ -26932,7 +26951,7 @@ var app = (function () {
   var auth = index_cjs$3.auth();
   var serverTime = index_cjs$3.database.ServerValue.TIMESTAMP;
 
-  var file = "src/components/AdminLogin.svelte"; // (66:16) {#if invalidUser}
+  var file = "src/components/AdminLogin.svelte"; // (74:16) {#if invalidUser}
 
   function create_if_block_1(ctx) {
     var p;
@@ -26944,7 +26963,7 @@ var app = (function () {
         /*invalidUserMessage*/
         ctx[5]);
         attr_dev(p, "class", "help is-danger");
-        add_location(p, file, 66, 18, 2059);
+        add_location(p, file, 74, 18, 2317);
       },
       m: function mount(target, anchor) {
         insert_dev(target, p, anchor);
@@ -26965,11 +26984,11 @@ var app = (function () {
       block: block,
       id: create_if_block_1.name,
       type: "if",
-      source: "(66:16) {#if invalidUser}",
+      source: "(74:16) {#if invalidUser}",
       ctx: ctx
     });
     return block;
-  } // (83:16) {#if invalidPassword}
+  } // (91:16) {#if invalidPassword}
 
 
   function create_if_block(ctx) {
@@ -26982,7 +27001,7 @@ var app = (function () {
         /*invalidMessage*/
         ctx[4]);
         attr_dev(p, "class", "help is-danger");
-        add_location(p, file, 83, 18, 2751);
+        add_location(p, file, 91, 18, 3009);
       },
       m: function mount(target, anchor) {
         insert_dev(target, p, anchor);
@@ -27003,7 +27022,7 @@ var app = (function () {
       block: block,
       id: create_if_block.name,
       type: "if",
-      source: "(83:16) {#if invalidPassword}",
+      source: "(91:16) {#if invalidPassword}",
       ctx: ctx
     });
     return block;
@@ -27103,72 +27122,72 @@ var app = (function () {
         button = element("button");
         button.textContent = "Login";
         attr_dev(h1, "class", "title");
-        add_location(h1, file, 44, 16, 1222);
+        add_location(h1, file, 52, 16, 1480);
         attr_dev(h2, "class", "subtitle is-size-6");
-        add_location(h2, file, 45, 16, 1269);
+        add_location(h2, file, 53, 16, 1527);
         attr_dev(div0, "class", "has-text-centered");
-        add_location(div0, file, 43, 14, 1174);
+        add_location(div0, file, 51, 14, 1432);
         attr_dev(div1, "class", "card-header-title is-centered");
-        add_location(div1, file, 42, 12, 1116);
+        add_location(div1, file, 50, 12, 1374);
         attr_dev(div2, "class", "card-header");
-        add_location(div2, file, 41, 10, 1078);
+        add_location(div2, file, 49, 10, 1336);
         attr_dev(label0, "class", "label");
-        add_location(label0, file, 53, 16, 1527);
+        add_location(label0, file, 61, 16, 1785);
         attr_dev(input0, "class", input0_class_value =
         /*invalidUser*/
         ctx[3] ? "input is-danger" : "input");
         attr_dev(input0, "type", "email");
         attr_dev(input0, "placeholder", "");
         attr_dev(input0, "name", "email");
-        add_location(input0, file, 55, 18, 1633);
+        add_location(input0, file, 63, 18, 1891);
         attr_dev(i0, "class", "fas fa-envelope");
-        add_location(i0, file, 62, 20, 1928);
+        add_location(i0, file, 70, 20, 2186);
         attr_dev(span0, "class", "icon is-small is-left");
-        add_location(span0, file, 61, 18, 1871);
+        add_location(span0, file, 69, 18, 2129);
         attr_dev(div3, "class", "control has-icons-left");
-        add_location(div3, file, 54, 16, 1578);
+        add_location(div3, file, 62, 16, 1836);
         attr_dev(div4, "class", "field");
-        add_location(div4, file, 52, 14, 1491);
+        add_location(div4, file, 60, 14, 1749);
         attr_dev(label1, "class", "label");
-        add_location(label1, file, 70, 16, 2203);
+        add_location(label1, file, 78, 16, 2461);
         attr_dev(input1, "class", input1_class_value =
         /*invalidPassword*/
         ctx[2] ? "input is-danger" : "input");
         attr_dev(input1, "type", "password");
         attr_dev(input1, "placeholder", "");
         attr_dev(input1, "name", "password");
-        add_location(input1, file, 72, 18, 2312);
+        add_location(input1, file, 80, 18, 2570);
         attr_dev(i1, "class", "fas fa-lock");
-        add_location(i1, file, 79, 20, 2620);
+        add_location(i1, file, 87, 20, 2878);
         attr_dev(span1, "class", "icon is-small is-left");
-        add_location(span1, file, 78, 18, 2563);
+        add_location(span1, file, 86, 18, 2821);
         attr_dev(div5, "class", "control has-icons-left");
-        add_location(div5, file, 71, 16, 2257);
+        add_location(div5, file, 79, 16, 2515);
         attr_dev(div6, "class", "field");
-        add_location(div6, file, 69, 14, 2167);
+        add_location(div6, file, 77, 14, 2425);
         attr_dev(button, "class", "button is-primary");
         attr_dev(button, "type", "submit");
         toggle_class(button, "is-loading",
         /*loading*/
         ctx[6]);
-        add_location(button, file, 88, 18, 2929);
+        add_location(button, file, 96, 18, 3187);
         attr_dev(p, "class", "control");
-        add_location(p, file, 87, 16, 2891);
+        add_location(p, file, 95, 16, 3149);
         attr_dev(div7, "class", "field");
-        add_location(div7, file, 86, 14, 2855);
-        add_location(form, file, 51, 12, 1437);
+        add_location(div7, file, 94, 14, 3113);
+        add_location(form, file, 59, 12, 1695);
         attr_dev(div8, "class", "card-content");
-        add_location(div8, file, 50, 10, 1398);
+        add_location(div8, file, 58, 10, 1656);
         attr_dev(div9, "class", "card");
-        add_location(div9, file, 40, 8, 1049);
+        add_location(div9, file, 48, 8, 1307);
         attr_dev(div10, "class", "column is-half");
-        add_location(div10, file, 39, 6, 1012);
+        add_location(div10, file, 47, 6, 1270);
         attr_dev(div11, "class", "columns is-centered");
-        add_location(div11, file, 38, 4, 972);
+        add_location(div11, file, 46, 4, 1230);
         attr_dev(div12, "class", "container");
-        add_location(div12, file, 37, 2, 944);
+        add_location(div12, file, 45, 2, 1202);
         attr_dev(section, "class", "section");
-        add_location(section, file, 36, 0, 916);
+        add_location(section, file, 44, 0, 1174);
         dispose = [listen_dev(input0, "input",
         /*input0_input_handler*/
         ctx[8]), listen_dev(input1, "input",
@@ -27345,23 +27364,34 @@ var app = (function () {
 
               $$invalidate(2, invalidPassword = true);
               $$invalidate(4, invalidMessage = "A password is required");
-              _context.next = 18;
+              _context.next = 23;
               break;
 
             case 7:
-              $$invalidate(6, loading = true);
-              _context.prev = 8;
-              $$invalidate(6, loading = true);
-              _context.next = 12;
-              return regeneratorRuntime.awrap(auth.signInWithEmailAndPassword(email, password));
+              if (email) {
+                _context.next = 12;
+                break;
+              }
 
-            case 12:
-              _context.next = 17;
+              $$invalidate(3, invalidUser = true);
+              $$invalidate(5, invalidUserMessage = "An email is required");
+              _context.next = 23;
               break;
 
-            case 14:
-              _context.prev = 14;
-              _context.t0 = _context["catch"](8);
+            case 12:
+              $$invalidate(6, loading = true);
+              _context.prev = 13;
+              $$invalidate(6, loading = true);
+              _context.next = 17;
+              return regeneratorRuntime.awrap(auth.signInWithEmailAndPassword(email, password));
+
+            case 17:
+              _context.next = 22;
+              break;
+
+            case 19:
+              _context.prev = 19;
+              _context.t0 = _context["catch"](13);
 
               if (_context.t0.code === "auth/wrong-password") {
                 $$invalidate(2, invalidPassword = true);
@@ -27371,15 +27401,15 @@ var app = (function () {
                 $$invalidate(5, invalidUserMessage = "No account with this email found");
               }
 
-            case 17:
+            case 22:
               $$invalidate(6, loading = false);
 
-            case 18:
+            case 23:
             case "end":
               return _context.stop();
           }
         }
-      }, null, null, [[8, 14]]);
+      }, null, null, [[13, 19]]);
     };
 
     function input0_input_handler() {
@@ -27433,38 +27463,337 @@ var app = (function () {
     return AdminLogin;
   }(SvelteComponentDev);
 
-  var bulmaToast_min = createCommonjsModule(function (module, exports) {
-  /*!
-   * bulma-toast 1.5.4 
-   * (c) 2018-present @rfoel <rafaelfr@outlook.com> 
-   * Released under the MIT License.
-   */
-  (function(a,b){b(exports);})(commonjsGlobal,function(a){function b(a,b){if(!(a instanceof b))throw new TypeError("Cannot call a class as a function")}function c(a,b){for(var c,d=0;d<b.length;d++)c=b[d],c.enumerable=c.enumerable||!1,c.configurable=!0,"value"in c&&(c.writable=!0),Object.defineProperty(a,c.key,c);}function d(a,b,d){return b&&c(a.prototype,b),d&&c(a,d),a}function e(){j={noticesTopLeft:l.createElement("div"),noticesTopRight:l.createElement("div"),noticesBottomLeft:l.createElement("div"),noticesBottomRight:l.createElement("div"),noticesTopCenter:l.createElement("div"),noticesBottomCenter:l.createElement("div"),noticesCenter:l.createElement("div")};for(var a in j.noticesTopLeft.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","left:0;top:0;text-align:left;align-items:flex-start;")),j.noticesTopRight.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","right:0;top:0;text-align:right;align-items:flex-end;")),j.noticesBottomLeft.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","left:0;bottom:0;text-align:left;align-items:flex-start;")),j.noticesBottomRight.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","right:0;bottom:0;text-align:right;align-items:flex-end;")),j.noticesTopCenter.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","top:0;left:0;right:0;text-align:center;align-items:center;")),j.noticesBottomCenter.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","bottom:0;left:0;right:0;text-align:center;align-items:center;")),j.noticesCenter.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","top:0;left:0;right:0;bottom:0;flex-flow:column;justify-content:center;align-items:center;")),j)l.body.appendChild(j[a]);k={"top-left":j.noticesTopLeft,"top-right":j.noticesTopRight,"top-center":j.noticesTopCenter,"bottom-left":j.noticesBottomLeft,"bottom-right":j.noticesBottomRight,"bottom-center":j.noticesBottomCenter,center:j.noticesCenter},i=!0;}function f(a){i||e();var b=Object.assign({},h,a),c=new m(b),d=k[b.position]||k[h.position];d.appendChild(c.element);}function g(a){for(var b in j){var c=j[b];c.parentNode.removeChild(c);}l=a,e();}var h={message:"Your message here",duration:2e3,position:"top-right",closeOnClick:!0,opacity:1},i=!1,j={},k={},l=document,m=/*#__PURE__*/function(){function a(c){var d=this;b(this,a),this.element=l.createElement("div"),this.opacity=c.opacity,this.type=c.type,this.animate=c.animate,this.dismissible=c.dismissible,this.closeOnClick=c.closeOnClick,this.message=c.message,this.duration=c.duration,this.pauseOnHover=c.pauseOnHover;var e="width:auto;pointer-events:auto;display:inline-flex;white-space:pre-wrap;opacity:".concat(this.opacity,";"),f=["notification"];if(this.type&&f.push(this.type),this.animate&&this.animate["in"]&&(f.push("animated ".concat(this.animate["in"])),this.onAnimationEnd(function(){return d.element.classList.remove(d.animate["in"])})),this.element.className=f.join(" "),this.dismissible){var g=l.createElement("button");g.className="delete",g.addEventListener("click",function(){d.destroy();}),this.element.insertAdjacentElement("afterbegin",g);}else e+="padding: 1.25rem 1.5rem";this.closeOnClick&&this.element.addEventListener("click",function(){d.destroy();}),this.element.setAttribute("style",e),"string"==typeof this.message?this.element.insertAdjacentHTML("beforeend",this.message):this.element.appendChild(this.message);var h=new n(function(){d.destroy();},this.duration);this.pauseOnHover&&(this.element.addEventListener("mouseover",function(){h.pause();}),this.element.addEventListener("mouseout",function(){h.resume();}));}return d(a,[{key:"destroy",value:function(){var a=this;this.animate&&this.animate.out?(this.element.classList.add(this.animate.out),this.onAnimationEnd(function(){return a.removeChild(a.element)})):this.removeChild(this.element);}},{key:"removeChild",value:function(a){a.parentNode&&a.parentNode.removeChild(a);}},{key:"onAnimationEnd",value:function(){var a=0<arguments.length&&void 0!==arguments[0]?arguments[0]:function(){},b={animation:"animationend",OAnimation:"oAnimationEnd",MozAnimation:"mozAnimationEnd",WebkitAnimation:"webkitAnimationEnd"};for(var c in b)if(void 0!==this.element.style[c]){this.element.addEventListener(b[c],function(){return a()});break}}}]),a}(),n=/*#__PURE__*/function(){function a(c,d){b(this,a),this.timer,this.start,this.remaining=d,this.callback=c,this.resume();}return d(a,[{key:"pause",value:function(){window.clearTimeout(this.timer),this.remaining-=new Date-this.start;}},{key:"resume",value:function(){this.start=new Date,window.clearTimeout(this.timer),this.timer=window.setTimeout(this.callback,this.remaining);}}]),a}();a.setDoc=g,a.toast=f,Object.defineProperty(a,"__esModule",{value:!0});});
-  });
+  var file$1 = "src/components/AWSLogin.svelte"; // (63:16) {#if noaccessKeyIdMessage}
 
-  var toast = unwrapExports(bulmaToast_min);
-
-  var file$1 = "src/components/Home.svelte";
-
-  function create_fragment$1(ctx) {
+  function create_if_block_1$1(ctx) {
     var p;
     var block = {
       c: function create() {
         p = element("p");
-        p.textContent = "This is home";
-        add_location(p, file$1, 0, 0, 0);
+        p.textContent = "Please enter your AWS access key id";
+        attr_dev(p, "class", "help is-danger");
+        add_location(p, file$1, 63, 18, 1962);
+      },
+      m: function mount(target, anchor) {
+        insert_dev(target, p, anchor);
+      },
+      d: function destroy(detaching) {
+        if (detaching) detach_dev(p);
+      }
+    };
+    dispatch_dev("SvelteRegisterBlock", {
+      block: block,
+      id: create_if_block_1$1.name,
+      type: "if",
+      source: "(63:16) {#if noaccessKeyIdMessage}",
+      ctx: ctx
+    });
+    return block;
+  } // (81:16) {#if nosecretAccessKeyMessage}
+
+
+  function create_if_block$1(ctx) {
+    var p;
+    var block = {
+      c: function create() {
+        p = element("p");
+        p.textContent = "Please enter your AWS access key secret";
+        attr_dev(p, "class", "help is-danger");
+        add_location(p, file$1, 81, 18, 2686);
+      },
+      m: function mount(target, anchor) {
+        insert_dev(target, p, anchor);
+      },
+      d: function destroy(detaching) {
+        if (detaching) detach_dev(p);
+      }
+    };
+    dispatch_dev("SvelteRegisterBlock", {
+      block: block,
+      id: create_if_block$1.name,
+      type: "if",
+      source: "(81:16) {#if nosecretAccessKeyMessage}",
+      ctx: ctx
+    });
+    return block;
+  }
+
+  function create_fragment$1(ctx) {
+    var section;
+    var div12;
+    var div11;
+    var div10;
+    var div9;
+    var div2;
+    var div1;
+    var div0;
+    var h1;
+    var t1;
+    var h2;
+    var t3;
+    var div8;
+    var form;
+    var div4;
+    var label0;
+    var t5;
+    var div3;
+    var input0;
+    var t6;
+    var span0;
+    var i0;
+    var t7;
+    var t8;
+    var div6;
+    var label1;
+    var t10;
+    var div5;
+    var input1;
+    var t11;
+    var span1;
+    var i1;
+    var t12;
+    var t13;
+    var div7;
+    var p;
+    var button;
+    var dispose;
+    var if_block0 =
+    /*noaccessKeyIdMessage*/
+    ctx[3] && create_if_block_1$1(ctx);
+    var if_block1 =
+    /*nosecretAccessKeyMessage*/
+    ctx[4] && create_if_block$1(ctx);
+    var block = {
+      c: function create() {
+        section = element("section");
+        div12 = element("div");
+        div11 = element("div");
+        div10 = element("div");
+        div9 = element("div");
+        div2 = element("div");
+        div1 = element("div");
+        div0 = element("div");
+        h1 = element("h1");
+        h1.textContent = "AWS Credentials";
+        t1 = space();
+        h2 = element("h2");
+        h2.textContent = "Please perform a one time setup by entering your AWS credentials";
+        t3 = space();
+        div8 = element("div");
+        form = element("form");
+        div4 = element("div");
+        label0 = element("label");
+        label0.textContent = "Access Key Id";
+        t5 = space();
+        div3 = element("div");
+        input0 = element("input");
+        t6 = space();
+        span0 = element("span");
+        i0 = element("i");
+        t7 = space();
+        if (if_block0) if_block0.c();
+        t8 = space();
+        div6 = element("div");
+        label1 = element("label");
+        label1.textContent = "Access Key Secret";
+        t10 = space();
+        div5 = element("div");
+        input1 = element("input");
+        t11 = space();
+        span1 = element("span");
+        i1 = element("i");
+        t12 = space();
+        if (if_block1) if_block1.c();
+        t13 = space();
+        div7 = element("div");
+        p = element("p");
+        button = element("button");
+        button.textContent = "Submit";
+        attr_dev(h1, "class", "title");
+        add_location(h1, file$1, 39, 16, 1020);
+        attr_dev(h2, "class", "subtitle is-size-6");
+        add_location(h2, file$1, 40, 16, 1075);
+        attr_dev(div0, "class", "has-text-centered");
+        add_location(div0, file$1, 38, 14, 972);
+        attr_dev(div1, "class", "card-header-title is-centered");
+        add_location(div1, file$1, 37, 12, 914);
+        attr_dev(div2, "class", "card-header");
+        add_location(div2, file$1, 36, 10, 876);
+        attr_dev(label0, "class", "label");
+        add_location(label0, file$1, 49, 16, 1409);
+        attr_dev(input0, "class", "input");
+        attr_dev(input0, "type", "text");
+        attr_dev(input0, "placeholder", "");
+        attr_dev(input0, "name", "accessKeyId");
+        input0.required = true;
+        add_location(input0, file$1, 51, 18, 1523);
+        attr_dev(i0, "class", "fas fa-envelope");
+        add_location(i0, file$1, 59, 20, 1822);
+        attr_dev(span0, "class", "icon is-small is-left");
+        add_location(span0, file$1, 58, 18, 1765);
+        attr_dev(div3, "class", "control has-icons-left");
+        add_location(div3, file$1, 50, 16, 1468);
+        attr_dev(div4, "class", "field");
+        add_location(div4, file$1, 48, 14, 1373);
+        attr_dev(label1, "class", "label");
+        add_location(label1, file$1, 67, 16, 2121);
+        attr_dev(input1, "class", "input");
+        attr_dev(input1, "type", "text");
+        attr_dev(input1, "placeholder", "");
+        attr_dev(input1, "name", "accessKeySecret");
+        input1.required = true;
+        add_location(input1, file$1, 69, 18, 2239);
+        attr_dev(i1, "class", "fas fa-lock");
+        add_location(i1, file$1, 77, 20, 2546);
+        attr_dev(span1, "class", "icon is-small is-left");
+        add_location(span1, file$1, 76, 18, 2489);
+        attr_dev(div5, "class", "control has-icons-left");
+        add_location(div5, file$1, 68, 16, 2184);
+        attr_dev(div6, "class", "field");
+        add_location(div6, file$1, 66, 14, 2085);
+        attr_dev(button, "class", "button is-primary");
+        attr_dev(button, "type", "submit");
+        toggle_class(button, "is-loading",
+        /*loading*/
+        ctx[0]);
+        add_location(button, file$1, 86, 18, 2887);
+        attr_dev(p, "class", "control");
+        add_location(p, file$1, 85, 16, 2849);
+        attr_dev(div7, "class", "field");
+        add_location(div7, file$1, 84, 14, 2813);
+        add_location(form, file$1, 47, 12, 1318);
+        attr_dev(div8, "class", "card-content");
+        add_location(div8, file$1, 46, 10, 1279);
+        attr_dev(div9, "class", "card");
+        add_location(div9, file$1, 35, 8, 847);
+        attr_dev(div10, "class", "column is-half");
+        add_location(div10, file$1, 34, 6, 810);
+        attr_dev(div11, "class", "columns is-centered");
+        add_location(div11, file$1, 33, 4, 770);
+        attr_dev(div12, "class", "container");
+        add_location(div12, file$1, 32, 2, 742);
+        attr_dev(section, "class", "section");
+        add_location(section, file$1, 31, 0, 714);
+        dispose = [listen_dev(input0, "input",
+        /*input0_input_handler*/
+        ctx[7]), listen_dev(input1, "input",
+        /*input1_input_handler*/
+        ctx[8]), listen_dev(form, "submit", prevent_default(
+        /*submit*/
+        ctx[5]), false, true, false)];
       },
       l: function claim(nodes) {
         throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
       },
       m: function mount(target, anchor) {
-        insert_dev(target, p, anchor);
+        insert_dev(target, section, anchor);
+        append_dev(section, div12);
+        append_dev(div12, div11);
+        append_dev(div11, div10);
+        append_dev(div10, div9);
+        append_dev(div9, div2);
+        append_dev(div2, div1);
+        append_dev(div1, div0);
+        append_dev(div0, h1);
+        append_dev(div0, t1);
+        append_dev(div0, h2);
+        append_dev(div9, t3);
+        append_dev(div9, div8);
+        append_dev(div8, form);
+        append_dev(form, div4);
+        append_dev(div4, label0);
+        append_dev(div4, t5);
+        append_dev(div4, div3);
+        append_dev(div3, input0);
+        set_input_value(input0,
+        /*accessKeyId*/
+        ctx[1]);
+        append_dev(div3, t6);
+        append_dev(div3, span0);
+        append_dev(span0, i0);
+        append_dev(div4, t7);
+        if (if_block0) if_block0.m(div4, null);
+        append_dev(form, t8);
+        append_dev(form, div6);
+        append_dev(div6, label1);
+        append_dev(div6, t10);
+        append_dev(div6, div5);
+        append_dev(div5, input1);
+        set_input_value(input1,
+        /*secretAccessKey*/
+        ctx[2]);
+        append_dev(div5, t11);
+        append_dev(div5, span1);
+        append_dev(span1, i1);
+        append_dev(div6, t12);
+        if (if_block1) if_block1.m(div6, null);
+        append_dev(form, t13);
+        append_dev(form, div7);
+        append_dev(div7, p);
+        append_dev(p, button);
       },
-      p: noop,
+      p: function update(ctx, dirty) {
+        if (dirty[0] &
+        /*accessKeyId*/
+        2 && input0.value !==
+        /*accessKeyId*/
+        ctx[1]) {
+          set_input_value(input0,
+          /*accessKeyId*/
+          ctx[1]);
+        }
+
+        if (
+        /*noaccessKeyIdMessage*/
+        ctx[3]) {
+          if (!if_block0) {
+            if_block0 = create_if_block_1$1(ctx);
+            if_block0.c();
+            if_block0.m(div4, null);
+          }
+        } else if (if_block0) {
+          if_block0.d(1);
+          if_block0 = null;
+        }
+
+        if (dirty[0] &
+        /*secretAccessKey*/
+        4 && input1.value !==
+        /*secretAccessKey*/
+        ctx[2]) {
+          set_input_value(input1,
+          /*secretAccessKey*/
+          ctx[2]);
+        }
+
+        if (
+        /*nosecretAccessKeyMessage*/
+        ctx[4]) {
+          if (!if_block1) {
+            if_block1 = create_if_block$1(ctx);
+            if_block1.c();
+            if_block1.m(div6, null);
+          }
+        } else if (if_block1) {
+          if_block1.d(1);
+          if_block1 = null;
+        }
+
+        if (dirty[0] &
+        /*loading*/
+        1) {
+          toggle_class(button, "is-loading",
+          /*loading*/
+          ctx[0]);
+        }
+      },
       i: noop,
       o: noop,
       d: function destroy(detaching) {
-        if (detaching) detach_dev(p);
+        if (detaching) detach_dev(section);
+        if (if_block0) if_block0.d();
+        if (if_block1) if_block1.d();
+        run_all(dispose);
       }
     };
     dispatch_dev("SvelteRegisterBlock", {
@@ -27477,38 +27806,133 @@ var app = (function () {
     return block;
   }
 
-  var Home =
+  function instance$1($$self, $$props, $$invalidate) {
+    var dispatch = createEventDispatcher();
+    var loading = false;
+    var accessKeyId = "";
+    var secretAccessKey = "";
+    var noaccessKeyIdMessage = false;
+    var nosecretAccessKeyMessage = false;
+
+    var submit = function submit() {
+      return regeneratorRuntime.async(function submit$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              if (accessKeyId) {
+                _context.next = 4;
+                break;
+              }
+
+              $$invalidate(3, noaccessKeyIdMessage = true);
+              _context.next = 18;
+              break;
+
+            case 4:
+              if (secretAccessKey) {
+                _context.next = 8;
+                break;
+              }
+
+              $$invalidate(4, nosecretAccessKeyMessage = true);
+              _context.next = 18;
+              break;
+
+            case 8:
+              $$invalidate(0, loading = true);
+              _context.prev = 9;
+              _context.next = 12;
+              return regeneratorRuntime.awrap(db.ref("admin").set({
+                accessKeyId: accessKeyId,
+                secretAccessKey: secretAccessKey
+              }));
+
+            case 12:
+              dispatch("savedAWS");
+              _context.next = 18;
+              break;
+
+            case 15:
+              _context.prev = 15;
+              _context.t0 = _context["catch"](9);
+              console.error(_context.t0);
+
+            case 18:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, null, null, [[9, 15]]);
+    };
+
+    function input0_input_handler() {
+      accessKeyId = this.value;
+      $$invalidate(1, accessKeyId);
+    }
+
+    function input1_input_handler() {
+      secretAccessKey = this.value;
+      $$invalidate(2, secretAccessKey);
+    }
+
+    $$self.$capture_state = function () {
+      return {};
+    };
+
+    $$self.$inject_state = function ($$props) {
+      if ("loading" in $$props) $$invalidate(0, loading = $$props.loading);
+      if ("accessKeyId" in $$props) $$invalidate(1, accessKeyId = $$props.accessKeyId);
+      if ("secretAccessKey" in $$props) $$invalidate(2, secretAccessKey = $$props.secretAccessKey);
+      if ("noaccessKeyIdMessage" in $$props) $$invalidate(3, noaccessKeyIdMessage = $$props.noaccessKeyIdMessage);
+      if ("nosecretAccessKeyMessage" in $$props) $$invalidate(4, nosecretAccessKeyMessage = $$props.nosecretAccessKeyMessage);
+    };
+
+    return [loading, accessKeyId, secretAccessKey, noaccessKeyIdMessage, nosecretAccessKeyMessage, submit, dispatch, input0_input_handler, input1_input_handler];
+  }
+
+  var AWSLogin =
   /*#__PURE__*/
   function (_SvelteComponentDev) {
-    _inherits(Home, _SvelteComponentDev);
+    _inherits(AWSLogin, _SvelteComponentDev);
 
-    function Home(options) {
+    function AWSLogin(options) {
       var _this;
 
-      _classCallCheck(this, Home);
+      _classCallCheck(this, AWSLogin);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Home).call(this, options));
-      init(_assertThisInitialized(_this), options, null, create_fragment$1, safe_not_equal, {});
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(AWSLogin).call(this, options));
+      init(_assertThisInitialized(_this), options, instance$1, create_fragment$1, safe_not_equal, {});
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
-        tagName: "Home",
+        tagName: "AWSLogin",
         options: options,
         id: create_fragment$1.name
       });
       return _this;
     }
 
-    return Home;
+    return AWSLogin;
   }(SvelteComponentDev);
 
-  var file$2 = "src/components/HITs.svelte";
+  var bulmaToast_min = createCommonjsModule(function (module, exports) {
+  /*!
+   * bulma-toast 1.5.4 
+   * (c) 2018-present @rfoel <rafaelfr@outlook.com> 
+   * Released under the MIT License.
+   */
+  (function(a,b){b(exports);})(commonjsGlobal,function(a){function b(a,b){if(!(a instanceof b))throw new TypeError("Cannot call a class as a function")}function c(a,b){for(var c,d=0;d<b.length;d++)c=b[d],c.enumerable=c.enumerable||!1,c.configurable=!0,"value"in c&&(c.writable=!0),Object.defineProperty(a,c.key,c);}function d(a,b,d){return b&&c(a.prototype,b),d&&c(a,d),a}function e(){j={noticesTopLeft:l.createElement("div"),noticesTopRight:l.createElement("div"),noticesBottomLeft:l.createElement("div"),noticesBottomRight:l.createElement("div"),noticesTopCenter:l.createElement("div"),noticesBottomCenter:l.createElement("div"),noticesCenter:l.createElement("div")};for(var a in j.noticesTopLeft.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","left:0;top:0;text-align:left;align-items:flex-start;")),j.noticesTopRight.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","right:0;top:0;text-align:right;align-items:flex-end;")),j.noticesBottomLeft.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","left:0;bottom:0;text-align:left;align-items:flex-start;")),j.noticesBottomRight.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","right:0;bottom:0;text-align:right;align-items:flex-end;")),j.noticesTopCenter.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","top:0;left:0;right:0;text-align:center;align-items:center;")),j.noticesBottomCenter.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","bottom:0;left:0;right:0;text-align:center;align-items:center;")),j.noticesCenter.setAttribute("style","".concat("width:100%;z-index:99999;position:fixed;pointer-events:none;display:flex;flex-direction:column;padding:15px;","top:0;left:0;right:0;bottom:0;flex-flow:column;justify-content:center;align-items:center;")),j)l.body.appendChild(j[a]);k={"top-left":j.noticesTopLeft,"top-right":j.noticesTopRight,"top-center":j.noticesTopCenter,"bottom-left":j.noticesBottomLeft,"bottom-right":j.noticesBottomRight,"bottom-center":j.noticesBottomCenter,center:j.noticesCenter},i=!0;}function f(a){i||e();var b=Object.assign({},h,a),c=new m(b),d=k[b.position]||k[h.position];d.appendChild(c.element);}function g(a){for(var b in j){var c=j[b];c.parentNode.removeChild(c);}l=a,e();}var h={message:"Your message here",duration:2e3,position:"top-right",closeOnClick:!0,opacity:1},i=!1,j={},k={},l=document,m=/*#__PURE__*/function(){function a(c){var d=this;b(this,a),this.element=l.createElement("div"),this.opacity=c.opacity,this.type=c.type,this.animate=c.animate,this.dismissible=c.dismissible,this.closeOnClick=c.closeOnClick,this.message=c.message,this.duration=c.duration,this.pauseOnHover=c.pauseOnHover;var e="width:auto;pointer-events:auto;display:inline-flex;white-space:pre-wrap;opacity:".concat(this.opacity,";"),f=["notification"];if(this.type&&f.push(this.type),this.animate&&this.animate["in"]&&(f.push("animated ".concat(this.animate["in"])),this.onAnimationEnd(function(){return d.element.classList.remove(d.animate["in"])})),this.element.className=f.join(" "),this.dismissible){var g=l.createElement("button");g.className="delete",g.addEventListener("click",function(){d.destroy();}),this.element.insertAdjacentElement("afterbegin",g);}else e+="padding: 1.25rem 1.5rem";this.closeOnClick&&this.element.addEventListener("click",function(){d.destroy();}),this.element.setAttribute("style",e),"string"==typeof this.message?this.element.insertAdjacentHTML("beforeend",this.message):this.element.appendChild(this.message);var h=new n(function(){d.destroy();},this.duration);this.pauseOnHover&&(this.element.addEventListener("mouseover",function(){h.pause();}),this.element.addEventListener("mouseout",function(){h.resume();}));}return d(a,[{key:"destroy",value:function(){var a=this;this.animate&&this.animate.out?(this.element.classList.add(this.animate.out),this.onAnimationEnd(function(){return a.removeChild(a.element)})):this.removeChild(this.element);}},{key:"removeChild",value:function(a){a.parentNode&&a.parentNode.removeChild(a);}},{key:"onAnimationEnd",value:function(){var a=0<arguments.length&&void 0!==arguments[0]?arguments[0]:function(){},b={animation:"animationend",OAnimation:"oAnimationEnd",MozAnimation:"mozAnimationEnd",WebkitAnimation:"webkitAnimationEnd"};for(var c in b)if(void 0!==this.element.style[c]){this.element.addEventListener(b[c],function(){return a()});break}}}]),a}(),n=/*#__PURE__*/function(){function a(c,d){b(this,a),this.timer,this.start,this.remaining=d,this.callback=c,this.resume();}return d(a,[{key:"pause",value:function(){window.clearTimeout(this.timer),this.remaining-=new Date-this.start;}},{key:"resume",value:function(){this.start=new Date,window.clearTimeout(this.timer),this.timer=window.setTimeout(this.callback,this.remaining);}}]),a}();a.setDoc=g,a.toast=f,Object.defineProperty(a,"__esModule",{value:!0});});
+  });
+
+  var toast = unwrapExports(bulmaToast_min);
+
+  var file$2 = "src/components/Home.svelte";
 
   function create_fragment$2(ctx) {
     var p;
     var block = {
       c: function create() {
         p = element("p");
-        p.textContent = "This is hits";
+        p.textContent = "This is home";
         add_location(p, file$2, 0, 0, 0);
       },
       l: function claim(nodes) {
@@ -27534,6 +27958,63 @@ var app = (function () {
     return block;
   }
 
+  var Home =
+  /*#__PURE__*/
+  function (_SvelteComponentDev) {
+    _inherits(Home, _SvelteComponentDev);
+
+    function Home(options) {
+      var _this;
+
+      _classCallCheck(this, Home);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Home).call(this, options));
+      init(_assertThisInitialized(_this), options, null, create_fragment$2, safe_not_equal, {});
+      dispatch_dev("SvelteRegisterComponent", {
+        component: _assertThisInitialized(_this),
+        tagName: "Home",
+        options: options,
+        id: create_fragment$2.name
+      });
+      return _this;
+    }
+
+    return Home;
+  }(SvelteComponentDev);
+
+  var file$3 = "src/components/HITs.svelte";
+
+  function create_fragment$3(ctx) {
+    var p;
+    var block = {
+      c: function create() {
+        p = element("p");
+        p.textContent = "This is hits";
+        add_location(p, file$3, 0, 0, 0);
+      },
+      l: function claim(nodes) {
+        throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+      },
+      m: function mount(target, anchor) {
+        insert_dev(target, p, anchor);
+      },
+      p: noop,
+      i: noop,
+      o: noop,
+      d: function destroy(detaching) {
+        if (detaching) detach_dev(p);
+      }
+    };
+    dispatch_dev("SvelteRegisterBlock", {
+      block: block,
+      id: create_fragment$3.name,
+      type: "component",
+      source: "",
+      ctx: ctx
+    });
+    return block;
+  }
+
   var HITs =
   /*#__PURE__*/
   function (_SvelteComponentDev) {
@@ -27545,12 +28026,12 @@ var app = (function () {
       _classCallCheck(this, HITs);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(HITs).call(this, options));
-      init(_assertThisInitialized(_this), options, null, create_fragment$2, safe_not_equal, {});
+      init(_assertThisInitialized(_this), options, null, create_fragment$3, safe_not_equal, {});
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
         tagName: "HITs",
         options: options,
-        id: create_fragment$2.name
+        id: create_fragment$3.name
       });
       return _this;
     }
@@ -27980,7 +28461,7 @@ var app = (function () {
   });
 
   var console_1 = globals.console;
-  var file$3 = "src/components/CreateHIT.svelte";
+  var file$4 = "src/components/CreateHIT.svelte";
 
   function get_each_context(ctx, list, i) {
     var child_ctx = ctx.slice();
@@ -28004,7 +28485,7 @@ var app = (function () {
         /*qual*/
         ctx[25];
         option.value = option.__value;
-        add_location(option, file$3, 212, 18, 7133);
+        add_location(option, file$4, 212, 18, 7133);
       },
       m: function mount(target, anchor) {
         insert_dev(target, option, anchor);
@@ -28025,7 +28506,7 @@ var app = (function () {
     return block;
   }
 
-  function create_fragment$3(ctx) {
+  function create_fragment$4(ctx) {
     var div41;
     var form;
     var div9;
@@ -28258,119 +28739,119 @@ var app = (function () {
         button1 = element("button");
         button1.textContent = "Test";
         attr_dev(label0, "class", "label");
-        add_location(label0, file$3, 133, 10, 4374);
+        add_location(label0, file$4, 133, 10, 4374);
         attr_dev(input0, "type", "text");
         attr_dev(input0, "class", "input");
         input0.required = true;
-        add_location(input0, file$3, 135, 12, 4453);
+        add_location(input0, file$4, 135, 12, 4453);
         attr_dev(div0, "class", "control");
-        add_location(div0, file$3, 134, 10, 4419);
+        add_location(div0, file$4, 134, 10, 4419);
         attr_dev(div1, "class", "field");
-        add_location(div1, file$3, 132, 8, 4344);
+        add_location(div1, file$4, 132, 8, 4344);
         attr_dev(div2, "class", "column");
-        add_location(div2, file$3, 131, 6, 4315);
+        add_location(div2, file$4, 131, 6, 4315);
         attr_dev(label1, "class", "label");
-        add_location(label1, file$3, 141, 10, 4627);
+        add_location(label1, file$4, 141, 10, 4627);
         attr_dev(input1, "type", "text");
         attr_dev(input1, "class", "input");
         input1.required = true;
-        add_location(input1, file$3, 143, 12, 4709);
+        add_location(input1, file$4, 143, 12, 4709);
         attr_dev(p0, "class", "help");
-        add_location(p0, file$3, 144, 12, 4788);
+        add_location(p0, file$4, 144, 12, 4788);
         attr_dev(div3, "class", "control");
-        add_location(div3, file$3, 142, 10, 4675);
+        add_location(div3, file$4, 142, 10, 4675);
         attr_dev(div4, "class", "field");
-        add_location(div4, file$3, 140, 8, 4597);
+        add_location(div4, file$4, 140, 8, 4597);
         attr_dev(div5, "class", "column");
-        add_location(div5, file$3, 139, 6, 4568);
+        add_location(div5, file$4, 139, 6, 4568);
         attr_dev(label2, "class", "label");
-        add_location(label2, file$3, 150, 10, 4949);
+        add_location(label2, file$4, 150, 10, 4949);
         attr_dev(input2, "type", "text");
         attr_dev(input2, "class", "input");
         input2.required = true;
-        add_location(input2, file$3, 152, 12, 5037);
+        add_location(input2, file$4, 152, 12, 5037);
         attr_dev(div6, "class", "control");
-        add_location(div6, file$3, 151, 10, 5003);
+        add_location(div6, file$4, 151, 10, 5003);
         attr_dev(div7, "class", "field");
-        add_location(div7, file$3, 149, 8, 4919);
+        add_location(div7, file$4, 149, 8, 4919);
         attr_dev(div8, "class", "column");
-        add_location(div8, file$3, 148, 6, 4890);
+        add_location(div8, file$4, 148, 6, 4890);
         attr_dev(div9, "class", "columns");
-        add_location(div9, file$3, 130, 4, 4287);
+        add_location(div9, file$4, 130, 4, 4287);
         attr_dev(label3, "class", "label");
-        add_location(label3, file$3, 160, 10, 5254);
+        add_location(label3, file$4, 160, 10, 5254);
         attr_dev(input3, "type", "text");
         attr_dev(input3, "class", "input");
         input3.required = true;
-        add_location(input3, file$3, 162, 12, 5334);
+        add_location(input3, file$4, 162, 12, 5334);
         attr_dev(p1, "class", "help");
-        add_location(p1, file$3, 163, 12, 5411);
+        add_location(p1, file$4, 163, 12, 5411);
         attr_dev(div10, "class", "control");
-        add_location(div10, file$3, 161, 10, 5300);
+        add_location(div10, file$4, 161, 10, 5300);
         attr_dev(div11, "class", "field");
-        add_location(div11, file$3, 159, 8, 5224);
+        add_location(div11, file$4, 159, 8, 5224);
         attr_dev(div12, "class", "column");
-        add_location(div12, file$3, 158, 6, 5195);
+        add_location(div12, file$4, 158, 6, 5195);
         attr_dev(label4, "class", "label");
-        add_location(label4, file$3, 169, 10, 5557);
+        add_location(label4, file$4, 169, 10, 5557);
         attr_dev(input4, "type", "text");
         attr_dev(input4, "class", "input");
         input4.required = true;
-        add_location(input4, file$3, 171, 12, 5645);
+        add_location(input4, file$4, 171, 12, 5645);
         attr_dev(p2, "class", "help");
-        add_location(p2, file$3, 172, 12, 5733);
+        add_location(p2, file$4, 172, 12, 5733);
         attr_dev(div13, "class", "control");
-        add_location(div13, file$3, 170, 10, 5611);
+        add_location(div13, file$4, 170, 10, 5611);
         attr_dev(div14, "class", "field");
-        add_location(div14, file$3, 168, 8, 5527);
+        add_location(div14, file$4, 168, 8, 5527);
         attr_dev(div15, "class", "column");
-        add_location(div15, file$3, 167, 6, 5498);
+        add_location(div15, file$4, 167, 6, 5498);
         attr_dev(label5, "class", "label");
-        add_location(label5, file$3, 178, 10, 5874);
+        add_location(label5, file$4, 178, 10, 5874);
         attr_dev(input5, "type", "text");
         attr_dev(input5, "class", "input");
         input5.required = true;
-        add_location(input5, file$3, 180, 12, 5956);
+        add_location(input5, file$4, 180, 12, 5956);
         attr_dev(p3, "class", "help");
-        add_location(p3, file$3, 181, 12, 6045);
+        add_location(p3, file$4, 181, 12, 6045);
         attr_dev(div16, "class", "control");
-        add_location(div16, file$3, 179, 10, 5922);
+        add_location(div16, file$4, 179, 10, 5922);
         attr_dev(div17, "class", "field");
-        add_location(div17, file$3, 177, 8, 5844);
+        add_location(div17, file$4, 177, 8, 5844);
         attr_dev(div18, "class", "column");
-        add_location(div18, file$3, 176, 6, 5815);
+        add_location(div18, file$4, 176, 6, 5815);
         attr_dev(label6, "class", "label");
-        add_location(label6, file$3, 187, 10, 6200);
+        add_location(label6, file$4, 187, 10, 6200);
         attr_dev(input6, "type", "text");
         attr_dev(input6, "class", "input");
         input6.required = true;
-        add_location(input6, file$3, 189, 12, 6282);
+        add_location(input6, file$4, 189, 12, 6282);
         attr_dev(p4, "class", "help");
-        add_location(p4, file$3, 190, 12, 6361);
+        add_location(p4, file$4, 190, 12, 6361);
         attr_dev(div19, "class", "control");
-        add_location(div19, file$3, 188, 10, 6248);
+        add_location(div19, file$4, 188, 10, 6248);
         attr_dev(div20, "class", "field");
-        add_location(div20, file$3, 186, 8, 6170);
+        add_location(div20, file$4, 186, 8, 6170);
         attr_dev(div21, "class", "column");
-        add_location(div21, file$3, 185, 6, 6141);
+        add_location(div21, file$4, 185, 6, 6141);
         attr_dev(label7, "class", "label");
-        add_location(label7, file$3, 196, 10, 6502);
+        add_location(label7, file$4, 196, 10, 6502);
         attr_dev(input7, "type", "text");
         attr_dev(input7, "class", "input");
         input7.required = true;
-        add_location(input7, file$3, 198, 12, 6591);
+        add_location(input7, file$4, 198, 12, 6591);
         attr_dev(p5, "class", "help");
-        add_location(p5, file$3, 199, 12, 6676);
+        add_location(p5, file$4, 199, 12, 6676);
         attr_dev(div22, "class", "control");
-        add_location(div22, file$3, 197, 10, 6557);
+        add_location(div22, file$4, 197, 10, 6557);
         attr_dev(div23, "class", "field");
-        add_location(div23, file$3, 195, 8, 6472);
+        add_location(div23, file$4, 195, 8, 6472);
         attr_dev(div24, "class", "column");
-        add_location(div24, file$3, 194, 6, 6443);
+        add_location(div24, file$4, 194, 6, 6443);
         attr_dev(div25, "class", "columns");
-        add_location(div25, file$3, 157, 4, 5167);
+        add_location(div25, file$4, 157, 4, 5167);
         attr_dev(label8, "class", "label");
-        add_location(label8, file$3, 207, 10, 6878);
+        add_location(label8, file$4, 207, 10, 6878);
         select.multiple = true;
         if (
         /*selectedQuals*/
@@ -28380,50 +28861,50 @@ var app = (function () {
             ctx[23].call(select)
           );
         });
-        add_location(select, file$3, 210, 14, 7023);
+        add_location(select, file$4, 210, 14, 7023);
         attr_dev(div26, "class", "select is-multiple minheight svelte-18l2pvj");
-        add_location(div26, file$3, 209, 12, 6966);
+        add_location(div26, file$4, 209, 12, 6966);
         attr_dev(div27, "class", "control");
-        add_location(div27, file$3, 208, 10, 6932);
+        add_location(div27, file$4, 208, 10, 6932);
         attr_dev(div28, "class", "field");
-        add_location(div28, file$3, 206, 8, 6848);
+        add_location(div28, file$4, 206, 8, 6848);
         attr_dev(div29, "class", "column is-narrow");
-        add_location(div29, file$3, 205, 6, 6809);
+        add_location(div29, file$4, 205, 6, 6809);
         attr_dev(label9, "class", "label");
-        add_location(label9, file$3, 221, 10, 7347);
+        add_location(label9, file$4, 221, 10, 7347);
         attr_dev(textarea, "class", "textarea minheight svelte-18l2pvj");
         attr_dev(textarea, "placeholder", "");
         textarea.required = true;
-        add_location(textarea, file$3, 223, 12, 7432);
+        add_location(textarea, file$4, 223, 12, 7432);
         attr_dev(div30, "class", "control");
-        add_location(div30, file$3, 222, 10, 7398);
+        add_location(div30, file$4, 222, 10, 7398);
         attr_dev(div31, "class", "field");
-        add_location(div31, file$3, 220, 8, 7317);
+        add_location(div31, file$4, 220, 8, 7317);
         attr_dev(div32, "class", "column");
-        add_location(div32, file$3, 219, 6, 7288);
+        add_location(div32, file$4, 219, 6, 7288);
         attr_dev(div33, "class", "columns");
-        add_location(div33, file$3, 204, 4, 6781);
+        add_location(div33, file$4, 204, 4, 6781);
         attr_dev(button0, "class", "button is-success");
-        add_location(button0, file$3, 232, 12, 7702);
+        add_location(button0, file$4, 232, 12, 7702);
         attr_dev(div34, "class", "control");
-        add_location(div34, file$3, 231, 10, 7668);
+        add_location(div34, file$4, 231, 10, 7668);
         attr_dev(div35, "class", "field");
-        add_location(div35, file$3, 230, 8, 7638);
+        add_location(div35, file$4, 230, 8, 7638);
         attr_dev(div36, "class", "column");
-        add_location(div36, file$3, 229, 6, 7609);
+        add_location(div36, file$4, 229, 6, 7609);
         attr_dev(button1, "class", "button is-success");
-        add_location(button1, file$3, 239, 12, 7900);
+        add_location(button1, file$4, 239, 12, 7900);
         attr_dev(div37, "class", "control");
-        add_location(div37, file$3, 238, 10, 7866);
+        add_location(div37, file$4, 238, 10, 7866);
         attr_dev(div38, "class", "field");
-        add_location(div38, file$3, 237, 8, 7836);
+        add_location(div38, file$4, 237, 8, 7836);
         attr_dev(div39, "class", "column");
-        add_location(div39, file$3, 236, 6, 7807);
+        add_location(div39, file$4, 236, 6, 7807);
         attr_dev(div40, "class", "columns");
-        add_location(div40, file$3, 228, 4, 7581);
-        add_location(form, file$3, 129, 2, 4239);
+        add_location(div40, file$4, 228, 4, 7581);
+        add_location(form, file$4, 129, 2, 4239);
         attr_dev(div41, "class", "container");
-        add_location(div41, file$3, 128, 0, 4213);
+        add_location(div41, file$4, 128, 0, 4213);
         dispose = [listen_dev(input0, "input",
         /*input0_input_handler*/
         ctx[15]), listen_dev(input1, "input",
@@ -28725,7 +29206,7 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_fragment$3.name,
+      id: create_fragment$4.name,
       type: "component",
       source: "",
       ctx: ctx
@@ -28733,7 +29214,7 @@ var app = (function () {
     return block;
   }
 
-  function instance$1($$self, $$props, $$invalidate) {
+  function instance$2($$self, $$props, $$invalidate) {
     var mturk = $$props.mturk;
     var assignmentDuration = 3600;
     var description = "";
@@ -28989,14 +29470,14 @@ var app = (function () {
       _classCallCheck(this, CreateHIT);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(CreateHIT).call(this, options));
-      init(_assertThisInitialized(_this), options, instance$1, create_fragment$3, safe_not_equal, {
+      init(_assertThisInitialized(_this), options, instance$2, create_fragment$4, safe_not_equal, {
         mturk: 13
       });
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
         tagName: "CreateHIT",
         options: options,
-        id: create_fragment$3.name
+        id: create_fragment$4.name
       });
       var ctx = _this.$$.ctx;
       var props = options.props || {};
@@ -29102,7 +29583,7 @@ var app = (function () {
     ];
   });
 
-  var file$4 = "src/components/Participants.svelte";
+  var file$5 = "src/components/Participants.svelte";
 
   function get_each_context$1(ctx, list, i) {
     var child_ctx = ctx.slice();
@@ -29111,7 +29592,7 @@ var app = (function () {
   } // (186:14) {#if search}
 
 
-  function create_if_block$1(ctx) {
+  function create_if_block$2(ctx) {
     var span;
     var i;
     var dispose;
@@ -29120,9 +29601,9 @@ var app = (function () {
         span = element("span");
         i = element("i");
         attr_dev(i, "class", "fas fa-times");
-        add_location(i, file$4, 187, 18, 5217);
+        add_location(i, file$5, 187, 18, 5217);
         attr_dev(span, "class", "icon is-small is-right svelte-1qq3a4b");
-        add_location(span, file$4, 186, 16, 5138);
+        add_location(span, file$5, 186, 16, 5138);
         dispose = listen_dev(span, "click",
         /*clearSearch*/
         ctx[6], false, false, false);
@@ -29139,7 +29620,7 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_if_block$1.name,
+      id: create_if_block$2.name,
       type: "if",
       source: "(186:14) {#if search}",
       ctx: ctx
@@ -29218,22 +29699,22 @@ var app = (function () {
         span.textContent = "Complete";
         t13 = space();
         attr_dev(td0, "type", "text");
-        add_location(td0, file$4, 211, 14, 5868);
+        add_location(td0, file$5, 211, 14, 5868);
         attr_dev(td1, "type", "text");
-        add_location(td1, file$4, 212, 14, 5926);
+        add_location(td1, file$5, 212, 14, 5926);
         attr_dev(td2, "type", "number");
-        add_location(td2, file$4, 213, 14, 5988);
+        add_location(td2, file$5, 213, 14, 5988);
         attr_dev(td3, "type", "text");
-        add_location(td3, file$4, 214, 14, 6052);
+        add_location(td3, file$5, 214, 14, 6052);
         attr_dev(td4, "type", "text");
-        add_location(td4, file$4, 215, 14, 6123);
+        add_location(td4, file$5, 215, 14, 6123);
         attr_dev(td5, "type", "text");
-        add_location(td5, file$4, 216, 14, 6178);
+        add_location(td5, file$5, 216, 14, 6178);
         attr_dev(span, "class", "tag is-primary status svelte-1qq3a4b");
-        add_location(span, file$4, 218, 16, 6261);
-        add_location(td6, file$4, 217, 14, 6240);
+        add_location(span, file$5, 218, 16, 6261);
+        add_location(td6, file$5, 217, 14, 6240);
         attr_dev(tr, "class", "table-row");
-        add_location(tr, file$4, 210, 12, 5810);
+        add_location(tr, file$5, 210, 12, 5810);
         dispose = listen_dev(tr, "click",
         /*selectRow*/
         ctx[3], false, false, false);
@@ -29311,7 +29792,7 @@ var app = (function () {
     return block;
   }
 
-  function create_fragment$4(ctx) {
+  function create_fragment$5(ctx) {
     var div6;
     var div3;
     var div2;
@@ -29372,7 +29853,7 @@ var app = (function () {
     var dispose;
     var if_block =
     /*search*/
-    ctx[1] && create_if_block$1(ctx);
+    ctx[1] && create_if_block$2(ctx);
     var each_value =
     /*participantsFiltered*/
     ctx[2];
@@ -29456,73 +29937,73 @@ var app = (function () {
         }
 
         attr_dev(button0, "class", "button is-link");
-        add_location(button0, file$4, 146, 12, 3984);
+        add_location(button0, file$5, 146, 12, 3984);
         attr_dev(p0, "class", "control");
-        add_location(p0, file$4, 145, 10, 3952);
+        add_location(p0, file$5, 145, 10, 3952);
         attr_dev(div0, "class", "field is-grouped");
-        add_location(div0, file$4, 144, 8, 3911);
+        add_location(div0, file$5, 144, 8, 3911);
         attr_dev(div1, "class", "column is-full");
-        add_location(div1, file$4, 143, 6, 3874);
+        add_location(div1, file$5, 143, 6, 3874);
         attr_dev(div2, "class", "columns");
-        add_location(div2, file$4, 142, 4, 3846);
+        add_location(div2, file$5, 142, 4, 3846);
         attr_dev(div3, "class", "column has-text-left");
-        add_location(div3, file$4, 141, 2, 3807);
+        add_location(div3, file$5, 141, 2, 3807);
         attr_dev(button1, "class", "button is-danger");
-        add_location(button1, file$4, 155, 8, 4245);
+        add_location(button1, file$5, 155, 8, 4245);
         attr_dev(p1, "class", "control");
-        add_location(p1, file$4, 154, 6, 4217);
+        add_location(p1, file$5, 154, 6, 4217);
         attr_dev(button2, "class", "button is-success");
-        add_location(button2, file$4, 158, 8, 4347);
+        add_location(button2, file$5, 158, 8, 4347);
         attr_dev(p2, "class", "control");
-        add_location(p2, file$4, 157, 6, 4319);
+        add_location(p2, file$5, 157, 6, 4319);
         attr_dev(div4, "class", "field is-grouped");
         toggle_class(div4, "is-invisible", !
         /*rowSelected*/
         ctx[0]);
-        add_location(div4, file$4, 153, 4, 4146);
+        add_location(div4, file$5, 153, 4, 4146);
         attr_dev(div5, "class", "column has-text-right");
-        add_location(div5, file$4, 152, 2, 4106);
+        add_location(div5, file$5, 152, 2, 4106);
         attr_dev(div6, "class", "columns");
-        add_location(div6, file$4, 140, 0, 3783);
-        add_location(hr, file$4, 163, 0, 4440);
-        add_location(strong, file$4, 170, 12, 4614);
-        add_location(p3, file$4, 169, 10, 4598);
+        add_location(div6, file$5, 140, 0, 3783);
+        add_location(hr, file$5, 163, 0, 4440);
+        add_location(strong, file$5, 170, 12, 4614);
+        add_location(p3, file$5, 169, 10, 4598);
         attr_dev(div7, "class", "level-item");
-        add_location(div7, file$4, 168, 8, 4563);
+        add_location(div7, file$5, 168, 8, 4563);
         attr_dev(div8, "class", "level-left");
-        add_location(div8, file$4, 167, 6, 4530);
+        add_location(div8, file$5, 167, 6, 4530);
         attr_dev(input, "class", "input");
         attr_dev(input, "type", "text");
         attr_dev(input, "placeholder", "Find a participant");
-        add_location(input, file$4, 179, 14, 4893);
+        add_location(input, file$5, 179, 14, 4893);
         attr_dev(p4, "class", "control has-icons-right svelte-1qq3a4b");
-        add_location(p4, file$4, 178, 12, 4843);
+        add_location(p4, file$5, 178, 12, 4843);
         attr_dev(div9, "class", "field");
-        add_location(div9, file$4, 177, 10, 4811);
+        add_location(div9, file$5, 177, 10, 4811);
         attr_dev(div10, "class", "level-item");
-        add_location(div10, file$4, 176, 8, 4776);
+        add_location(div10, file$5, 176, 8, 4776);
         attr_dev(div11, "class", "level-right");
-        add_location(div11, file$4, 175, 6, 4742);
+        add_location(div11, file$5, 175, 6, 4742);
         attr_dev(div12, "class", "level");
-        add_location(div12, file$4, 166, 4, 4504);
-        add_location(th0, file$4, 199, 12, 5479);
-        add_location(th1, file$4, 200, 12, 5510);
-        add_location(th2, file$4, 201, 12, 5548);
-        add_location(th3, file$4, 202, 12, 5583);
-        add_location(th4, file$4, 203, 12, 5616);
-        add_location(th5, file$4, 204, 12, 5644);
-        add_location(th6, file$4, 205, 12, 5679);
-        add_location(tr, file$4, 198, 10, 5462);
-        add_location(thead, file$4, 197, 8, 5444);
-        add_location(tbody, file$4, 208, 8, 5736);
+        add_location(div12, file$5, 166, 4, 4504);
+        add_location(th0, file$5, 199, 12, 5479);
+        add_location(th1, file$5, 200, 12, 5510);
+        add_location(th2, file$5, 201, 12, 5548);
+        add_location(th3, file$5, 202, 12, 5583);
+        add_location(th4, file$5, 203, 12, 5616);
+        add_location(th5, file$5, 204, 12, 5644);
+        add_location(th6, file$5, 205, 12, 5679);
+        add_location(tr, file$5, 198, 10, 5462);
+        add_location(thead, file$5, 197, 8, 5444);
+        add_location(tbody, file$5, 208, 8, 5736);
         attr_dev(table, "class", "table is-hoverable");
-        add_location(table, file$4, 196, 6, 5401);
+        add_location(table, file$5, 196, 6, 5401);
         attr_dev(div13, "class", "table-container");
-        add_location(div13, file$4, 195, 4, 5365);
+        add_location(div13, file$5, 195, 4, 5365);
         attr_dev(div14, "class", "column is-full");
-        add_location(div14, file$4, 165, 2, 4471);
+        add_location(div14, file$5, 165, 2, 4471);
         attr_dev(div15, "class", "columns");
-        add_location(div15, file$4, 164, 0, 4447);
+        add_location(div15, file$5, 164, 0, 4447);
         dispose = [listen_dev(input, "input",
         /*input_input_handler*/
         ctx[9]), listen_dev(input, "keyup",
@@ -29627,7 +30108,7 @@ var app = (function () {
           if (if_block) {
             if_block.p(ctx, dirty);
           } else {
-            if_block = create_if_block$1(ctx);
+            if_block = create_if_block$2(ctx);
             if_block.c();
             if_block.m(p4, null);
           }
@@ -29681,7 +30162,7 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_fragment$4.name,
+      id: create_fragment$5.name,
       type: "component",
       source: "",
       ctx: ctx
@@ -29689,7 +30170,7 @@ var app = (function () {
     return block;
   }
 
-  function instance$2($$self, $$props, $$invalidate) {
+  function instance$3($$self, $$props, $$invalidate) {
     var participants = [];
     var rowSelected = false;
     var search = "";
@@ -29862,12 +30343,12 @@ var app = (function () {
       _classCallCheck(this, Participants);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(Participants).call(this, options));
-      init(_assertThisInitialized(_this), options, instance$2, create_fragment$4, safe_not_equal, {});
+      init(_assertThisInitialized(_this), options, instance$3, create_fragment$5, safe_not_equal, {});
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
         tagName: "Participants",
         options: options,
-        id: create_fragment$4.name
+        id: create_fragment$5.name
       });
       return _this;
     }
@@ -29876,9 +30357,9 @@ var app = (function () {
   }(SvelteComponentDev);
 
   var console_1$1 = globals.console;
-  var file$5 = "src/components/AdminPanel.svelte"; // (178:10) {#if !mturkReady}
+  var file$6 = "src/components/AdminPanel.svelte"; // (178:10) {#if !mturkReady}
 
-  function create_if_block$2(ctx) {
+  function create_if_block$3(ctx) {
     var t;
     var block = {
       c: function create() {
@@ -29893,7 +30374,7 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_if_block$2.name,
+      id: create_if_block$3.name,
       type: "if",
       source: "(178:10) {#if !mturkReady}",
       ctx: ctx
@@ -29901,7 +30382,7 @@ var app = (function () {
     return block;
   }
 
-  function create_fragment$5(ctx) {
+  function create_fragment$6(ctx) {
     var script;
     var script_src_value;
     var t0;
@@ -29979,7 +30460,7 @@ var app = (function () {
     var dispose;
     var if_block = !
     /*mturkReady*/
-    ctx[3] && create_if_block$2(ctx);
+    ctx[3] && create_if_block$3(ctx);
     var switch_value =
     /*component*/
     ctx[6];
@@ -30094,9 +30575,9 @@ var app = (function () {
         section0 = element("section");
         if (switch_instance) create_component(switch_instance.$$.fragment);
         if (script.src !== (script_src_value = "https://sdk.amazonaws.com/js/aws-sdk-2.590.0.min.js")) attr_dev(script, "src", script_src_value);
-        add_location(script, file$5, 166, 2, 3510);
+        add_location(script, file$6, 166, 2, 3510);
         attr_dev(h1, "class", "is-size-3");
-        add_location(h1, file$5, 174, 8, 3842);
+        add_location(h1, file$6, 174, 8, 3842);
         attr_dev(span, "class", "tag");
         toggle_class(span, "is-primary",
         /*mturkReady*/
@@ -30104,84 +30585,84 @@ var app = (function () {
         toggle_class(span, "is-danger", !
         /*mturkReady*/
         ctx[3]);
-        add_location(span, file$5, 175, 8, 3889);
+        add_location(span, file$6, 175, 8, 3889);
         attr_dev(input, "type", "checkbox");
-        add_location(input, file$5, 181, 10, 4104);
+        add_location(input, file$6, 181, 10, 4104);
         attr_dev(label, "class", "checkbox is-block");
-        add_location(label, file$5, 180, 8, 4060);
-        add_location(hr0, file$5, 184, 8, 4218);
+        add_location(label, file$6, 180, 8, 4060);
+        add_location(hr0, file$6, 184, 8, 4218);
         attr_dev(div0, "class", "has-text-centered");
-        add_location(div0, file$5, 173, 6, 3802);
+        add_location(div0, file$6, 173, 6, 3802);
         attr_dev(header, "class", "dashboard-panel-header svelte-dje9vs");
-        add_location(header, file$5, 172, 4, 3756);
+        add_location(header, file$6, 172, 4, 3756);
         attr_dev(p0, "class", "menu-label");
-        add_location(p0, file$5, 189, 8, 4344);
+        add_location(p0, file$6, 189, 8, 4344);
         attr_dev(a0, "href", "javascript:;");
-        add_location(a0, file$5, 192, 12, 4433);
-        add_location(li0, file$5, 191, 10, 4416);
+        add_location(a0, file$6, 192, 12, 4433);
+        add_location(li0, file$6, 191, 10, 4416);
         attr_dev(a1, "href", "javascript:;");
-        add_location(a1, file$5, 195, 12, 4553);
-        add_location(li1, file$5, 194, 10, 4536);
+        add_location(a1, file$6, 195, 12, 4553);
+        add_location(li1, file$6, 194, 10, 4536);
         attr_dev(ul0, "class", "menu-list");
-        add_location(ul0, file$5, 190, 8, 4383);
+        add_location(ul0, file$6, 190, 8, 4383);
         attr_dev(p1, "class", "menu-label");
-        add_location(p1, file$5, 198, 8, 4660);
+        add_location(p1, file$6, 198, 8, 4660);
         attr_dev(a2, "href", "javascript:;");
-        add_location(a2, file$5, 201, 12, 4753);
+        add_location(a2, file$6, 201, 12, 4753);
         attr_dev(a3, "href", "javascript:;");
-        add_location(a3, file$5, 204, 12, 4891);
-        add_location(li2, file$5, 200, 10, 4736);
+        add_location(a3, file$6, 204, 12, 4891);
+        add_location(li2, file$6, 200, 10, 4736);
         attr_dev(ul1, "class", "menu-list");
-        add_location(ul1, file$5, 199, 8, 4703);
+        add_location(ul1, file$6, 199, 8, 4703);
         attr_dev(p2, "class", "menu-label");
-        add_location(p2, file$5, 207, 8, 4985);
+        add_location(p2, file$6, 207, 8, 4985);
         attr_dev(a4, "href", "javascript:;");
-        add_location(a4, file$5, 210, 12, 5074);
-        add_location(li3, file$5, 209, 10, 5057);
+        add_location(a4, file$6, 210, 12, 5074);
+        add_location(li3, file$6, 209, 10, 5057);
         attr_dev(a5, "href", "javascript:;");
-        add_location(a5, file$5, 215, 12, 5236);
-        add_location(li4, file$5, 214, 10, 5219);
+        add_location(a5, file$6, 215, 12, 5236);
+        add_location(li4, file$6, 214, 10, 5219);
         attr_dev(a6, "href", "javascript:;");
-        add_location(a6, file$5, 218, 12, 5342);
-        add_location(li5, file$5, 217, 10, 5325);
+        add_location(a6, file$6, 218, 12, 5342);
+        add_location(li5, file$6, 217, 10, 5325);
         attr_dev(a7, "href", "javascript:;");
-        add_location(a7, file$5, 221, 12, 5442);
-        add_location(li6, file$5, 220, 10, 5425);
+        add_location(a7, file$6, 221, 12, 5442);
+        add_location(li6, file$6, 220, 10, 5425);
         attr_dev(ul2, "class", "menu-list");
-        add_location(ul2, file$5, 208, 8, 5024);
+        add_location(ul2, file$6, 208, 8, 5024);
         attr_dev(p3, "class", "menu-label");
-        add_location(p3, file$5, 224, 8, 5540);
+        add_location(p3, file$6, 224, 8, 5540);
         attr_dev(a8, "href", "javascript:;");
-        add_location(a8, file$5, 227, 12, 5636);
-        add_location(li7, file$5, 226, 10, 5619);
+        add_location(a8, file$6, 227, 12, 5636);
+        add_location(li7, file$6, 226, 10, 5619);
         attr_dev(a9, "href", "javascript:;");
-        add_location(a9, file$5, 230, 12, 5747);
-        add_location(li8, file$5, 229, 10, 5730);
+        add_location(a9, file$6, 230, 12, 5747);
+        add_location(li8, file$6, 229, 10, 5730);
         attr_dev(ul3, "class", "menu-list");
-        add_location(ul3, file$5, 225, 8, 5586);
+        add_location(ul3, file$6, 225, 8, 5586);
         attr_dev(button, "class", "button is-primary");
         toggle_class(button, "is-loading",
         /*loading*/
         ctx[2]);
-        add_location(button, file$5, 234, 10, 5882);
+        add_location(button, file$6, 234, 10, 5882);
         attr_dev(p4, "class", "menu-label");
-        add_location(p4, file$5, 233, 8, 5849);
+        add_location(p4, file$6, 233, 8, 5849);
         attr_dev(aside, "class", "menu has-text-white");
-        add_location(aside, file$5, 188, 6, 4300);
+        add_location(aside, file$6, 188, 6, 4300);
         attr_dev(div1, "class", "dashboard-panel-content");
-        add_location(div1, file$5, 187, 4, 4256);
+        add_location(div1, file$6, 187, 4, 4256);
         attr_dev(div2, "class", "dashboard-panel is-medium has-thick-padding has-background-grey-lighter svelte-dje9vs");
-        add_location(div2, file$5, 171, 2, 3666);
+        add_location(div2, file$6, 171, 2, 3666);
         attr_dev(p5, "class", "title is-size-2");
-        add_location(p5, file$5, 243, 6, 6131);
-        add_location(hr1, file$5, 244, 6, 6176);
-        add_location(section0, file$5, 245, 6, 6189);
+        add_location(p5, file$6, 243, 6, 6131);
+        add_location(hr1, file$6, 244, 6, 6176);
+        add_location(section0, file$6, 245, 6, 6189);
         attr_dev(section1, "class", "section");
-        add_location(section1, file$5, 242, 4, 6099);
+        add_location(section1, file$6, 242, 4, 6099);
         attr_dev(div3, "class", "dashboard-main is-scrollable svelte-dje9vs");
-        add_location(div3, file$5, 241, 2, 6052);
+        add_location(div3, file$6, 241, 2, 6052);
         attr_dev(div4, "class", "dashboard is-full-height svelte-dje9vs");
-        add_location(div4, file$5, 170, 0, 3625);
+        add_location(div4, file$6, 170, 0, 3625);
         dispose = [listen_dev(script, "load",
         /*initMTurk*/
         ctx[9], false, false, false), listen_dev(input, "change",
@@ -30304,7 +30785,7 @@ var app = (function () {
         /*mturkReady*/
         ctx[3]) {
           if (!if_block) {
-            if_block = create_if_block$2(ctx);
+            if_block = create_if_block$3(ctx);
             if_block.c();
             if_block.m(span, t4);
           }
@@ -30401,7 +30882,7 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_fragment$5.name,
+      id: create_fragment$6.name,
       type: "component",
       source: "",
       ctx: ctx
@@ -30409,7 +30890,7 @@ var app = (function () {
     return block;
   }
 
-  function instance$3($$self, $$props, $$invalidate) {
+  function instance$4($$self, $$props, $$invalidate) {
     var AWSConfig = $$props.AWSConfig;
     var currentState = "home";
     var mturk;
@@ -30621,14 +31102,14 @@ var app = (function () {
       _classCallCheck(this, AdminPanel);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(AdminPanel).call(this, options));
-      init(_assertThisInitialized(_this), options, instance$3, create_fragment$5, safe_not_equal, {
+      init(_assertThisInitialized(_this), options, instance$4, create_fragment$6, safe_not_equal, {
         AWSConfig: 11
       });
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
         tagName: "AdminPanel",
         options: options,
-        id: create_fragment$5.name
+        id: create_fragment$6.name
       });
       var ctx = _this.$$.ctx;
       var props = options.props || {};
@@ -30655,53 +31136,99 @@ var app = (function () {
     return AdminPanel;
   }(SvelteComponentDev);
 
-  function create_fragment$6(ctx) {
-    var block = {
-      c: noop,
-      l: function claim(nodes) {
-        throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+  function create_else_block(ctx) {
+    var current;
+    var adminpanel = new AdminPanel({
+      props: {
+        AWSConfig:
+        /*AWSConfig*/
+        ctx[2]
       },
-      m: noop,
-      p: noop,
-      i: noop,
-      o: noop,
-      d: noop
+      $$inline: true
+    });
+    var block = {
+      c: function create() {
+        create_component(adminpanel.$$.fragment);
+      },
+      m: function mount(target, anchor) {
+        mount_component(adminpanel, target, anchor);
+        current = true;
+      },
+      p: function update(ctx, dirty) {
+        var adminpanel_changes = {};
+        if (dirty[0] &
+        /*AWSConfig*/
+        4) adminpanel_changes.AWSConfig =
+        /*AWSConfig*/
+        ctx[2];
+        adminpanel.$set(adminpanel_changes);
+      },
+      i: function intro(local) {
+        if (current) return;
+        transition_in(adminpanel.$$.fragment, local);
+        current = true;
+      },
+      o: function outro(local) {
+        transition_out(adminpanel.$$.fragment, local);
+        current = false;
+      },
+      d: function destroy(detaching) {
+        destroy_component(adminpanel, detaching);
+      }
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_fragment$6.name,
-      type: "component",
-      source: "",
+      id: create_else_block.name,
+      type: "else",
+      source: "(40:0) {:else}",
       ctx: ctx
     });
     return block;
-  }
+  } // (38:21) 
 
-  var Loading =
-  /*#__PURE__*/
-  function (_SvelteComponentDev) {
-    _inherits(Loading, _SvelteComponentDev);
 
-    function Loading(options) {
-      var _this;
+  function create_if_block_1$2(ctx) {
+    var current;
+    var awslogin = new AWSLogin({
+      $$inline: true
+    });
+    awslogin.$on("savedAWS",
+    /*savedAWS_handler*/
+    ctx[3]);
+    var block = {
+      c: function create() {
+        create_component(awslogin.$$.fragment);
+      },
+      m: function mount(target, anchor) {
+        mount_component(awslogin, target, anchor);
+        current = true;
+      },
+      p: noop,
+      i: function intro(local) {
+        if (current) return;
+        transition_in(awslogin.$$.fragment, local);
+        current = true;
+      },
+      o: function outro(local) {
+        transition_out(awslogin.$$.fragment, local);
+        current = false;
+      },
+      d: function destroy(detaching) {
+        destroy_component(awslogin, detaching);
+      }
+    };
+    dispatch_dev("SvelteRegisterBlock", {
+      block: block,
+      id: create_if_block_1$2.name,
+      type: "if",
+      source: "(38:21) ",
+      ctx: ctx
+    });
+    return block;
+  } // (36:0) {#if !loggedIn}
 
-      _classCallCheck(this, Loading);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Loading).call(this, options));
-      init(_assertThisInitialized(_this), options, null, create_fragment$6, safe_not_equal, {});
-      dispatch_dev("SvelteRegisterComponent", {
-        component: _assertThisInitialized(_this),
-        tagName: "Loading",
-        options: options,
-        id: create_fragment$6.name
-      });
-      return _this;
-    }
-
-    return Loading;
-  }(SvelteComponentDev);
-
-  function create_else_block(ctx) {
+  function create_if_block$4(ctx) {
     var current;
     var adminlogin = new AdminLogin({
       $$inline: true
@@ -30730,133 +31257,9 @@ var app = (function () {
     };
     dispatch_dev("SvelteRegisterBlock", {
       block: block,
-      id: create_else_block.name,
-      type: "else",
-      source: "(34:0) {:else}",
-      ctx: ctx
-    });
-    return block;
-  } // (32:19) 
-
-
-  function create_if_block_1$1(ctx) {
-    var current;
-    var adminpanel = new AdminPanel({
-      props: {
-        AWSConfig: AWSConfig
-      },
-      $$inline: true
-    });
-    var block = {
-      c: function create() {
-        create_component(adminpanel.$$.fragment);
-      },
-      m: function mount(target, anchor) {
-        mount_component(adminpanel, target, anchor);
-        current = true;
-      },
-      p: noop,
-      i: function intro(local) {
-        if (current) return;
-        transition_in(adminpanel.$$.fragment, local);
-        current = true;
-      },
-      o: function outro(local) {
-        transition_out(adminpanel.$$.fragment, local);
-        current = false;
-      },
-      d: function destroy(detaching) {
-        destroy_component(adminpanel, detaching);
-      }
-    };
-    dispatch_dev("SvelteRegisterBlock", {
-      block: block,
-      id: create_if_block_1$1.name,
+      id: create_if_block$4.name,
       type: "if",
-      source: "(32:19) ",
-      ctx: ctx
-    });
-    return block;
-  } // (30:0) {#if loading}
-
-
-  function create_if_block$3(ctx) {
-    var current;
-    var loading_1 = new Loading({
-      props: {
-        $$slots: {
-          default: [create_default_slot]
-        },
-        $$scope: {
-          ctx: ctx
-        }
-      },
-      $$inline: true
-    });
-    var block = {
-      c: function create() {
-        create_component(loading_1.$$.fragment);
-      },
-      m: function mount(target, anchor) {
-        mount_component(loading_1, target, anchor);
-        current = true;
-      },
-      p: function update(ctx, dirty) {
-        var loading_1_changes = {};
-
-        if (dirty[0] &
-        /*$$scope*/
-        4) {
-          loading_1_changes.$$scope = {
-            dirty: dirty,
-            ctx: ctx
-          };
-        }
-
-        loading_1.$set(loading_1_changes);
-      },
-      i: function intro(local) {
-        if (current) return;
-        transition_in(loading_1.$$.fragment, local);
-        current = true;
-      },
-      o: function outro(local) {
-        transition_out(loading_1.$$.fragment, local);
-        current = false;
-      },
-      d: function destroy(detaching) {
-        destroy_component(loading_1, detaching);
-      }
-    };
-    dispatch_dev("SvelteRegisterBlock", {
-      block: block,
-      id: create_if_block$3.name,
-      type: "if",
-      source: "(30:0) {#if loading}",
-      ctx: ctx
-    });
-    return block;
-  } // (31:2) <Loading>
-
-
-  function create_default_slot(ctx) {
-    var t;
-    var block = {
-      c: function create() {
-        t = text("Loading...");
-      },
-      m: function mount(target, anchor) {
-        insert_dev(target, t, anchor);
-      },
-      d: function destroy(detaching) {
-        if (detaching) detach_dev(t);
-      }
-    };
-    dispatch_dev("SvelteRegisterBlock", {
-      block: block,
-      id: create_default_slot.name,
-      type: "slot",
-      source: "(31:2) <Loading>",
+      source: "(36:0) {#if !loggedIn}",
       ctx: ctx
     });
     return block;
@@ -30867,16 +31270,16 @@ var app = (function () {
     var if_block;
     var if_block_anchor;
     var current;
-    var if_block_creators = [create_if_block$3, create_if_block_1$1, create_else_block];
+    var if_block_creators = [create_if_block$4, create_if_block_1$2, create_else_block];
     var if_blocks = [];
 
     function select_block_type(ctx, dirty) {
-      if (
-      /*loading*/
-      ctx[1]) return 0;
-      if (
+      if (!
       /*loggedIn*/
-      ctx[0]) return 1;
+      ctx[0]) return 0;
+      if (
+      /*missingAWS*/
+      ctx[1]) return 1;
       return 2;
     }
 
@@ -30942,46 +31345,65 @@ var app = (function () {
     return block;
   }
 
-  function instance$4($$self, $$props, $$invalidate) {
-    var loggedIn;
-    var loading = true;
+  function instance$5($$self, $$props, $$invalidate) {
+    var loggedIn = false;
+    var missingAWS = false;
+    var AWSConfig;
     onMount(function _callee2() {
       return regeneratorRuntime.async(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              try {
-                auth.onAuthStateChanged(function _callee(user) {
-                  return regeneratorRuntime.async(function _callee$(_context) {
-                    while (1) {
-                      switch (_context.prev = _context.next) {
-                        case 0:
-                          if (!user) {
-                            $$invalidate(0, loggedIn = false);
-                          } else {
-                            $$invalidate(0, loggedIn = true);
-                          }
+              _context2.prev = 0;
+              _context2.next = 3;
+              return regeneratorRuntime.awrap(auth.onAuthStateChanged(function _callee(user) {
+                return regeneratorRuntime.async(function _callee$(_context) {
+                  while (1) {
+                    switch (_context.prev = _context.next) {
+                      case 0:
+                        if (user) {
+                          db.ref("admin").once("value", function (snapshot) {
+                            if (!snapshot.exists()) {
+                              $$invalidate(0, loggedIn = true);
+                              $$invalidate(1, missingAWS = true);
+                            } else {
+                              $$invalidate(2, AWSConfig = snapshot.val());
+                              $$invalidate(0, loggedIn = true);
+                              $$invalidate(1, missingAWS = false);
+                            }
+                          });
+                        } else {
+                          $$invalidate(0, loggedIn = false);
+                        }
 
-                          $$invalidate(1, loading = false);
-
-                        case 2:
-                        case "end":
-                          return _context.stop();
-                      }
+                      case 1:
+                      case "end":
+                        return _context.stop();
                     }
-                  });
+                  }
                 });
-              } catch (error) {
-                console.error(error);
-              }
+              }));
 
-            case 1:
+            case 3:
+              _context2.next = 8;
+              break;
+
+            case 5:
+              _context2.prev = 5;
+              _context2.t0 = _context2["catch"](0);
+              console.error(_context2.t0);
+
+            case 8:
             case "end":
               return _context2.stop();
           }
         }
-      });
+      }, null, null, [[0, 5]]);
     });
+
+    var savedAWS_handler = function savedAWS_handler() {
+      return $$invalidate(1, missingAWS = false);
+    };
 
     $$self.$capture_state = function () {
       return {};
@@ -30989,10 +31411,11 @@ var app = (function () {
 
     $$self.$inject_state = function ($$props) {
       if ("loggedIn" in $$props) $$invalidate(0, loggedIn = $$props.loggedIn);
-      if ("loading" in $$props) $$invalidate(1, loading = $$props.loading);
+      if ("missingAWS" in $$props) $$invalidate(1, missingAWS = $$props.missingAWS);
+      if ("AWSConfig" in $$props) $$invalidate(2, AWSConfig = $$props.AWSConfig);
     };
 
-    return [loggedIn, loading];
+    return [loggedIn, missingAWS, AWSConfig, savedAWS_handler];
   }
 
   var App =
@@ -31006,7 +31429,7 @@ var app = (function () {
       _classCallCheck(this, App);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(App).call(this, options));
-      init(_assertThisInitialized(_this), options, instance$4, create_fragment$7, safe_not_equal, {});
+      init(_assertThisInitialized(_this), options, instance$5, create_fragment$7, safe_not_equal, {});
       dispatch_dev("SvelteRegisterComponent", {
         component: _assertThisInitialized(_this),
         tagName: "App",
