@@ -1,8 +1,10 @@
 # Svelte-Turk
 
-## 🚧 Work in Progress 🚧
+## 🚧 Work in Progress 🚧  
 
 ## Assistance Welcome 💻
+
+## [Project Roadmap and API Plan](https://www.notion.so/ejolly/Svelte-Turk-6c250e6f736642b0a1271c027514d5fb)
 
 [Svelte](https://svelte.dev/) app for interacting with Amazon's Mechanical Turk and storing data in Firebase. Designed to be lightweight, offering a way to store data and interact with Mturk without all the complications of setting up a backend or database server. Hopefully this can grow into a viable simple alternative to something like [PsiTurk](https://psiturk.org/).  
 
