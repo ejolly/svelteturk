@@ -361,28 +361,28 @@ const file = "renderer/src/components/App.svelte";
 
 function get_each_context(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[9] = list[i];
+	child_ctx[13] = list[i];
 	return child_ctx;
 }
 
-// (47:4) {#each myItems as item}
+// (59:4) {#each myItems as item}
 function create_each_block(ctx) {
 	let li;
-	let t_value = /*item*/ ctx[9].item + "";
+	let t_value = /*item*/ ctx[13].item + "";
 	let t;
 
 	const block = {
 		c: function create() {
 			li = element("li");
 			t = text(t_value);
-			add_location(li, file, 47, 6, 1234);
+			add_location(li, file, 59, 6, 1631);
 		},
 		m: function mount(target, anchor) {
 			insert_dev(target, li, anchor);
 			append_dev(li, t);
 		},
 		p: function update(ctx, dirty) {
-			if (dirty & /*myItems*/ 1 && t_value !== (t_value = /*item*/ ctx[9].item + "")) set_data_dev(t, t_value);
+			if (dirty & /*myItems*/ 1 && t_value !== (t_value = /*item*/ ctx[13].item + "")) set_data_dev(t, t_value);
 		},
 		d: function destroy(detaching) {
 			if (detaching) detach_dev(li);
@@ -393,7 +393,7 @@ function create_each_block(ctx) {
 		block,
 		id: create_each_block.name,
 		type: "each",
-		source: "(47:4) {#each myItems as item}",
+		source: "(59:4) {#each myItems as item}",
 		ctx
 	});
 
@@ -445,16 +445,16 @@ function create_fragment(ctx) {
 
 			attr_dev(input, "type", "text");
 			attr_dev(input, "placeholder", "new item");
-			add_location(input, file, 40, 4, 945);
+			add_location(input, file, 52, 4, 1342);
 			attr_dev(button0, "type", "submit");
-			add_location(button0, file, 41, 4, 1015);
+			add_location(button0, file, 53, 4, 1412);
 			attr_dev(button1, "type", "button");
-			add_location(button1, file, 42, 4, 1059);
+			add_location(button1, file, 54, 4, 1456);
 			attr_dev(button2, "type", "button");
-			add_location(button2, file, 43, 4, 1124);
-			add_location(form, file, 39, 2, 900);
-			add_location(ul, file, 45, 2, 1195);
-			add_location(main, file, 38, 0, 891);
+			add_location(button2, file, 55, 4, 1521);
+			add_location(form, file, 51, 2, 1297);
+			add_location(ul, file, 57, 2, 1592);
+			add_location(main, file, 50, 0, 1288);
 		},
 		l: function claim(nodes) {
 			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -542,13 +542,21 @@ function instance($$self, $$props, $$invalidate) {
 	const { ipcRenderer } = require("electron");
 	let myItems = [];
 	let newItem = "";
+	let awsKey;
+	let awsSecret;
+
+	const receiveCredentials = (ev, credentials) => {
+		console.log("receiving credentials...");
+		awsKey = credentials.accessKeyId;
+		awsSecret = credentials.secretAccessKey;
+		console.log(`Key: ${awsKey}\nSecret: ${awsSecret}`);
+	};
 
 	const findAll = (ev, items) => {
 		$$invalidate(0, myItems = []);
 
 		if (items) {
 			items.forEach(item => $$invalidate(0, myItems = [...myItems, item]));
-			console.log(myItems);
 		}
 	};
 
@@ -563,6 +571,7 @@ function instance($$self, $$props, $$invalidate) {
 		ipcRenderer.send("clearAll");
 	};
 
+	const getCredentials = () => ipcRenderer.send("getCredentials");
 	const refresh = () => ipcRenderer.send("findAll");
 	const backup = () => ipcRenderer.send("export");
 
@@ -571,7 +580,13 @@ function instance($$self, $$props, $$invalidate) {
 
 	ipcRenderer.on("foundAll", findAll);
 	ipcRenderer.on("clearedAll", findAll);
-	onMount(() => refresh());
+	ipcRenderer.on("credentials", receiveCredentials);
+
+	onMount(() => {
+		getCredentials();
+		refresh();
+	});
+
 	const writable_props = [];
 
 	Object.keys($$props).forEach(key => {
@@ -591,9 +606,13 @@ function instance($$self, $$props, $$invalidate) {
 		onMount,
 		myItems,
 		newItem,
+		awsKey,
+		awsSecret,
+		receiveCredentials,
 		findAll,
 		insert,
 		clearAll,
+		getCredentials,
 		refresh,
 		backup
 	});
@@ -601,6 +620,8 @@ function instance($$self, $$props, $$invalidate) {
 	$$self.$inject_state = $$props => {
 		if ("myItems" in $$props) $$invalidate(0, myItems = $$props.myItems);
 		if ("newItem" in $$props) $$invalidate(1, newItem = $$props.newItem);
+		if ("awsKey" in $$props) awsKey = $$props.awsKey;
+		if ("awsSecret" in $$props) awsSecret = $$props.awsSecret;
 	};
 
 	if ($$props && "$$inject" in $$props) {

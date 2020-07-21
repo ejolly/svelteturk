@@ -13,6 +13,11 @@ if (require('electron-squirrel-startup')) {
 // create a global referenx to the window object
 let mainWindow;
 let db;
+// try to load aws credentials
+let awsCredentials = {
+  accessKeyId: process.env.AWS_SECRET_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_ACCESS_KEY_ID,
+};
 
 const createWindow = () => {
   // Create the browser window.
@@ -30,6 +35,34 @@ const createWindow = () => {
     timestampData: true,
     autoload: true,
   });
+
+  if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
+    console.log('AWS credentials loaded from environment variables!');
+  } else {
+    fs.readFile(`${app.getPath('home')}/.awscredentials.json`, (err, data) => {
+      if (err) {
+        if (err.code === 'ENOENT') {
+          dialog
+            .showMessageBox({
+              type: 'error',
+              title: 'File not found',
+              message:
+                'No environment variables or config file were found for your AWS Credentials! Please configure them and restart the app',
+            })
+            .then(() => {
+              app.exit(0);
+              process.abort();
+            });
+        } else {
+          throw err;
+        }
+      } else {
+        awsCredentials = JSON.parse(data);
+        console.log(awsCredentials);
+        console.log('AWS credentials loaded from file!');
+      }
+    });
+  }
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
@@ -60,6 +93,11 @@ app.on('activate', () => {
 });
 
 // define the database "API" here using ipc listeners
+// Send aws credentials
+ipcMain.on('getCredentials', () => {
+  mainWindow.webContents.send('credentials', awsCredentials);
+});
+
 // send all documents to client
 ipcMain.on('findAll', () => {
   db.find({})

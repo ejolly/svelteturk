@@ -5,12 +5,19 @@
 
   let myItems = [];
   let newItem = '';
+  let awsKey;
+  let awsSecret;
 
+  const receiveCredentials = (ev, credentials) => {
+    console.log('receiving credentials...');
+    awsKey = credentials.accessKeyId;
+    awsSecret = credentials.secretAccessKey;
+    console.log(`Key: ${awsKey}\nSecret: ${awsSecret}`);
+  };
   const findAll = (ev, items) => {
     myItems = [];
     if (items) {
       items.forEach((item) => (myItems = [...myItems, item]));
-      console.log(myItems);
     }
   };
 
@@ -25,15 +32,20 @@
     ipcRenderer.send('clearAll');
   };
 
+  const getCredentials = () => ipcRenderer.send('getCredentials');
   const refresh = () => ipcRenderer.send('findAll');
-  const backup = () => ipcRenderer.send('export'); 
+  const backup = () => ipcRenderer.send('export');
 
   // Event handlers for responses from the ipcMain process
   ipcRenderer.on('inserted', refresh);
   ipcRenderer.on('foundAll', findAll);
   ipcRenderer.on('clearedAll', findAll);
+  ipcRenderer.on('credentials', receiveCredentials);
 
-  onMount(() => refresh());
+  onMount(() => {
+    getCredentials();
+    refresh();
+  });
 </script>
 
 <main>
@@ -49,4 +61,3 @@
     {/each}
   </ul>
 </main>
-

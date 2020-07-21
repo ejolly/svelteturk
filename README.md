@@ -8,11 +8,21 @@
 
 [Svelte](https://svelte.dev/) and [Electron]() desktop app for interacting with Amazon's Mechanical Turk (e.g. creating HITs, contacting workers, get HIT and Assignment meta-data etc). All data is store locally using [Nedb](https://github.com/louischatriot/nedb). Designed to be lightweight, offering a way to store data and interact with Mturk without all the complications of setting up a backend or database server. Hopefully this can grow into a viable simple alternative to something like [PsiTurk](https://psiturk.org/).  
 
-## Intended Usage
+## Usage
 
-Make sure to save your AWS credentials either into two environment variables: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY or text file located in your `$HOME` directory (i.e. `~` on macOS) called `.awscredentials` with two-lines `AWS_ACCESS_KEYID='yourkey'` and `AWS_SECRET_ACCESS_KEY='yoursecrete'`.  
+In order to use the app you need to obtain and make your AWS credentials available. You can follow the directions on the [psiturk website](https://psiturk.readthedocs.io/en/stable/amt_setup.html) to obtain your AWS credentials. Once you have them either:
+- export them to the environment variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+- Save them in a `.awscredentials.json` file in your home directory (i.e. the `~` directory on macOS.) The contents of this file should look like:
+```
+{
+    "accessKeyId": "yourKey",
+    "secreteAccessKey": "yourSecret"
+}
+```
 
-Then simply start the app and you should be able to interact with Mturk. 
+Svelte-turk will look for these credentials in the order described above, i.e. will prefer environment variables if it sees them and only fall back to `.awscredentials.json` if they don't. If both are specified, environment variables will always take precedence.
+
+If you are unsure if you have set these credentials properly, simply start the app, as svelte-turk will issue an error message if it can't locate them through either method. Then simply set them and restart the app.
 
 ## Development Log
 
@@ -21,3 +31,4 @@ Then simply start the app and you should be able to interact with Mturk.
 3. Install dependencies and devDependencies: `cd svelte-turk && npm install --save-dev eslint eslint-config-airbnb eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-plugin-svelte3 prettier rollup rollup-plugin-livereload rollup-plugin-node-resolve rollup-plugin-svelte rollup-plugin-terser rollup-plugin-commonjs svelte concurrently`
 6. Launch the app with `npm start` 
 
+*Note*: hot reloading doesn't quite work. Changes to the frontend UI require refreshing the app and changes to the "backend" main process require restarting electron
