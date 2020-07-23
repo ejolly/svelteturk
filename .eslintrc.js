@@ -30,7 +30,8 @@ module.exports = {
     'implicit-arrow-linebreak': 0,
     'operator-linebreak': 0,
     'global-require': 0,
-    'no-multiple-empty-lines': 0
+    'no-multiple-empty-lines': 0,
+    'jsx-a11y/a11y-invalid-attribute': 0,
   },
   overrides: [
     {
@@ -43,6 +44,7 @@ module.exports = {
         'import/no-extraneous-dependencies': 0,
         'import/extensions': 0,
         'no-unused-vars': 1,
+        'jsx-a11y/a11y-invalid-attribute': 0,
       },
       processor: 'svelte3/svelte3',
     },

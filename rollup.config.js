@@ -1,7 +1,8 @@
 import svelte from 'rollup-plugin-svelte';
 import { terser } from 'rollup-plugin-terser';
+import postcss from 'rollup-plugin-postcss';
 import commonjs from 'rollup-plugin-commonjs';
-import nodeResolve from 'rollup-plugin-node-resolve';
+import resolve from 'rollup-plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -36,16 +37,18 @@ export default {
       css: (css) => {
         css.write('renderer/dist/bundle.css');
       },
+      onwarn: (warning, handler) => {
+        // don't warn on # href ally
+        if (warning.code === 'a11y-invalid-attribute') return;
+        // but let Rollup handle all other warnings normally
+        handler(warning);
+      }
     }),
     production && terser(),
     !production && livereload('renderer'),
     !production && serve(),
-    nodeResolve(),
-    /**
-     * Configure this to convert CommonJS modules into ES6 modules so they can be bundled.
-     * By default, all CommonJS `require()` imports are ignored from the bundle.
-     * https://github.com/rollup/rollup-plugin-commonjs
-     */
+    resolve(),
+    postcss(),
     commonjs(),
   ],
   watch: {

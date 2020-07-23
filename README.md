@@ -29,7 +29,7 @@ If you are unsure if you have set these credentials properly, simply start the a
 1. Install [npm](https://www.npmjs.com/get-npm) (if you don't have it)
 2. Install [entr](http://eradman.com/entrproject/) `brew install entr` on macOS
 3. Bootstrap electron-forge starter `npx create-electron-app svelte-turk`
-4. Install dependencies and devDependencies: `cd svelte-turk && npm install --save-dev electron-reload eslint eslint-config-airbnb eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-plugin-svelte3 prettier rollup rollup-plugin-livereload rollup-plugin-node-resolve rollup-plugin-svelte rollup-plugin-terser rollup-plugin-commonjs svelte concurrently`
+4. Install dependencies and devDependencies: `cd svelte-turk && npm install --save-dev electron-reload eslint eslint-config-airbnb eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-plugin-svelte3 prettier rollup rollup-plugin-livereload rollup-plugin-postcss rollup-plugin-node-resolve rollup-plugin-svelte rollup-plugin-terser rollup-plugin-commonjs svelte concurrently bulma bulma-toast node-sass`
 5. Launch the app with `npm start` 
 
 ### Note on hot-reloading
