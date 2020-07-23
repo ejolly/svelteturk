@@ -1,7 +1,8 @@
 <script>
   // consume electron API
-  const { ipcRenderer } = require('electron');
   import { onMount } from 'svelte';
+
+  const { ipcRenderer } = require('electron');
 
   let myItems = [];
   let newItem = '';

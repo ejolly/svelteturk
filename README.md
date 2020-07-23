@@ -27,8 +27,11 @@ If you are unsure if you have set these credentials properly, simply start the a
 ## Development Log
 
 1. Install [npm](https://www.npmjs.com/get-npm) (if you don't have it)
-2. Bootstrap electron-forge starter `npx create-electron-app svelte-turk`
-3. Install dependencies and devDependencies: `cd svelte-turk && npm install --save-dev eslint eslint-config-airbnb eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-plugin-svelte3 prettier rollup rollup-plugin-livereload rollup-plugin-node-resolve rollup-plugin-svelte rollup-plugin-terser rollup-plugin-commonjs svelte concurrently`
-6. Launch the app with `npm start` 
+2. Install [entr](http://eradman.com/entrproject/) `brew install entr` on macOS
+3. Bootstrap electron-forge starter `npx create-electron-app svelte-turk`
+4. Install dependencies and devDependencies: `cd svelte-turk && npm install --save-dev electron-reload eslint eslint-config-airbnb eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-plugin-svelte3 prettier rollup rollup-plugin-livereload rollup-plugin-node-resolve rollup-plugin-svelte rollup-plugin-terser rollup-plugin-commonjs svelte concurrently`
+5. Launch the app with `npm start` 
 
-*Note*: hot reloading doesn't quite work. Changes to the frontend UI require refreshing the app and changes to the "backend" main process require restarting electron
+### Note on hot-reloading
+
+`electron-reload` is configure to just watch the renderer directory (i.e. Svelte) and will auto-refresh to any changes made to the svelte code. `entr` is used to restart the entire electron server on any changes to the `main.js` file which is the main electron process ("server")

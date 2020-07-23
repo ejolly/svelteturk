@@ -365,7 +365,7 @@ function get_each_context(ctx, list, i) {
 	return child_ctx;
 }
 
-// (59:4) {#each myItems as item}
+// (60:4) {#each myItems as item}
 function create_each_block(ctx) {
 	let li;
 	let t_value = /*item*/ ctx[13].item + "";
@@ -375,7 +375,7 @@ function create_each_block(ctx) {
 		c: function create() {
 			li = element("li");
 			t = text(t_value);
-			add_location(li, file, 59, 6, 1631);
+			add_location(li, file, 60, 6, 1632);
 		},
 		m: function mount(target, anchor) {
 			insert_dev(target, li, anchor);
@@ -393,7 +393,7 @@ function create_each_block(ctx) {
 		block,
 		id: create_each_block.name,
 		type: "each",
-		source: "(59:4) {#each myItems as item}",
+		source: "(60:4) {#each myItems as item}",
 		ctx
 	});
 
@@ -445,16 +445,16 @@ function create_fragment(ctx) {
 
 			attr_dev(input, "type", "text");
 			attr_dev(input, "placeholder", "new item");
-			add_location(input, file, 52, 4, 1342);
+			add_location(input, file, 53, 4, 1343);
 			attr_dev(button0, "type", "submit");
-			add_location(button0, file, 53, 4, 1412);
+			add_location(button0, file, 54, 4, 1413);
 			attr_dev(button1, "type", "button");
-			add_location(button1, file, 54, 4, 1456);
+			add_location(button1, file, 55, 4, 1457);
 			attr_dev(button2, "type", "button");
-			add_location(button2, file, 55, 4, 1521);
-			add_location(form, file, 51, 2, 1297);
-			add_location(ul, file, 57, 2, 1592);
-			add_location(main, file, 50, 0, 1288);
+			add_location(button2, file, 56, 4, 1522);
+			add_location(form, file, 52, 2, 1298);
+			add_location(ul, file, 58, 2, 1593);
+			add_location(main, file, 51, 0, 1289);
 		},
 		l: function claim(nodes) {
 			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -602,8 +602,8 @@ function instance($$self, $$props, $$invalidate) {
 	}
 
 	$$self.$capture_state = () => ({
-		ipcRenderer,
 		onMount,
+		ipcRenderer,
 		myItems,
 		newItem,
 		awsKey,

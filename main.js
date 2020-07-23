@@ -3,6 +3,10 @@ const path = require('path');
 const Datastore = require('nedb');
 const fs = require('fs');
 
+// Hot reload just the renderer (i.e. svelte changes)
+// Changes to this file require restarting the electron process
+require('electron-reload')(path.join(__dirname, 'renderer'));
+
 nativeTheme.themeSource = 'light';
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
