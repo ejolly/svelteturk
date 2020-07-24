@@ -5,6 +5,7 @@
 
   // Receive as input mturk object
   export let mturk;
+  console.log(mturk);
 
   // Create event dispatcher to tell App.svelte to write hits to db
   const dispatch = createEventDispatcher();

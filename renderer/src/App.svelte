@@ -4,6 +4,8 @@
   // import toast from 'bulma-toast';
   import CreateHIT from './components/CreateHIT.svelte';
   import Home from './components/Home.svelte';
+  import Sidebar from './components/Sidebar.svelte';
+  import ReviewHIT from './components/ReviewHIT.svelte';
 
   const { ipcRenderer } = require('electron');
 
@@ -20,23 +22,18 @@
     {
       state: 'home',
       title: 'Home',
-      component: Home
+      component: Home,
     },
-    /* { */
-    /*   state: 'hits', */
-    /*   title: 'HIT Management', */
-    /*   component: HITs, */
-    /* }, */
-    /* { */
-    /*   state: 'firebase-participants', */
-    /*   title: 'Participants', */
-    /*   component: Participants, */
-    /* }, */
     {
-      state: 'mturk-createhit',
+      state: 'createHIT',
       title: 'Create HIT',
-      component: CreateHIT
-    }
+      component: CreateHIT,
+    },
+    {
+      state: 'reviewHITs',
+      title: 'Review HITs',
+      component: ReviewHIT,
+    },
   ];
 
   $: [currentObj] = stateMap.filter((obj) => obj.state === currentState);
@@ -64,33 +61,21 @@
       // eslint-disable-next-line no-undef
       accessKeyId: awsKey,
       // eslint-disable-next-line no-undef
-      secretAccessKey: awsSecret
+      secretAccessKey: awsSecret,
     });
     mturkReady = true;
     console.log(`Sandbox mode ${sandbox}`);
   };
 
-  const accountBalance = async () => {
-    try {
-      const resp = await mturk.getAccountBalance().promise();
-      console.log(resp.AvailableBalance);
-      // toast.toast({
-      //   message: `Account Balance: $${resp.AvailableBalance}`,
-      //   type: 'is-primary',
-      //   position: 'top-center',
-      //   pauseonHover: true,
-      //   dismissible: true,
-      //   duration: 5000,
-      //   animate: { in: 'fadeInDown', out: 'fadeOutUp' }
-      // });
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const logcreateHIT = (ev) => {
     ipcRenderer.send('insert', ev.detail);
   };
+
+  const updateState = (ev) => {
+    currentState = ev.detail.state;
+  };
+
   onMount(() => {
     ipcRenderer.send('getCredentials');
   });
@@ -153,22 +138,7 @@
       </div>
     </header>
     <div class="dashboard-panel-content">
-      <aside class="menu has-text-white">
-        <p class="menu-label">Menu</p>
-        <ul class="menu-list">
-          <li>
-            <a href="javascript:;" on:click={() => (currentState = 'home')}>Home</a>
-          </li>
-          <li>
-            <a href="javascript:;" on:click={() => (currentState = 'mturk-createhit')}>
-              Create HIT
-            </a>
-          </li>
-          <li>
-            <a on:click={createHIT}>Review HITs</a>
-          </li>
-        </ul>
-      </aside>
+      <Sidebar on:changeState={updateState} />
     </div>
   </div>
   <div class="dashboard-main is-scrollable">
