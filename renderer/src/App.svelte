@@ -2,10 +2,10 @@
   import { onMount } from 'svelte';
 
   // import toast from 'bulma-toast';
-  import CreateHIT from './components/CreateHIT.svelte';
-  import Home from './components/Home.svelte';
-  import Sidebar from './components/Sidebar.svelte';
-  import ReviewHIT from './components/ReviewHIT.svelte';
+  import CreateHIT from './pages/CreateHIT.svelte';
+  import Home from './pages/Home.svelte';
+  import Sidebar from './pages/Sidebar.svelte';
+  import ReviewHIT from './pages/ReviewHIT.svelte';
 
   const { ipcRenderer } = require('electron');
 

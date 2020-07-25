@@ -1,7 +1,9 @@
 <script>
   import { onMount } from 'svelte';
+  import Modal from '../components/Modal.svelte';
 
   export let mturk;
+  let modal;
   // Trick to wait to make sure the mturk object is available from App.svelte
   $: mturkReady = mturk ? getAccountBalance() : undefined;
 
@@ -49,6 +51,15 @@
   <div class="columns">
     <div class="column">
       <p>Number of Workers: {numWorkers}</p>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      <!-- Example modal usage -->
+      <button on:click={() => modal.show()}>Show</button>
+      <Modal bind:this={modal}>
+        <p>This is content</p>
+      </Modal>
     </div>
   </div>
 </div>
