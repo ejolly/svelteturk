@@ -33,6 +33,7 @@ var css_248z = "/*! bulma.io v0.9.0 | MIT License | github.com/jgthms/bulma */\n
 styleInject(css_248z);
 
 function noop() { }
+const identity = x => x;
 function assign(tar, src) {
     // @ts-ignore
     for (const k in src)
@@ -94,6 +95,44 @@ function update_slot(slot, slot_definition, ctx, $$scope, dirty, get_slot_change
         const slot_context = get_slot_context(slot_definition, ctx, $$scope, get_slot_context_fn);
         slot.p(slot_context, slot_changes);
     }
+}
+function null_to_empty(value) {
+    return value == null ? '' : value;
+}
+
+const is_client = typeof window !== 'undefined';
+let now = is_client
+    ? () => window.performance.now()
+    : () => Date.now();
+let raf = is_client ? cb => requestAnimationFrame(cb) : noop;
+
+const tasks = new Set();
+function run_tasks(now) {
+    tasks.forEach(task => {
+        if (!task.c(now)) {
+            tasks.delete(task);
+            task.f();
+        }
+    });
+    if (tasks.size !== 0)
+        raf(run_tasks);
+}
+/**
+ * Creates a new task that runs on each raf frame
+ * until it returns a falsy value or is aborted
+ */
+function loop(callback) {
+    let task;
+    if (tasks.size === 0)
+        raf(run_tasks);
+    return {
+        promise: new Promise(fulfill => {
+            tasks.add(task = { c: callback, f: fulfill });
+        }),
+        abort() {
+            tasks.delete(task);
+        }
+    };
 }
 
 function append(target, node) {
@@ -162,6 +201,67 @@ function custom_event(type, detail) {
     const e = document.createEvent('CustomEvent');
     e.initCustomEvent(type, false, false, detail);
     return e;
+}
+
+const active_docs = new Set();
+let active = 0;
+// https://github.com/darkskyapp/string-hash/blob/master/index.js
+function hash(str) {
+    let hash = 5381;
+    let i = str.length;
+    while (i--)
+        hash = ((hash << 5) - hash) ^ str.charCodeAt(i);
+    return hash >>> 0;
+}
+function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+    const step = 16.666 / duration;
+    let keyframes = '{\n';
+    for (let p = 0; p <= 1; p += step) {
+        const t = a + (b - a) * ease(p);
+        keyframes += p * 100 + `%{${fn(t, 1 - t)}}\n`;
+    }
+    const rule = keyframes + `100% {${fn(b, 1 - b)}}\n}`;
+    const name = `__svelte_${hash(rule)}_${uid}`;
+    const doc = node.ownerDocument;
+    active_docs.add(doc);
+    const stylesheet = doc.__svelte_stylesheet || (doc.__svelte_stylesheet = doc.head.appendChild(element('style')).sheet);
+    const current_rules = doc.__svelte_rules || (doc.__svelte_rules = {});
+    if (!current_rules[name]) {
+        current_rules[name] = true;
+        stylesheet.insertRule(`@keyframes ${name} ${rule}`, stylesheet.cssRules.length);
+    }
+    const animation = node.style.animation || '';
+    node.style.animation = `${animation ? `${animation}, ` : ``}${name} ${duration}ms linear ${delay}ms 1 both`;
+    active += 1;
+    return name;
+}
+function delete_rule(node, name) {
+    const previous = (node.style.animation || '').split(', ');
+    const next = previous.filter(name
+        ? anim => anim.indexOf(name) < 0 // remove specific animation
+        : anim => anim.indexOf('__svelte') === -1 // remove all Svelte animations
+    );
+    const deleted = previous.length - next.length;
+    if (deleted) {
+        node.style.animation = next.join(', ');
+        active -= deleted;
+        if (!active)
+            clear_rules();
+    }
+}
+function clear_rules() {
+    raf(() => {
+        if (active)
+            return;
+        active_docs.forEach(doc => {
+            const stylesheet = doc.__svelte_stylesheet;
+            let i = stylesheet.cssRules.length;
+            while (i--)
+                stylesheet.deleteRule(i);
+            doc.__svelte_rules = {};
+        });
+        active_docs.clear();
+    });
 }
 
 let current_component;
@@ -253,6 +353,20 @@ function update($$) {
         $$.after_update.forEach(add_render_callback);
     }
 }
+
+let promise;
+function wait() {
+    if (!promise) {
+        promise = Promise.resolve();
+        promise.then(() => {
+            promise = null;
+        });
+    }
+    return promise;
+}
+function dispatch(node, direction, kind) {
+    node.dispatchEvent(custom_event(`${direction ? 'intro' : 'outro'}${kind}`));
+}
 const outroing = new Set();
 let outros;
 function group_outros() {
@@ -289,6 +403,112 @@ function transition_out(block, local, detach, callback) {
         });
         block.o(local);
     }
+}
+const null_transition = { duration: 0 };
+function create_bidirectional_transition(node, fn, params, intro) {
+    let config = fn(node, params);
+    let t = intro ? 0 : 1;
+    let running_program = null;
+    let pending_program = null;
+    let animation_name = null;
+    function clear_animation() {
+        if (animation_name)
+            delete_rule(node, animation_name);
+    }
+    function init(program, duration) {
+        const d = program.b - t;
+        duration *= Math.abs(d);
+        return {
+            a: t,
+            b: program.b,
+            d,
+            duration,
+            start: program.start,
+            end: program.start + duration,
+            group: program.group
+        };
+    }
+    function go(b) {
+        const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
+        const program = {
+            start: now() + delay,
+            b
+        };
+        if (!b) {
+            // @ts-ignore todo: improve typings
+            program.group = outros;
+            outros.r += 1;
+        }
+        if (running_program) {
+            pending_program = program;
+        }
+        else {
+            // if this is an intro, and there's a delay, we need to do
+            // an initial tick and/or apply CSS animation immediately
+            if (css) {
+                clear_animation();
+                animation_name = create_rule(node, t, b, duration, delay, easing, css);
+            }
+            if (b)
+                tick(0, 1);
+            running_program = init(program, duration);
+            add_render_callback(() => dispatch(node, b, 'start'));
+            loop(now => {
+                if (pending_program && now > pending_program.start) {
+                    running_program = init(pending_program, duration);
+                    pending_program = null;
+                    dispatch(node, running_program.b, 'start');
+                    if (css) {
+                        clear_animation();
+                        animation_name = create_rule(node, t, running_program.b, running_program.duration, 0, easing, config.css);
+                    }
+                }
+                if (running_program) {
+                    if (now >= running_program.end) {
+                        tick(t = running_program.b, 1 - t);
+                        dispatch(node, running_program.b, 'end');
+                        if (!pending_program) {
+                            // we're done
+                            if (running_program.b) {
+                                // intro — we can tidy up immediately
+                                clear_animation();
+                            }
+                            else {
+                                // outro — needs to be coordinated
+                                if (!--running_program.group.r)
+                                    run_all(running_program.group.c);
+                            }
+                        }
+                        running_program = null;
+                    }
+                    else if (now >= running_program.start) {
+                        const p = now - running_program.start;
+                        t = running_program.a + running_program.d * easing(p / running_program.duration);
+                        tick(t, 1 - t);
+                    }
+                }
+                return !!(running_program || pending_program);
+            });
+        }
+    }
+    return {
+        run(b) {
+            if (is_function(config)) {
+                wait().then(() => {
+                    // @ts-ignore
+                    config = config();
+                    go(b);
+                });
+            }
+            else {
+                go(b);
+            }
+        },
+        end() {
+            clear_animation();
+            running_program = pending_program = null;
+        }
+    };
 }
 
 const globals = (typeof window !== 'undefined'
@@ -1373,24 +1593,36 @@ class CreateHIT extends SvelteComponentDev {
 	}
 }
 
-/* renderer/src/components/Modal.svelte generated by Svelte v3.24.0 */
+function cubicOut(t) {
+    const f = t - 1.0;
+    return f * f * f + 1.0;
+}
 
+function fly(node, { delay = 0, duration = 400, easing = cubicOut, x = 0, y = 0, opacity = 0 }) {
+    const style = getComputedStyle(node);
+    const target_opacity = +style.opacity;
+    const transform = style.transform === 'none' ? '' : style.transform;
+    const od = target_opacity * (1 - opacity);
+    return {
+        delay,
+        duration,
+        easing,
+        css: (t, u) => `
+			transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
+			opacity: ${target_opacity - (od * u)}`
+    };
+}
+
+/* renderer/src/components/Modal.svelte generated by Svelte v3.24.0 */
 const file$1 = "renderer/src/components/Modal.svelte";
 
-// (22:0) {#if shown}
+// (31:0) {#if showModal}
 function create_if_block(ctx) {
-	let div2;
-	let div0;
-	let t0;
-	let div1;
-	let header;
-	let p;
-	let t1;
+	let div;
 	let button;
-	let t2;
-	let section;
-	let t3;
-	let footer;
+	let t;
+	let div_class_value;
+	let div_transition;
 	let current;
 	let mounted;
 	let dispose;
@@ -1399,59 +1631,28 @@ function create_if_block(ctx) {
 
 	const block = {
 		c: function create() {
-			div2 = element("div");
-			div0 = element("div");
-			t0 = space();
-			div1 = element("div");
-			header = element("header");
-			p = element("p");
-			t1 = space();
+			div = element("div");
 			button = element("button");
-			t2 = space();
-			section = element("section");
+			t = space();
 			if (default_slot) default_slot.c();
-			t3 = space();
-			footer = element("footer");
-			attr_dev(div0, "class", "modal-background");
-			add_location(div0, file$1, 23, 4, 342);
-			attr_dev(p, "class", "modal-card-title has-text-centered");
-			add_location(p, file$1, 26, 8, 458);
 			attr_dev(button, "class", "delete");
-			attr_dev(button, "aria-label", "close");
-			add_location(button, file$1, 27, 8, 517);
-			attr_dev(header, "class", "modal-card-head");
-			add_location(header, file$1, 25, 6, 417);
-			attr_dev(section, "class", "modal-card-body has-text-centered");
-			add_location(section, file$1, 29, 6, 600);
-			attr_dev(footer, "class", "modal-card-foot is-centered");
-			add_location(footer, file$1, 32, 6, 691);
-			attr_dev(div1, "class", "modal-card shrink svelte-ax2zzh");
-			add_location(div1, file$1, 24, 4, 379);
-			attr_dev(div2, "class", "modal is-active is-centered");
-			add_location(div2, file$1, 22, 2, 296);
+			add_location(button, file$1, 32, 4, 676);
+			attr_dev(div, "class", div_class_value = "" + (null_to_empty(/*setType*/ ctx[1]()) + " svelte-ifwefs"));
+			add_location(div, file$1, 31, 2, 600);
 		},
 		m: function mount(target, anchor) {
-			insert_dev(target, div2, anchor);
-			append_dev(div2, div0);
-			append_dev(div2, t0);
-			append_dev(div2, div1);
-			append_dev(div1, header);
-			append_dev(header, p);
-			append_dev(header, t1);
-			append_dev(header, button);
-			append_dev(div1, t2);
-			append_dev(div1, section);
+			insert_dev(target, div, anchor);
+			append_dev(div, button);
+			append_dev(div, t);
 
 			if (default_slot) {
-				default_slot.m(section, null);
+				default_slot.m(div, null);
 			}
 
-			append_dev(div1, t3);
-			append_dev(div1, footer);
 			current = true;
 
 			if (!mounted) {
-				dispose = listen_dev(button, "click", /*hide*/ ctx[0], false, false, false);
+				dispose = listen_dev(button, "click", /*click_handler*/ ctx[5], false, false, false);
 				mounted = true;
 			}
 		},
@@ -1465,15 +1666,24 @@ function create_if_block(ctx) {
 		i: function intro(local) {
 			if (current) return;
 			transition_in(default_slot, local);
+
+			add_render_callback(() => {
+				if (!div_transition) div_transition = create_bidirectional_transition(div, fly, { y: -200, duration: 500 }, true);
+				div_transition.run(1);
+			});
+
 			current = true;
 		},
 		o: function outro(local) {
 			transition_out(default_slot, local);
+			if (!div_transition) div_transition = create_bidirectional_transition(div, fly, { y: -200, duration: 500 }, false);
+			div_transition.run(0);
 			current = false;
 		},
 		d: function destroy(detaching) {
-			if (detaching) detach_dev(div2);
+			if (detaching) detach_dev(div);
 			if (default_slot) default_slot.d(detaching);
+			if (detaching && div_transition) div_transition.end();
 			mounted = false;
 			dispose();
 		}
@@ -1483,7 +1693,7 @@ function create_if_block(ctx) {
 		block,
 		id: create_if_block.name,
 		type: "if",
-		source: "(22:0) {#if shown}",
+		source: "(31:0) {#if showModal}",
 		ctx
 	});
 
@@ -1493,9 +1703,7 @@ function create_if_block(ctx) {
 function create_fragment$1(ctx) {
 	let if_block_anchor;
 	let current;
-	let mounted;
-	let dispose;
-	let if_block = /*shown*/ ctx[1] && create_if_block(ctx);
+	let if_block = /*showModal*/ ctx[0] && create_if_block(ctx);
 
 	const block = {
 		c: function create() {
@@ -1509,18 +1717,13 @@ function create_fragment$1(ctx) {
 			if (if_block) if_block.m(target, anchor);
 			insert_dev(target, if_block_anchor, anchor);
 			current = true;
-
-			if (!mounted) {
-				dispose = listen_dev(window, "keydown", /*keydown_handler*/ ctx[5], false, false, false);
-				mounted = true;
-			}
 		},
 		p: function update(ctx, [dirty]) {
-			if (/*shown*/ ctx[1]) {
+			if (/*showModal*/ ctx[0]) {
 				if (if_block) {
 					if_block.p(ctx, dirty);
 
-					if (dirty & /*shown*/ 2) {
+					if (dirty & /*showModal*/ 1) {
 						transition_in(if_block, 1);
 					}
 				} else {
@@ -1551,8 +1754,6 @@ function create_fragment$1(ctx) {
 		d: function destroy(detaching) {
 			if (if_block) if_block.d(detaching);
 			if (detaching) detach_dev(if_block_anchor);
-			mounted = false;
-			dispose();
 		}
 	};
 
@@ -1568,17 +1769,24 @@ function create_fragment$1(ctx) {
 }
 
 function instance$1($$self, $$props, $$invalidate) {
-	let shown = false;
+	let { showModal = false } = $$props;
+	let { modalType = "notification" } = $$props;
 
-	function show() {
-		$$invalidate(1, shown = true);
-	}
+	const setType = () => {
+		let color;
 
-	function hide() {
-		$$invalidate(1, shown = false);
-	}
+		if (modalType === "notification") {
+			color = "is-info";
+		} else if (modalType === "error") {
+			color = "is-danger";
+		} else if (modalType === "success") {
+			color = "is-primary";
+		}
 
-	const writable_props = [];
+		return `notification ${color}`;
+	};
+
+	const writable_props = ["showModal", "modalType"];
 
 	Object.keys($$props).forEach(key => {
 		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Modal> was created with unknown prop '${key}'`);
@@ -1586,34 +1794,32 @@ function instance$1($$self, $$props, $$invalidate) {
 
 	let { $$slots = {}, $$scope } = $$props;
 	validate_slots("Modal", $$slots, ['default']);
-
-	const keydown_handler = e => {
-		if (e.keyCode == 27) {
-			hide();
-		}
-	};
+	const click_handler = () => $$invalidate(0, showModal = false);
 
 	$$self.$set = $$props => {
+		if ("showModal" in $$props) $$invalidate(0, showModal = $$props.showModal);
+		if ("modalType" in $$props) $$invalidate(2, modalType = $$props.modalType);
 		if ("$$scope" in $$props) $$invalidate(3, $$scope = $$props.$$scope);
 	};
 
-	$$self.$capture_state = () => ({ shown, show, hide });
+	$$self.$capture_state = () => ({ fly, showModal, modalType, setType });
 
 	$$self.$inject_state = $$props => {
-		if ("shown" in $$props) $$invalidate(1, shown = $$props.shown);
+		if ("showModal" in $$props) $$invalidate(0, showModal = $$props.showModal);
+		if ("modalType" in $$props) $$invalidate(2, modalType = $$props.modalType);
 	};
 
 	if ($$props && "$$inject" in $$props) {
 		$$self.$inject_state($$props.$$inject);
 	}
 
-	return [hide, shown, show, $$scope, $$slots, keydown_handler];
+	return [showModal, setType, modalType, $$scope, $$slots, click_handler];
 }
 
 class Modal extends SvelteComponentDev {
 	constructor(options) {
 		super(options);
-		init(this, options, instance$1, create_fragment$1, safe_not_equal, { show: 2, hide: 0 });
+		init(this, options, instance$1, create_fragment$1, safe_not_equal, { showModal: 0, modalType: 2 });
 
 		dispatch_dev("SvelteRegisterComponent", {
 			component: this,
@@ -1623,19 +1829,19 @@ class Modal extends SvelteComponentDev {
 		});
 	}
 
-	get show() {
-		return this.$$.ctx[2];
+	get showModal() {
+		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
 	}
 
-	set show(value) {
+	set showModal(value) {
 		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
 	}
 
-	get hide() {
-		return this.$$.ctx[0];
+	get modalType() {
+		throw new Error("<Modal>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
 	}
 
-	set hide(value) {
+	set modalType(value) {
 		throw new Error("<Modal>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
 	}
 }
@@ -1645,18 +1851,23 @@ class Modal extends SvelteComponentDev {
 const { console: console_1$1 } = globals;
 const file$2 = "renderer/src/pages/Home.svelte";
 
-// (60:6) <Modal bind:this={modal}>
+// (51:0) <Modal {showModal} {modalType}>
 function create_default_slot(ctx) {
 	let p;
+	let t;
 
 	const block = {
 		c: function create() {
 			p = element("p");
-			p.textContent = "This is content";
-			add_location(p, file$2, 60, 8, 1502);
+			t = text(/*modalText*/ ctx[2]);
+			add_location(p, file$2, 51, 2, 1331);
 		},
 		m: function mount(target, anchor) {
 			insert_dev(target, p, anchor);
+			append_dev(p, t);
+		},
+		p: function update(ctx, dirty) {
+			if (dirty & /*modalText*/ 4) set_data_dev(t, /*modalText*/ ctx[2]);
 		},
 		d: function destroy(detaching) {
 			if (detaching) detach_dev(p);
@@ -1667,7 +1878,7 @@ function create_default_slot(ctx) {
 		block,
 		id: create_default_slot.name,
 		type: "slot",
-		source: "(60:6) <Modal bind:this={modal}>",
+		source: "(51:0) <Modal {showModal} {modalType}>",
 		ctx
 	});
 
@@ -1675,172 +1886,182 @@ function create_default_slot(ctx) {
 }
 
 function create_fragment$2(ctx) {
+	let modal;
+	let t0;
 	let div10;
 	let div1;
 	let div0;
 	let p0;
-	let t0;
 	let t1;
 	let t2;
+	let t3;
 	let div3;
 	let div2;
 	let p1;
+	let t4;
 	let t5;
+	let t6;
 	let div5;
 	let div4;
 	let p2;
+	let t7;
 	let t8;
+	let t9;
 	let div7;
 	let div6;
 	let p3;
+	let t10;
 	let t11;
+	let t12;
 	let div9;
 	let div8;
-	let button0;
-	let t13;
-	let button1;
-	let t15;
-	let modal_1;
+	let button;
 	let current;
 	let mounted;
 	let dispose;
 
-	let modal_1_props = {
-		$$slots: { default: [create_default_slot] },
-		$$scope: { ctx }
-	};
-
-	modal_1 = new Modal({ props: modal_1_props, $$inline: true });
-	/*modal_1_binding*/ ctx[8](modal_1);
+	modal = new Modal({
+			props: {
+				showModal: /*showModal*/ ctx[0],
+				modalType: /*modalType*/ ctx[1],
+				$$slots: { default: [create_default_slot] },
+				$$scope: { ctx }
+			},
+			$$inline: true
+		});
 
 	const block = {
 		c: function create() {
+			create_component(modal.$$.fragment);
+			t0 = space();
 			div10 = element("div");
 			div1 = element("div");
 			div0 = element("div");
 			p0 = element("p");
-			t0 = text("Account Balance: ");
-			t1 = text(/*accountBalance*/ ctx[1]);
-			t2 = space();
+			t1 = text("Account Balance: ");
+			t2 = text(/*accountBalance*/ ctx[3]);
+			t3 = space();
 			div3 = element("div");
 			div2 = element("div");
 			p1 = element("p");
-			p1.textContent = `Number of HITs: ${/*numHITs*/ ctx[2]}`;
-			t5 = space();
+			t4 = text("Number of HITs: ");
+			t5 = text(/*numHITs*/ ctx[4]);
+			t6 = space();
 			div5 = element("div");
 			div4 = element("div");
 			p2 = element("p");
-			p2.textContent = `Number of Assignments: ${/*numAssts*/ ctx[3]}`;
-			t8 = space();
+			t7 = text("Number of Assignments: ");
+			t8 = text(/*numAssts*/ ctx[5]);
+			t9 = space();
 			div7 = element("div");
 			div6 = element("div");
 			p3 = element("p");
-			p3.textContent = `Number of Workers: ${/*numWorkers*/ ctx[4]}`;
-			t11 = space();
+			t10 = text("Number of Workers: ");
+			t11 = text(/*numWorkers*/ ctx[6]);
+			t12 = space();
 			div9 = element("div");
 			div8 = element("div");
-			button0 = element("button");
-			button0.textContent = "Show";
-			t13 = space();
-			button1 = element("button");
-			button1.textContent = "Hide";
-			t15 = space();
-			create_component(modal_1.$$.fragment);
-			add_location(p0, file$2, 37, 6, 898);
+			button = element("button");
+			button.textContent = "Show";
+			add_location(p0, file$2, 56, 6, 1438);
 			attr_dev(div0, "class", "column");
-			add_location(div0, file$2, 36, 4, 871);
+			add_location(div0, file$2, 55, 4, 1411);
 			attr_dev(div1, "class", "columns");
-			add_location(div1, file$2, 35, 2, 845);
-			add_location(p1, file$2, 42, 6, 1014);
+			add_location(div1, file$2, 54, 2, 1385);
+			add_location(p1, file$2, 61, 6, 1554);
 			attr_dev(div2, "class", "column");
-			add_location(div2, file$2, 41, 4, 987);
+			add_location(div2, file$2, 60, 4, 1527);
 			attr_dev(div3, "class", "columns");
-			add_location(div3, file$2, 40, 2, 961);
-			add_location(p2, file$2, 47, 6, 1122);
+			add_location(div3, file$2, 59, 2, 1501);
+			add_location(p2, file$2, 66, 6, 1662);
 			attr_dev(div4, "class", "column");
-			add_location(div4, file$2, 46, 4, 1095);
+			add_location(div4, file$2, 65, 4, 1635);
 			attr_dev(div5, "class", "columns");
-			add_location(div5, file$2, 45, 2, 1069);
-			add_location(p3, file$2, 52, 6, 1238);
+			add_location(div5, file$2, 64, 2, 1609);
+			add_location(p3, file$2, 71, 6, 1778);
 			attr_dev(div6, "class", "column");
-			add_location(div6, file$2, 51, 4, 1211);
+			add_location(div6, file$2, 70, 4, 1751);
 			attr_dev(div7, "class", "columns");
-			add_location(div7, file$2, 50, 2, 1185);
-			add_location(button0, file$2, 57, 6, 1352);
-			add_location(button1, file$2, 58, 6, 1410);
+			add_location(div7, file$2, 69, 2, 1725);
+			add_location(button, file$2, 77, 6, 1927);
 			attr_dev(div8, "class", "column");
-			add_location(div8, file$2, 56, 4, 1325);
+			add_location(div8, file$2, 75, 4, 1865);
 			attr_dev(div9, "class", "columns");
-			add_location(div9, file$2, 55, 2, 1299);
+			add_location(div9, file$2, 74, 2, 1839);
 			attr_dev(div10, "class", "container");
-			add_location(div10, file$2, 34, 0, 819);
+			add_location(div10, file$2, 53, 0, 1359);
 		},
 		l: function claim(nodes) {
 			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
 		},
 		m: function mount(target, anchor) {
+			mount_component(modal, target, anchor);
+			insert_dev(target, t0, anchor);
 			insert_dev(target, div10, anchor);
 			append_dev(div10, div1);
 			append_dev(div1, div0);
 			append_dev(div0, p0);
-			append_dev(p0, t0);
 			append_dev(p0, t1);
-			append_dev(div10, t2);
+			append_dev(p0, t2);
+			append_dev(div10, t3);
 			append_dev(div10, div3);
 			append_dev(div3, div2);
 			append_dev(div2, p1);
-			append_dev(div10, t5);
+			append_dev(p1, t4);
+			append_dev(p1, t5);
+			append_dev(div10, t6);
 			append_dev(div10, div5);
 			append_dev(div5, div4);
 			append_dev(div4, p2);
-			append_dev(div10, t8);
+			append_dev(p2, t7);
+			append_dev(p2, t8);
+			append_dev(div10, t9);
 			append_dev(div10, div7);
 			append_dev(div7, div6);
 			append_dev(div6, p3);
-			append_dev(div10, t11);
+			append_dev(p3, t10);
+			append_dev(p3, t11);
+			append_dev(div10, t12);
 			append_dev(div10, div9);
 			append_dev(div9, div8);
-			append_dev(div8, button0);
-			append_dev(div8, t13);
-			append_dev(div8, button1);
-			append_dev(div8, t15);
-			mount_component(modal_1, div8, null);
+			append_dev(div8, button);
 			current = true;
 
 			if (!mounted) {
-				dispose = [
-					listen_dev(button0, "click", /*click_handler*/ ctx[6], false, false, false),
-					listen_dev(button1, "click", /*click_handler_1*/ ctx[7], false, false, false)
-				];
-
+				dispose = listen_dev(button, "click", /*click_handler*/ ctx[8], false, false, false);
 				mounted = true;
 			}
 		},
 		p: function update(ctx, [dirty]) {
-			if (!current || dirty & /*accountBalance*/ 2) set_data_dev(t1, /*accountBalance*/ ctx[1]);
-			const modal_1_changes = {};
+			const modal_changes = {};
+			if (dirty & /*showModal*/ 1) modal_changes.showModal = /*showModal*/ ctx[0];
+			if (dirty & /*modalType*/ 2) modal_changes.modalType = /*modalType*/ ctx[1];
 
-			if (dirty & /*$$scope*/ 16384) {
-				modal_1_changes.$$scope = { dirty, ctx };
+			if (dirty & /*$$scope, modalText*/ 8196) {
+				modal_changes.$$scope = { dirty, ctx };
 			}
 
-			modal_1.$set(modal_1_changes);
+			modal.$set(modal_changes);
+			if (!current || dirty & /*accountBalance*/ 8) set_data_dev(t2, /*accountBalance*/ ctx[3]);
+			if (!current || dirty & /*numHITs*/ 16) set_data_dev(t5, /*numHITs*/ ctx[4]);
+			if (!current || dirty & /*numAssts*/ 32) set_data_dev(t8, /*numAssts*/ ctx[5]);
+			if (!current || dirty & /*numWorkers*/ 64) set_data_dev(t11, /*numWorkers*/ ctx[6]);
 		},
 		i: function intro(local) {
 			if (current) return;
-			transition_in(modal_1.$$.fragment, local);
+			transition_in(modal.$$.fragment, local);
 			current = true;
 		},
 		o: function outro(local) {
-			transition_out(modal_1.$$.fragment, local);
+			transition_out(modal.$$.fragment, local);
 			current = false;
 		},
 		d: function destroy(detaching) {
+			destroy_component(modal, detaching);
+			if (detaching) detach_dev(t0);
 			if (detaching) detach_dev(div10);
-			/*modal_1_binding*/ ctx[8](null);
-			destroy_component(modal_1);
 			mounted = false;
-			run_all(dispose);
+			dispose();
 		}
 	};
 
@@ -1856,33 +2077,47 @@ function create_fragment$2(ctx) {
 }
 
 function instance$2($$self, $$props, $$invalidate) {
+	const { ipcRenderer } = require("electron");
 	let { mturk } = $$props;
-	let modal;
+
+	// VARIABLES
+	let showModal = false;
+
+	let modalType;
+	let modalText;
 	let accountBalance = "Loading...";
 	let numHITs = "Loading...";
 	let numAssts = "Loading...";
 	let numWorkers = "Loading...";
 
+	// FUNCTIONS
+	// Query mturk API for account balance
 	const getAccountBalance = async () => {
 		try {
 			const resp = await mturk.getAccountBalance().promise();
-			$$invalidate(1, accountBalance = `$${resp.AvailableBalance}`);
+			$$invalidate(3, accountBalance = `$${resp.AvailableBalance}`);
 		} catch(error) {
 			console.error(error);
+			$$invalidate(0, showModal = true);
+			$$invalidate(1, modalType = "error");
+			$$invalidate(2, modalText = `Error getting account balance! ${error}`);
 		}
 	};
 
-	const getHITs = () => {
-		
-	}; // ipcRenderer get hits
+	// Ask nedb for counts in each database
+	const countDocs = () => ipcRenderer.send("countDocs");
 
-	const getAssts = () => {
-		
-	}; // ipcRenderer get hits
+	// Event handler for ipc response
+	ipcRenderer.on("countedDocs", docs => {
+		$$invalidate(4, numHITs = docs.hits || "0");
+		$$invalidate(5, numAssts = docs.assts || "0");
+		$$invalidate(6, numWorkers = docs.workers || "0");
+	});
 
-	const getWorkers = () => {
-		
-	}; // ipcRenderer get hits
+	// Get doc counts on component load
+	onMount(() => {
+		countDocs();
+	});
 
 	const writable_props = ["mturk"];
 
@@ -1892,43 +2127,38 @@ function instance$2($$self, $$props, $$invalidate) {
 
 	let { $$slots = {}, $$scope } = $$props;
 	validate_slots("Home", $$slots, []);
-	const click_handler = () => modal.show();
-	const click_handler_1 = () => modal.hide();
-
-	function modal_1_binding($$value) {
-		binding_callbacks[$$value ? "unshift" : "push"](() => {
-			modal = $$value;
-			$$invalidate(0, modal);
-		});
-	}
+	const click_handler = () => $$invalidate(0, showModal = true);
 
 	$$self.$set = $$props => {
-		if ("mturk" in $$props) $$invalidate(5, mturk = $$props.mturk);
+		if ("mturk" in $$props) $$invalidate(7, mturk = $$props.mturk);
 	};
 
 	$$self.$capture_state = () => ({
 		onMount,
+		ipcRenderer,
 		Modal,
 		mturk,
-		modal,
+		showModal,
+		modalType,
+		modalText,
 		accountBalance,
 		numHITs,
 		numAssts,
 		numWorkers,
 		getAccountBalance,
-		getHITs,
-		getAssts,
-		getWorkers,
+		countDocs,
 		mturkReady
 	});
 
 	$$self.$inject_state = $$props => {
-		if ("mturk" in $$props) $$invalidate(5, mturk = $$props.mturk);
-		if ("modal" in $$props) $$invalidate(0, modal = $$props.modal);
-		if ("accountBalance" in $$props) $$invalidate(1, accountBalance = $$props.accountBalance);
-		if ("numHITs" in $$props) $$invalidate(2, numHITs = $$props.numHITs);
-		if ("numAssts" in $$props) $$invalidate(3, numAssts = $$props.numAssts);
-		if ("numWorkers" in $$props) $$invalidate(4, numWorkers = $$props.numWorkers);
+		if ("mturk" in $$props) $$invalidate(7, mturk = $$props.mturk);
+		if ("showModal" in $$props) $$invalidate(0, showModal = $$props.showModal);
+		if ("modalType" in $$props) $$invalidate(1, modalType = $$props.modalType);
+		if ("modalText" in $$props) $$invalidate(2, modalText = $$props.modalText);
+		if ("accountBalance" in $$props) $$invalidate(3, accountBalance = $$props.accountBalance);
+		if ("numHITs" in $$props) $$invalidate(4, numHITs = $$props.numHITs);
+		if ("numAssts" in $$props) $$invalidate(5, numAssts = $$props.numAssts);
+		if ("numWorkers" in $$props) $$invalidate(6, numWorkers = $$props.numWorkers);
 		if ("mturkReady" in $$props) mturkReady = $$props.mturkReady;
 	};
 
@@ -1939,29 +2169,29 @@ function instance$2($$self, $$props, $$invalidate) {
 	}
 
 	$$self.$$.update = () => {
-		if ($$self.$$.dirty & /*mturk*/ 32) {
+		if ($$self.$$.dirty & /*mturk*/ 128) {
 			// Trick to wait to make sure the mturk object is available from App.svelte
 			 mturkReady = mturk ? getAccountBalance() : undefined;
 		}
 	};
 
 	return [
-		modal,
+		showModal,
+		modalType,
+		modalText,
 		accountBalance,
 		numHITs,
 		numAssts,
 		numWorkers,
 		mturk,
-		click_handler,
-		click_handler_1,
-		modal_1_binding
+		click_handler
 	];
 }
 
 class Home extends SvelteComponentDev {
 	constructor(options) {
 		super(options);
-		init(this, options, instance$2, create_fragment$2, safe_not_equal, { mturk: 5 });
+		init(this, options, instance$2, create_fragment$2, safe_not_equal, { mturk: 7 });
 
 		dispatch_dev("SvelteRegisterComponent", {
 			component: this,
@@ -1973,7 +2203,7 @@ class Home extends SvelteComponentDev {
 		const { ctx } = this.$$;
 		const props = options.props || {};
 
-		if (/*mturk*/ ctx[5] === undefined && !("mturk" in props)) {
+		if (/*mturk*/ ctx[7] === undefined && !("mturk" in props)) {
 			console_1$1.warn("<Home> was created without expected prop 'mturk'");
 		}
 	}
@@ -2199,7 +2429,7 @@ class ReviewHIT extends SvelteComponentDev {
 const { console: console_1$2 } = globals;
 const file$5 = "renderer/src/App.svelte";
 
-// (130:10) {#if !mturkReady}
+// (129:10) {#if !mturkReady}
 function create_if_block$1(ctx) {
 	let t;
 
@@ -2219,7 +2449,7 @@ function create_if_block$1(ctx) {
 		block,
 		id: create_if_block$1.name,
 		type: "if",
-		source: "(130:10) {#if !mturkReady}",
+		source: "(129:10) {#if !mturkReady}",
 		ctx
 	});
 
@@ -2313,36 +2543,36 @@ function create_fragment$5(ctx) {
 			section0 = element("section");
 			if (switch_instance) create_component(switch_instance.$$.fragment);
 			if (script.src !== (script_src_value = "https://sdk.amazonaws.com/js/aws-sdk-2.590.0.min.js")) attr_dev(script, "src", script_src_value);
-			add_location(script, file$5, 118, 2, 2567);
+			add_location(script, file$5, 117, 2, 2510);
 			attr_dev(h1, "class", "is-size-3");
-			add_location(h1, file$5, 126, 8, 2899);
+			add_location(h1, file$5, 125, 8, 2842);
 			attr_dev(span, "class", "tag");
 			toggle_class(span, "is-primary", /*mturkReady*/ ctx[1]);
 			toggle_class(span, "is-danger", !/*mturkReady*/ ctx[1]);
-			add_location(span, file$5, 127, 8, 2946);
+			add_location(span, file$5, 126, 8, 2889);
 			attr_dev(input, "type", "checkbox");
-			add_location(input, file$5, 133, 10, 3161);
+			add_location(input, file$5, 132, 10, 3104);
 			attr_dev(label, "class", "checkbox is-block");
-			add_location(label, file$5, 132, 8, 3117);
-			add_location(hr0, file$5, 136, 8, 3275);
+			add_location(label, file$5, 131, 8, 3060);
+			add_location(hr0, file$5, 135, 8, 3218);
 			attr_dev(div0, "class", "has-text-centered");
-			add_location(div0, file$5, 125, 6, 2859);
+			add_location(div0, file$5, 124, 6, 2802);
 			attr_dev(header, "class", "dashboard-panel-header svelte-sac9k4");
-			add_location(header, file$5, 124, 4, 2813);
+			add_location(header, file$5, 123, 4, 2756);
 			attr_dev(div1, "class", "dashboard-panel-content");
-			add_location(div1, file$5, 139, 4, 3313);
+			add_location(div1, file$5, 138, 4, 3256);
 			attr_dev(div2, "class", "dashboard-panel is-medium has-thick-padding has-background-grey-lighter svelte-sac9k4");
-			add_location(div2, file$5, 123, 2, 2723);
+			add_location(div2, file$5, 122, 2, 2666);
 			attr_dev(p, "class", "title is-size-2");
-			add_location(p, file$5, 145, 6, 3499);
-			add_location(hr1, file$5, 146, 6, 3544);
-			add_location(section0, file$5, 147, 6, 3557);
+			add_location(p, file$5, 144, 6, 3442);
+			add_location(hr1, file$5, 145, 6, 3487);
+			add_location(section0, file$5, 146, 6, 3500);
 			attr_dev(section1, "class", "section");
-			add_location(section1, file$5, 144, 4, 3467);
+			add_location(section1, file$5, 143, 4, 3410);
 			attr_dev(div3, "class", "dashboard-main is-scrollable svelte-sac9k4");
-			add_location(div3, file$5, 143, 2, 3420);
+			add_location(div3, file$5, 142, 2, 3363);
 			attr_dev(div4, "class", "dashboard is-full-height svelte-sac9k4");
-			add_location(div4, file$5, 122, 0, 2682);
+			add_location(div4, file$5, 121, 0, 2625);
 		},
 		l: function claim(nodes) {
 			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -2514,7 +2744,6 @@ function instance$5($$self, $$props, $$invalidate) {
 		console.log("receiving credentials...");
 		awsKey = credentials.accessKeyId;
 		awsSecret = credentials.secretAccessKey;
-		console.log(`Key: ${awsKey}\nSecret: ${awsSecret}`);
 	};
 
 	ipcRenderer.on("credentials", receiveCredentials);

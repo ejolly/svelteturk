@@ -24,6 +24,13 @@ Svelte-turk will look for these credentials in the order described above, i.e. w
 
 If you are unsure if you have set these credentials properly, simply start the app, as svelte-turk will issue an error message if it can't locate them through either method. Then simply set them and restart the app.
 
+## Project structure
+
+- `main/`
+  - contains code for the electron server, the skeleton html file that svelte renders to, and nedb files
+- `renderer/`
+  - contains all code for the svelte app (e.g. pages and components)
+
 ## Development Log
 
 1. Install [npm](https://www.npmjs.com/get-npm) (if you don't have it)

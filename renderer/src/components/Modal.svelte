@@ -1,37 +1,36 @@
 <script>
-  let shown = false;
-  export function show() {
-    shown = true;
-  }
-  export function hide() {
-    shown = false;
+  import { fly } from 'svelte/transition';
+
+  export let showModal = false;
+  export let modalType = 'notification';
+  
+  const setType = () => {
+    let color;
+    if (modalType === 'notification') {
+      color = 'is-info';
+    } else if (modalType === 'error') {
+      color = 'is-danger';
+    } else if (modalType === 'success') {
+      color = 'is-primary';
+    }
+    return `notification ${color}`;
   }
 </script>
 
 <style>
-  .shrink {
-    width: 25%;
+  .notification {
+    position: absolute;
+    z-index: 999;
+    top: .1rem;
+    left: 45%;
+    width: 35%;
+    text-align: center;
   }
 </style>
-<svelte:window
-  on:keydown={(e) => {
-    if (e.keyCode == 27) {
-      hide();
-    }
-  }} />
-{#if shown}
-  <div class="modal is-active is-centered">
-    <div class="modal-background" />
-    <div class="modal-card shrink">
-      <header class="modal-card-head">
-        <p class="modal-card-title has-text-centered"></p>
-        <button on:click={hide} class="delete" aria-label="close" />
-      </header>
-      <section class="modal-card-body has-text-centered">
-        <slot/>
-      </section>
-      <footer class="modal-card-foot is-centered">
-      </footer>
-    </div>
+
+{#if showModal}
+  <div class="{setType()}" transition:fly="{{ y: -200, duration: 500 }}">
+    <button class="delete" on:click={() => showModal = false} />
+      <slot/>
   </div>
 {/if}

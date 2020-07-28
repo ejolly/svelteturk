@@ -92,3 +92,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# Svelte sandbox
+demo.svelte

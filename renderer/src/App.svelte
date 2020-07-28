@@ -44,7 +44,6 @@
     console.log('receiving credentials...');
     awsKey = credentials.accessKeyId;
     awsSecret = credentials.secretAccessKey;
-    console.log(`Key: ${awsKey}\nSecret: ${awsSecret}`);
   };
 
   ipcRenderer.on('credentials', receiveCredentials);

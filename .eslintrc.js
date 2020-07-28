@@ -32,6 +32,7 @@ module.exports = {
     'global-require': 0,
     'no-multiple-empty-lines': 0,
     'jsx-a11y/a11y-invalid-attribute': 0,
+    'guard-for-in': 0
   },
   overrides: [
     {

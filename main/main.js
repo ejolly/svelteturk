@@ -5,7 +5,7 @@ const fs = require('fs');
 
 // Hot reload just the renderer (i.e. svelte changes)
 // Changes to this file require restarting the electron process
-require('electron-reload')(path.join(__dirname, 'renderer'));
+require('electron-reload')(path.join(__dirname, '..', 'renderer'));
 
 nativeTheme.themeSource = 'light';
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -14,9 +14,10 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-// create a global referenx to the window object
+// create a global reference to the window object
 let mainWindow;
-let db;
+// Create a object to hold all the dbs for easier referencing
+const db = {};
 // try to load aws credentials
 let awsCredentials = {
   accessKeyId: process.env.AWS_SECRET_ACCESS_KEY,
@@ -26,22 +27,33 @@ let awsCredentials = {
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 768,
+    width: 1280,
+    height: 1024,
     webPreferences: {
       nodeIntegration: true,
     },
   });
 
-  // create or load existing database
-  db = new Datastore({
-    filename: './database.db',
+  // create or load existing databases
+  db.hits = new Datastore({
+    filename: path.join(__dirname, 'db', 'hits.db'),
+    timestampData: true,
+    autoload: true,
+  });
+  db.assts = new Datastore({
+    filename: path.join(__dirname, 'db', 'assts.db'),
+    timestampData: true,
+    autoload: true,
+  });
+  db.workers = new Datastore({
+    filename: path.join(__dirname, 'db', 'workers.db'),
     timestampData: true,
     autoload: true,
   });
 
   if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
     console.log('AWS credentials loaded from environment variables!');
+    console.log(awsCredentials);
   } else {
     fs.readFile(`${app.getPath('home')}/.awscredentials.json`, (err, data) => {
       if (err) {
@@ -62,8 +74,8 @@ const createWindow = () => {
         }
       } else {
         awsCredentials = JSON.parse(data);
-        console.log(awsCredentials);
         console.log('AWS credentials loaded from file!');
+        console.log(awsCredentials);
       }
     });
   }
@@ -102,15 +114,33 @@ ipcMain.on('getCredentials', () => {
   mainWindow.webContents.send('credentials', awsCredentials);
 });
 
+// Count records in each db
+ipcMain.on('countDocs', () => {
+  const out = {};
+  for (const dbName in db) {
+    // eslint-disable-next-line
+    db[dbName].count({}, (err, count) => {
+      if (err) {
+        mainWindow.webContents.send('countedDocs', err);
+      } else {
+        out[dbName] = count;
+      }
+    });
+  }
+  mainWindow.webContents.send('countedDocs', out);
+});
+
 // send all documents to client
-ipcMain.on('findAll', () => {
-  db.find({})
+ipcMain.on('findAll', (dbName) => {
+  db[dbName]
+    .find({})
     .sort({ createdAt: -1 })
     .exec((err, docs) => {
       mainWindow.webContents.send('foundAll', docs);
     });
 });
 
+// TODO: package all databases together
 // export db to JSON
 ipcMain.on('export', () => {
   db.find({})
@@ -144,17 +174,9 @@ ipcMain.on('export', () => {
 });
 
 // Insert document
-ipcMain.on('insert', (e, item) => {
-  db.insert(item, (err) => {
+ipcMain.on('insert', (dbName, item) => {
+  db[dbName].insert(item, (err) => {
     if (err) throw new Error(err);
   });
   mainWindow.webContents.send('inserted', item);
-});
-
-// Delete all docs in db; really only for testing
-ipcMain.on('clearAll', () => {
-  db.remove({}, { multi: true }, (err) => {
-    if (err) throw new Error(err);
-    mainWindow.webContents.send('clearedAll');
-  });
 });
