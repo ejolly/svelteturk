@@ -50,7 +50,7 @@
   "dependencies": {
     "bulma-toast": "^2.0.1",
     "electron-squirrel-startup": "^1.0.0",
-    "nedb": "^1.8.0",
+    "nedb-promises": "^4.0.4",
     "sirv-cli": "^1.0.3"
   },
   "devDependencies": {

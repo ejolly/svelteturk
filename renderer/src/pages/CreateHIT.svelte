@@ -1,13 +1,14 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  const { ipcRenderer } = require('electron');
+  import Modal from '../components/Modal.svelte';
 
   // INPUTS
   export let mturk;
-  console.log(mturk);
 
   // VARIABLES
-  // Create event dispatcher to tell App.svelte to write hits to db
-  const dispatch = createEventDispatcher();
+  let showModal = false;
+  let modalType;
+  let modalText;
   // Create HIT vars
   let assignmentDuration = 3600;
   let description = '';
@@ -46,10 +47,10 @@
           AutoApprovalDelayInSeconds: autoApprovalDelay,
           Keywords: keywords,
           MaxAssignments: maxAssignments,
-          Question: externalQuestion
+          Question: externalQuestion,
         })
         .promise();
-      dispatch('createHIT', {
+      const dbResp = await ipcRenderer.invoke('insertHIT', {
         HITId: resp.HIT.HITId,
         HITTypeId: resp.HIT.HITTypeId,
         CreationTIme: resp.HIT.CreationTime.toString(),
@@ -65,43 +66,18 @@
         HITReviewStatus: resp.HIT.HITReviewStatus,
         NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
         NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
-        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted
+        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
       });
-      // toast.toast({
-      //   message: `HIT successfully created: ${resp.HIT.HITId}`,
-      //   type: 'is-success',
-      //   position: 'top-center',
-      //   pauseonHover: true,
-      //   dismissible: true,
-      //   duration: 5000,
-      //   animate: { in: 'fadeInDown', out: 'fadeOutUp' },
-      // });
+      modalText = dbResp.text;
+      modalType = dbResp.type;
     } catch (error) {
-      // toast.toast({
-      //   message: `${error}`,
-      //   type: 'is-danger',
-      //   position: 'top-center',
-      //   pauseonHover: true,
-      //   dismissible: true,
-      //   duration: 5000,
-      //   animate: { in: 'fadeInDown', out: 'fadeOutUp' },
-      // });
-      console.error(error);
+      console.error(err);
+      modalText = err;
+      modalType = 'error';
     }
+    showModal = true;
   };
 
-  // const test = async () => {
-  //   try {
-  //     let resp = await mturk
-  //       .getHIT({
-  //         HITId: '3TZ0XG8CBUEU4B7DXAODGY7MD7M98N'
-  //       })
-  //       .promise();
-  //     console.log(resp);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 </script>
 
 <style>
@@ -110,6 +86,9 @@
   }
 </style>
 
+<Modal {showModal} {modalType}>
+  <p>{modalText}</p>
+</Modal>
 <div class="container">
   <form on:submit|preventDefault={createHIT}>
     <div class="columns">

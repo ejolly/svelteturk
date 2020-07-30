@@ -31,19 +31,17 @@
     }
   };
 
-  // Ask nedb for counts in each database
-  const countDocs = () => ipcRenderer.send('countDocs');
-
-  // Event handler for ipc response
-  ipcRenderer.on('countedDocs', (docs) => {
+  // Get number of docs in each db
+  const countDocs = async () => {
+    let docs = await ipcRenderer.invoke('countDocs');
     numHITs = docs.hits || '0';
     numAssts = docs.assts || '0';
     numWorkers = docs.workers || '0';
-  });
+  }
 
   // Get doc counts on component load
-  onMount(() => {
-    countDocs();
+  onMount(async () => {
+    await countDocs();
   });
 
 </script>

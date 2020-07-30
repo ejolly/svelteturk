@@ -95,3 +95,9 @@ out/
 
 # Svelte sandbox
 demo.svelte
+
+# Bundled files which change each app start
+renderer/dist/bundle.*
+
+# Nedb databases
+main/db/*.db

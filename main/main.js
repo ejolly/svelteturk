@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, nativeTheme, dialog } = require('electron');
 const path = require('path');
-const Datastore = require('nedb');
+const Datastore = require('nedb-promises');
 const fs = require('fs');
 
 // Hot reload just the renderer (i.e. svelte changes)
@@ -35,17 +35,17 @@ const createWindow = () => {
   });
 
   // create or load existing databases
-  db.hits = new Datastore({
+  db.hits = Datastore.create({
     filename: path.join(__dirname, 'db', 'hits.db'),
     timestampData: true,
     autoload: true,
   });
-  db.assts = new Datastore({
+  db.assts = Datastore.create({
     filename: path.join(__dirname, 'db', 'assts.db'),
     timestampData: true,
     autoload: true,
   });
-  db.workers = new Datastore({
+  db.workers = Datastore.create({
     filename: path.join(__dirname, 'db', 'workers.db'),
     timestampData: true,
     autoload: true,
@@ -86,23 +86,13 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
-
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
@@ -115,68 +105,68 @@ ipcMain.on('getCredentials', () => {
 });
 
 // Count records in each db
-ipcMain.on('countDocs', () => {
+ipcMain.handle('countDocs', async (ev) => {
   const out = {};
   for (const dbName in db) {
-    // eslint-disable-next-line
-    db[dbName].count({}, (err, count) => {
-      if (err) {
-        mainWindow.webContents.send('countedDocs', err);
-      } else {
-        out[dbName] = count;
-      }
-    });
+    try {
+      out[dbName] = await db[dbName].count({});
+    } catch (err) {
+      console.error(err);
+    }
   }
-  mainWindow.webContents.send('countedDocs', out);
+  return out;
 });
 
-// send all documents to client
-ipcMain.on('findAll', (dbName) => {
-  db[dbName]
-    .find({})
-    .sort({ createdAt: -1 })
-    .exec((err, docs) => {
-      mainWindow.webContents.send('foundAll', docs);
-    });
+// Add HIT to db after it's created in mturk
+ipcMain.handle('insertHIT', async (ev, hit) => {
+  let text;
+  let type;
+  try {
+    await db.hits.insert(hit);
+    text = 'HIT added successfully';
+    type = 'success';
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return {
+    text,
+    type,
+  };
 });
 
-// TODO: package all databases together
-// export db to JSON
-ipcMain.on('export', () => {
-  db.find({})
-    .sort({ createdAt: -1 })
-    .exec((err, docs) => {
-      if (err) throw new Error(err);
-      dialog
-        .showSaveDialog(mainWindow, {
-          title: 'Export Database',
-          defaultPath: `${app.getPath('home')}/Desktop/svelte-turk-export.json`,
-          buttonLabel: 'Save',
-          message: 'Where do you want to save the exported file?',
-          showsTagField: false,
-          properties: ['createDirectory', 'showOverwriteConfirmation'],
-        })
-        .then((result) => {
-          if (result.filePath) {
-            const writePath = result.filePath.endsWith('.json')
-              ? result.filePath
-              : `${result.filePath}.json`;
-            fs.writeFile(writePath, JSON.stringify(docs), 'utf8', (errt) => {
-              if (errt) throw new Error(errt);
-              console.log('Database exported to database_export.json');
-            });
-          } else {
-            console.log('Save dialog cancelled');
-          }
-        });
-    });
-  mainWindow.webContents.send('exported');
-});
 
-// Insert document
-ipcMain.on('insert', (dbName, item) => {
-  db[dbName].insert(item, (err) => {
-    if (err) throw new Error(err);
-  });
-  mainWindow.webContents.send('inserted', item);
-});
+// // TODO: package all databases together
+// // export db to JSON
+// ipcMain.on('export', () => {
+//   db.find({})
+//     .sort({ createdAt: -1 })
+//     .exec((err, docs) => {
+//       if (err) throw new Error(err);
+//       dialog
+//         .showSaveDialog(mainWindow, {
+//           title: 'Export Database',
+//           defaultPath: `${app.getPath('home')}/Desktop/svelte-turk-export.json`,
+//           buttonLabel: 'Save',
+//           message: 'Where do you want to save the exported file?',
+//           showsTagField: false,
+//           properties: ['createDirectory', 'showOverwriteConfirmation'],
+//         })
+//         .then((result) => {
+//           if (result.filePath) {
+//             const writePath = result.filePath.endsWith('.json')
+//               ? result.filePath
+//               : `${result.filePath}.json`;
+//             fs.writeFile(writePath, JSON.stringify(docs), 'utf8', (errt) => {
+//               if (errt) throw new Error(errt);
+//               console.log('Database exported to database_export.json');
+//             });
+//           } else {
+//             console.log('Save dialog cancelled');
+//           }
+//         });
+//     });
+//   mainWindow.webContents.send('exported');
+// });
+
