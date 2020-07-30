@@ -1,9 +1,12 @@
 <script>
+  // Reusuable notification component that displays the top of the screen
   import { fly } from 'svelte/transition';
 
+  // INPUTS
   export let showModal = false;
   export let modalType = 'notification';
   
+  // FUNCTIONS
   const setType = () => {
     let color;
     if (modalType === 'notification') {

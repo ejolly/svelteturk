@@ -1,15 +1,13 @@
 <script>
-  // Create HIT form component to make a new HIT and persist HIT data to firebase
   import { createEventDispatcher } from 'svelte';
-  // import toast from 'bulma-toast';
 
-  // Receive as input mturk object
+  // INPUTS
   export let mturk;
   console.log(mturk);
 
+  // VARIABLES
   // Create event dispatcher to tell App.svelte to write hits to db
   const dispatch = createEventDispatcher();
-
   // Create HIT vars
   let assignmentDuration = 3600;
   let description = '';
@@ -34,6 +32,7 @@
   <FrameHeight>900</FrameHeight>
   </ExternalQuestion>`;
 
+  // FUNCTIONS
   const createHIT = async () => {
     console.log('create HIT');
     try {
