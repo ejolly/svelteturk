@@ -34,6 +34,7 @@
   </ExternalQuestion>`;
 
   // FUNCTIONS
+  // Create a HIT and save it to db
   const createHIT = async () => {
     console.log('create HIT');
     try {
@@ -70,7 +71,7 @@
       });
       modalText = dbResp.text;
       modalType = dbResp.type;
-    } catch (error) {
+    } catch (err) {
       console.error(err);
       modalText = err;
       modalType = 'error';

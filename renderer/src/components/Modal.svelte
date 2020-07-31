@@ -7,6 +7,7 @@
   export let modalType = 'notification';
   
   // FUNCTIONS
+  // Change modal style
   const setType = () => {
     let color;
     if (modalType === 'notification') {

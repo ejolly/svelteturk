@@ -17,7 +17,7 @@ $tabs-link-hover-color: $medium_candy_apply_red;
 $tabs-border-bottom-width: 2px;
 $tabs-link-active-color: hsl(0, 0%, 29%);
 $has-text-link: $bdazzled_blue;
-
+$menu-label-font-size: 1em;
 // Finally import bulma *after* customization
-@import "~bulma/bulma.sass"
-
+@import "~bulma/bulma.sass";
+@import "~bulma-switch";

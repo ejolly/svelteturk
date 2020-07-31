@@ -10,9 +10,14 @@
   let showModal = false;
   let modalType;
   let modalText;
-  // Trick to wait to make sure the mturk object is available from App.svelte
-  $: mturkReady = mturk ? getAccountBalance() : undefined;
-  let accountBalance = 'Loading...';
+  // Make accountBalance reactive with respect to mturk which comes from App.svelte
+  // This re-executes getAccountBalance() whenever mturk changes
+  // mturk changes when SidebarHeader dispatches to App.svelte, which then
+  // reinitializes mturk and passes it here triggering the re-execution
+  // In the HTML we use Svelte's await syntax because for a brief period
+  // accountBalance is an promise that's waiting to be resolve in getAccountBalance()
+  // this ensures that "Loading..." is rendered while waiting
+  $: accountBalance = mturk ? getAccountBalance() : undefined;
   let numHITs = 'Loading...';
   let numAssts = 'Loading...';
   let numWorkers = 'Loading...';
@@ -37,13 +42,12 @@
     numHITs = docs.hits || '0';
     numAssts = docs.assts || '0';
     numWorkers = docs.workers || '0';
-  }
+  };
 
   // Get doc counts on component load
   onMount(async () => {
     await countDocs();
   });
-
 </script>
 
 <Modal {showModal} {modalType}>
@@ -52,7 +56,11 @@
 <div class="container">
   <div class="columns">
     <div class="column">
-      <p>Account Balance: {accountBalance}</p>
+      {#await accountBalance}
+        <p>Account Balance: Loading...</p>
+      {:then accountBalance}
+        <p>Account Balance: {accountBalance}</p>
+      {/await}
     </div>
   </div>
   <div class="columns">
@@ -73,7 +81,7 @@
   <div class="columns">
     <div class="column">
       <!-- Example modal usage -->
-      <button on:click={() => showModal = true}>Show</button>
+      <button on:click={() => (showModal = true)}>Show</button>
     </div>
   </div>
 </div>

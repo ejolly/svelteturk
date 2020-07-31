@@ -100,9 +100,10 @@ app.on('activate', () => {
 
 // define the database "API" here using ipc listeners
 // Send aws credentials
-ipcMain.on('getCredentials', () => {
-  mainWindow.webContents.send('credentials', awsCredentials);
-});
+ipcMain.handle('getCredentials', async (ev) => awsCredentials);
+// ipcMain.on('getCredentials', () => {
+//   mainWindow.webContents.send('credentials', awsCredentials);
+// });
 
 // Count records in each db
 ipcMain.handle('countDocs', async (ev) => {
@@ -136,37 +137,38 @@ ipcMain.handle('insertHIT', async (ev, hit) => {
   };
 });
 
-
-// // TODO: package all databases together
-// // export db to JSON
-// ipcMain.on('export', () => {
-//   db.find({})
-//     .sort({ createdAt: -1 })
-//     .exec((err, docs) => {
-//       if (err) throw new Error(err);
-//       dialog
-//         .showSaveDialog(mainWindow, {
-//           title: 'Export Database',
-//           defaultPath: `${app.getPath('home')}/Desktop/svelte-turk-export.json`,
-//           buttonLabel: 'Save',
-//           message: 'Where do you want to save the exported file?',
-//           showsTagField: false,
-//           properties: ['createDirectory', 'showOverwriteConfirmation'],
-//         })
-//         .then((result) => {
-//           if (result.filePath) {
-//             const writePath = result.filePath.endsWith('.json')
-//               ? result.filePath
-//               : `${result.filePath}.json`;
-//             fs.writeFile(writePath, JSON.stringify(docs), 'utf8', (errt) => {
-//               if (errt) throw new Error(errt);
-//               console.log('Database exported to database_export.json');
-//             });
-//           } else {
-//             console.log('Save dialog cancelled');
-//           }
-//         });
-//     });
-//   mainWindow.webContents.send('exported');
-// });
-
+// Export all dbs to JSON
+ipcMain.handle('export', async () => {
+  let text;
+  let type;
+  try {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Export Database',
+      defaultPath: `${app.getPath('home')}/Desktop/`,
+      buttonLabel: 'Save',
+      message: 'Where do you want to save the exported databases?',
+      showsTagField: false,
+      properties: ['openDirectory', 'createDirectory'],
+    });
+    if (!result.canceled) {
+      for (const dbName in db) {
+        let docs = await db[dbName].find({}).sort({ createdAt: -1 });
+        let writePath = path.join(result.filePaths[0], `${dbName}.json`);
+        let saveResult = await fs.promises.writeFile(writePath, JSON.stringify(docs));
+      }
+      text = 'Export succesful!';
+      type = 'success';
+    } else {
+      text = 'Export cancelled';
+      type = 'notification';
+    }
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return {
+    text,
+    type,
+  };
+});
