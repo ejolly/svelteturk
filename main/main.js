@@ -152,9 +152,9 @@ ipcMain.handle('export', async () => {
     });
     if (!result.canceled) {
       for (const dbName in db) {
-        let docs = await db[dbName].find({}).sort({ createdAt: -1 });
-        let writePath = path.join(result.filePaths[0], `${dbName}.json`);
-        let saveResult = await fs.promises.writeFile(writePath, JSON.stringify(docs));
+        const docs = await db[dbName].find({}).sort({ createdAt: -1 });
+        const writePath = path.join(result.filePaths[0], `${dbName}.json`);
+        await fs.promises.writeFile(writePath, JSON.stringify(docs));
       }
       text = 'Export succesful!';
       type = 'success';

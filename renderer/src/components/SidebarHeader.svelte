@@ -8,6 +8,7 @@
 
   // VARIABLES
   const dispatch = createEventDispatcher();
+  // eslint-disable-next-line no-nested-ternary
   $: mode = mturkReady && window.navigator.onLine ? (live ? 'Live' : 'Sandbox') : 'Error';
   let showModal = false;
   let modalType;
@@ -18,7 +19,7 @@
   const switchMturkMode = () => {
     if (window.navigator.onLine) {
       dispatch('switchMturkMode', {
-        live: live,
+        live
       });
     } else {
       modalText = 'No internet connectivity!';

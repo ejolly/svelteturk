@@ -1,6 +1,7 @@
 <script>
-  const { ipcRenderer } = require('electron');
   import Modal from '../components/Modal.svelte';
+
+  const { ipcRenderer } = require('electron');
 
   // INPUTS
   export let mturk;
@@ -48,7 +49,7 @@
           AutoApprovalDelayInSeconds: autoApprovalDelay,
           Keywords: keywords,
           MaxAssignments: maxAssignments,
-          Question: externalQuestion,
+          Question: externalQuestion
         })
         .promise();
       const dbResp = await ipcRenderer.invoke('insertHIT', {
@@ -67,7 +68,7 @@
         HITReviewStatus: resp.HIT.HITReviewStatus,
         NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
         NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
-        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
+        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted
       });
       modalText = dbResp.text;
       modalType = dbResp.type;
@@ -78,7 +79,6 @@
     }
     showModal = true;
   };
-
 </script>
 
 <style>
@@ -198,13 +198,6 @@
           </div>
         </div>
       </div>
-      <!-- <div class="column">
-        <div class="field">
-          <div class="control">
-            <button class="button is-success" on:click|preventDefault={test}>Test</button>
-          </div>
-        </div>
-      </div> -->
     </div>
   </form>
 </div>

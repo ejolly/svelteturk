@@ -30,18 +30,18 @@
     {
       state: 'home',
       title: 'Home',
-      component: Home,
+      component: Home
     },
     {
       state: 'createHIT',
       title: 'Create HIT',
-      component: CreateHIT,
+      component: CreateHIT
     },
     {
       state: 'reviewHITs',
       title: 'Review HITs',
-      component: ReviewHIT,
-    },
+      component: ReviewHIT
+    }
   ];
 
   // Reactive component "routing" based on the currentState
@@ -50,31 +50,20 @@
   $: component = currentObj.component;
 
   // FUNCTIONS
-  // Handle getting credentials from ipcMain "backend" and
-  // immediately initializing the Mturk API
-  // triggered on component mount
-  const getCredentials = async () => {
-    const credentials = await ipcRenderer.invoke('getCredentials');
-    console.log('receiving credentials...');
-    awsKey = credentials.accessKeyId;
-    awsSecret = credentials.secretAccessKey;
-    initMTurk();
-  };
-
   // Initialize the Mturk API object
   const initMTurk = () => {
-    let endpoint = live
+    const endpoint = live
       ? 'https://mturk-requester.us-east-1.amazonaws.com'
       : 'https://mturk-requester-sandbox.us-east-1.amazonaws.com';
-    // eslint-disable-next-line no-undef
     try {
+      // eslint-disable-next-line no-undef
       mturk = new AWS.MTurk({
         region: 'us-east-1',
         endpoint,
         // eslint-disable-next-line no-undef
         accessKeyId: awsKey,
         // eslint-disable-next-line no-undef
-        secretAccessKey: awsSecret,
+        secretAccessKey: awsSecret
       });
       mturkReady = true;
       console.log(mturk.endpoint.host);
@@ -84,6 +73,17 @@
       modalType = 'error';
       showModal = true;
     }
+  };
+
+  // Handle getting credentials from ipcMain "backend" and
+  // immediately initializing the Mturk API
+  // triggered on component mount
+  const getCredentials = async () => {
+    const credentials = await ipcRenderer.invoke('getCredentials');
+    console.log('receiving credentials...');
+    awsKey = credentials.accessKeyId;
+    awsSecret = credentials.secretAccessKey;
+    initMTurk();
   };
 
   // Change the app view ("state"); triggered by Sidebar
@@ -137,7 +137,7 @@
   }
 </style>
 
-<svelte:window bind:online={mturkReady}/>
+<svelte:window bind:online={mturkReady} />
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
