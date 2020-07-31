@@ -172,3 +172,42 @@ ipcMain.handle('export', async () => {
     type,
   };
 });
+
+// Delete a doc in any db
+ipcMain.handle('deleteDoc', async (ev, dbName, id) => {
+  let text;
+  let type;
+  try {
+    const numRemoved = await db[dbName].remove({ _id: id }, { multi: false });
+    if (numRemoved) {
+      text = 'Deleted successfully';
+      type = 'success';
+    } else {
+      text = 'Document not found';
+      type = 'erorr';
+    }
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return { text, type };
+});
+
+// Return all hits
+ipcMain.handle('findHits', async (ev) => {
+  const docs = await db.hits.find({}).sort({ createdAt: -1 });
+  return docs;
+});
+
+// Return all assts
+ipcMain.handle('findAssts', async (ev) => {
+  const docs = await db.assts.find({}).sort({ createdAt: -1 });
+  return docs;
+});
+
+// Return all workers
+ipcMain.handle('findWorkers', async (ev) => {
+  const docs = await db.workers.find({}).sort({ createdAt: -1 });
+  return docs;
+});

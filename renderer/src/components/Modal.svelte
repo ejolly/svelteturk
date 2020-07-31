@@ -15,7 +15,7 @@
     } else if (modalType === 'error') {
       color = 'is-danger';
     } else if (modalType === 'success') {
-      color = 'is-primary';
+      color = 'is-success';
     }
     return `notification ${color}`;
   };

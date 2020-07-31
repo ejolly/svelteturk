@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { slide, fly, fade } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
 
   const { ipcRenderer } = require('electron');
@@ -54,7 +55,7 @@
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
-<div class="container">
+<div class="container" in:fly={{ y: 200, duration: 250 }}>
   <div class="columns">
     <div class="column">
       {#await accountBalance}

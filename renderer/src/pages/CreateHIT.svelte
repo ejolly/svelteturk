@@ -1,4 +1,5 @@
 <script>
+  import { fly, fade } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
 
   const { ipcRenderer } = require('electron');
@@ -55,7 +56,7 @@
       const dbResp = await ipcRenderer.invoke('insertHIT', {
         HITId: resp.HIT.HITId,
         HITTypeId: resp.HIT.HITTypeId,
-        CreationTIme: resp.HIT.CreationTime.toString(),
+        CreationTime: resp.HIT.CreationTime.toString(),
         Title: resp.HIT.Title,
         Description: resp.HIT.Description,
         Keywords: resp.HIT.Keywords,
@@ -90,7 +91,7 @@
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
-<div class="container">
+<div class="container" in:fly={{ y: 200, duration: 250 }}>
   <form on:submit|preventDefault={createHIT}>
     <div class="columns">
       <div class="column">

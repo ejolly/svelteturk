@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import Modal from './components/Modal.svelte';
+  import Modal from './Modal.svelte';
 
   const { ipcRenderer } = require('electron');
 
