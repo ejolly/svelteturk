@@ -1,7 +1,8 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import Modal from './components/Modal.svelte';
+
   const { ipcRenderer } = require('electron');
-  import Modal from '../components/Modal.svelte';
 
   // VARIABLES
   let showModal = false;
@@ -13,13 +14,13 @@
   // Tell App.svelte to "route" to a different page
   const changeState = (state) => {
     dispatch('changeState', {
-      state: state,
+      state
     });
   };
   // Export all nedb files to json
   const exportData = async () => {
     try {
-      const resp = await ipcRenderer.invoke('export')
+      const resp = await ipcRenderer.invoke('export');
       modalText = resp.text;
       modalType = resp.type;
     } catch (err) {
@@ -28,7 +29,7 @@
       modalType = 'error';
     }
     showModal = true;
-  }
+  };
 </script>
 
 <Modal {showModal} {modalType}>
@@ -47,6 +48,6 @@
       <a href="javascript:;" on:click={() => changeState('reviewHITs')}>Review HITs</a>
     </li>
   </ul>
-  <hr>
+  <hr />
   <button class="button is-info" on:click={exportData}>Export Data</button>
 </aside>

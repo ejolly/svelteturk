@@ -1,7 +1,8 @@
 <script>
   import { onMount } from 'svelte';
-  const { ipcRenderer } = require('electron');
   import Modal from '../components/Modal.svelte';
+
+  const { ipcRenderer } = require('electron');
 
   // INPUTS
   export let mturk;
@@ -17,13 +18,6 @@
   // In the HTML we use Svelte's await syntax because for a brief period
   // accountBalance is an promise that's waiting to be resolve in getAccountBalance()
   // this ensures that "Loading..." is rendered while waiting
-  $: accountBalance = mturk ? getAccountBalance() : undefined;
-  let numHITs = 'Loading...';
-  let numAssts = 'Loading...';
-  let numWorkers = 'Loading...';
-
-  // FUNCTIONS
-  // Query mturk API for account balance
   const getAccountBalance = async () => {
     try {
       const resp = await mturk.getAccountBalance().promise();
@@ -35,10 +29,17 @@
       modalText = `Error getting account balance! ${error}`;
     }
   };
+  $: accountBalance = mturk ? getAccountBalance() : undefined;
+  let numHITs = 'Loading...';
+  let numAssts = 'Loading...';
+  let numWorkers = 'Loading...';
+
+  // FUNCTIONS
+  // Query mturk API for account balance
 
   // Get number of docs in each db
   const countDocs = async () => {
-    let docs = await ipcRenderer.invoke('countDocs');
+    const docs = await ipcRenderer.invoke('countDocs');
     numHITs = docs.hits || '0';
     numAssts = docs.assts || '0';
     numWorkers = docs.workers || '0';
