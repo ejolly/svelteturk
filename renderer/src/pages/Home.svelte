@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { slide, fly, fade } from 'svelte/transition';
+  import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
 
   const { ipcRenderer } = require('electron');

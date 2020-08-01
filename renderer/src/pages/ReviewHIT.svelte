@@ -15,8 +15,6 @@
   let timer;
   let hits = [];
   let hitsFiltered = [];
-  let selectedHITId;
-  let selectedHITMTurkId;
   let showModal = false;
   let modalText;
   let modalType;
@@ -25,7 +23,7 @@
   // The specific hit in JS
   let selectedHIT;
   // Reactive boolean for styling
-  $: rowSelected = selectedHIT ? true : false;
+  $: rowSelected = !!selectedHIT;
 
   // FUNCTIONS
   // Get all hits from db
@@ -76,14 +74,14 @@
       const resp = await mturk
         .updateExpirationForHIT({
           ExpireAt: new Date(0),
-          HITId: selectedHIT.HITId,
+          HITId: selectedHIT.HITId
         })
         .promise();
       console.log(resp);
       // TODO: LOGS: Use resp.header object to store server time log and action
       if (resp.$response.httpResponse.statusCode === 200) {
         const dbResp = await updateDoc('hits', selectedHIT._id, {
-          $set: { HITStatus: 'Unassignable' },
+          $set: { HITStatus: 'Unassignable' }
         });
         if (dbResp.type === 'success') {
           modalText = 'HIT ended and db updated successfully!';
