@@ -11,3 +11,14 @@ export const deleteDoc = async (dbName, id) => {
   }
   return resp;
 };
+
+export const updateDoc = async (dbName, id, update) => {
+  let resp;
+  try {
+    resp = await ipcRenderer.invoke('updateDoc', dbName, id, update);
+  } catch (err) {
+    console.error(err);
+    resp = { text: err, type: 'error' };
+  }
+  return resp;
+};

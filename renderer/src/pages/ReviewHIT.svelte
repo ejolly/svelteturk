@@ -2,22 +2,30 @@
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
-  import { deleteDoc } from '../components/utils.js';
+  import { deleteDoc, updateDoc } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
 
   // INPUTS
+  export let mturk;
 
   // VARIABLES
-  let rowSelected = false;
+  /* let rowSelected = false; */
   let search = '';
   let timer;
   let hits = [];
   let hitsFiltered = [];
   let selectedHITId;
+  let selectedHITMTurkId;
   let showModal = false;
   let modalText;
   let modalType;
+  // The row DOM element
+  let rowDOM;
+  // The specific hit in JS
+  let selectedHIT;
+  // Reactive boolean for styling
+  $: rowSelected = selectedHIT ? true : false;
 
   // FUNCTIONS
   // Get all hits from db
@@ -26,35 +34,78 @@
     hitsFiltered = hits;
     console.log(hits);
   };
-  const selectRow = (ev, hit) => {
-    // Get all rows
-    const rows = document.getElementsByClassName('table-row');
-    // Get click row
-    const row = ev.target.parentNode;
+
+  const updateTableRows = () => {
+    // Get all rows manually by css because they could have changed
+    const tableRows = document.getElementsByClassName('table-row');
     // If clicked row already has class unselected it and all other rows
-    if (row.className === 'table-row is-selected') {
-      for (const r of rows) {
+    if (rowDOM.className === 'table-row is-selected') {
+      for (const r of tableRows) {
         r.className = 'table-row';
       }
-      rowSelected = false;
-      selectedHITId = undefined;
+      selectedHIT = undefined;
+      rowDOM = undefined;
     } else {
       // Otherwise unselect everything else first then select this one
-      for (const r of rows) {
+      for (const r of tableRows) {
         r.className = 'table-row';
       }
-      row.className += ' is-selected';
-      rowSelected = true;
-      selectedHITId = hit._id;
+      rowDOM.className += ' is-selected';
     }
+  };
+  const selectRow = (ev, hit) => {
+    // Save clicked row
+    rowDOM = ev.target.parentNode;
+    // Saved selected hit
+    selectedHIT = hit;
+    // Update
+    updateTableRows();
   };
 
   const deleteHIT = async (ev) => {
-    const resp = await deleteDoc('hits', selectedHITId);
+    const resp = await deleteDoc('hits', selectedHIT._id);
     modalText = resp.text;
     modalType = resp.type;
     showModal = true;
     await getHits();
+    updateTableRows();
+  };
+
+  const endHIT = async (ev) => {
+    try {
+      const resp = await mturk
+        .updateExpirationForHIT({
+          ExpireAt: new Date(0),
+          HITId: selectedHIT.HITId,
+        })
+        .promise();
+      console.log(resp);
+      // TODO: LOGS: Use resp.header object to store server time log and action
+      if (resp.$response.httpResponse.statusCode === 200) {
+        const dbResp = await updateDoc('hits', selectedHIT._id, {
+          $set: { HITStatus: 'Unassignable' },
+        });
+        if (dbResp.type === 'success') {
+          modalText = 'HIT ended and db updated successfully!';
+          modalType = 'success';
+        } else {
+          modalText = 'HIT ended successfully but could not update db. See console.';
+          modalType = 'notifcation';
+          console.log(dbResp);
+        }
+      } else {
+        modalText = 'Something unexpected happened! See console.';
+        modalType = 'notification';
+      }
+      showModal = true;
+      await getHits();
+    } catch (err) {
+      console.error(err);
+      modalText = err;
+      modalType = 'error';
+      showModal = true;
+    }
+    updateTableRows();
   };
 
   const formatDate = (date) => {
@@ -135,7 +186,7 @@
     <div class="column has-text-right">
       <div class="field is-grouped" class:is-invisible={!rowSelected}>
         <p class="control">
-          <button class="button is-warning">End HIT</button>
+          <button class="button is-warning" on:click={endHIT}>End HIT</button>
         </p>
         <p class="control">
           <button class="button is-success">Approve HIT</button>
@@ -198,7 +249,6 @@
           </thead>
           <tbody>
             {#each hitsFiltered as hit}
-              <!-- TODO: match values to table columns -->
               <tr class="table-row" on:click={(ev) => selectRow(ev, hit)}>
                 <td>
                   <span class="tag is-success status">Complete</span>

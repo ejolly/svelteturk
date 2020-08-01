@@ -50,9 +50,10 @@
           AutoApprovalDelayInSeconds: autoApprovalDelay,
           Keywords: keywords,
           MaxAssignments: maxAssignments,
-          Question: externalQuestion
+          Question: externalQuestion,
         })
         .promise();
+      // TODO: LOGS use resp.header to get server time
       const dbResp = await ipcRenderer.invoke('insertHIT', {
         HITId: resp.HIT.HITId,
         HITTypeId: resp.HIT.HITTypeId,
@@ -69,7 +70,7 @@
         HITReviewStatus: resp.HIT.HITReviewStatus,
         NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
         NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
-        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted
+        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
       });
       modalText = dbResp.text;
       modalType = dbResp.type;

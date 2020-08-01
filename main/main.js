@@ -194,6 +194,26 @@ ipcMain.handle('deleteDoc', async (ev, dbName, id) => {
   return { text, type };
 });
 
+// Update a doc in any db
+ipcMain.handle('updateDoc', async (ev, dbName, id, update) => {
+  let text;
+  let type;
+  try {
+    const numAffected = await db[dbName].update({ _id: id }, update);
+    if (numAffected) {
+      text = 'Updated successfully';
+      type = 'success';
+    } else {
+      text = 'Document not found';
+      type = 'erorr';
+    }
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return { text, type };
+});
 // Return all hits
 ipcMain.handle('findHits', async (ev) => {
   const docs = await db.hits.find({}).sort({ createdAt: -1 });
