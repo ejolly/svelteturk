@@ -1,12 +1,10 @@
 # Svelte-Turk
 
-## 🚧 Work in Progress 🚧  
+🚧 Work in Progress 🚧
 
-## Assistance Welcome 💻
+## [Project Homepage and Documentation](https://www.notion.so/ejolly/Svelte-Turk-6c250e6f736642b0a1271c027514d5fb)
 
-## [Project Roadmap and API Plan](https://www.notion.so/ejolly/Svelte-Turk-6c250e6f736642b0a1271c027514d5fb)
-
-[Svelte](https://svelte.dev/) and [Electron]() desktop app for interacting with Amazon's Mechanical Turk (e.g. creating HITs, contacting workers, get HIT and Assignment meta-data etc). All data is store locally using [Nedb](https://github.com/louischatriot/nedb). Designed to be lightweight, offering a way to store data and interact with Mturk without all the complications of setting up a backend or database server. Hopefully this can grow into a viable simple alternative to something like [PsiTurk](https://psiturk.org/).  
+Svelte-Turk is a [Svelte](https://svelte.dev/) and [Electron]() desktop app for interacting with Amazon's Mechanical Turk (e.g. creating HITs, contacting workers, getting HIT and Assignment meta-data etc). All data is store locally using [Nedb](https://github.com/louischatriot/nedb). Designed to be lightweight, offering a way to store data and interact with Mturk without all the complications of setting up a backend or database server. The goal of the project is to offer a modern, but simple graphical alternative to something like [PsiTurk](https://psiturk.org/).  
 
 ## Usage
 
@@ -41,4 +39,4 @@ If you are unsure if you have set these credentials properly, simply start the a
 
 ### Note on hot-reloading
 
-`electron-reload` is configure to just watch the renderer directory (i.e. Svelte) and will auto-refresh to any changes made to the svelte code. `entr` is used to restart the entire electron server on any changes to the `main.js` file which is the main electron process ("server")
+`electron-reload` is configured to just watch the renderer directory (i.e. Svelte) and will auto-refresh to any changes made to the svelte code. `entr` is used to restart the entire electron server on any changes to the `main.js` file which is the main electron process ("server")
