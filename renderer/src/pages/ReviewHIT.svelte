@@ -170,24 +170,13 @@
 </Modal>
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
   <div class="columns">
-    <div class="column has-text-left">
-      <div class="columns">
-        <div class="column is-full">
-          <div class="field is-grouped">
-            <p class="control">
-              <button class="button is-link">Approve All HITs</button>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="column has-text-right">
+    <div class="column">
       <div class="field is-grouped" class:is-invisible={!rowSelected}>
         <p class="control">
-          <button class="button is-warning" on:click={endHIT}>End HIT</button>
+          <button class="button is-success">Extend HIT</button>
         </p>
         <p class="control">
-          <button class="button is-success">Approve HIT</button>
+          <button class="button is-warning" on:click={endHIT}>End HIT</button>
         </p>
         <p class="control">
           <button class="button is-danger" on:click={deleteHIT}>Delete from db</button>
@@ -195,7 +184,6 @@
       </div>
     </div>
   </div>
-  <hr />
   <div class="columns">
     <div class="column is-full">
       <div class="level">
