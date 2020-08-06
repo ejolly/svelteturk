@@ -4,6 +4,7 @@ import postcss from 'rollup-plugin-postcss';
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
+import sveltePreprocess from 'svelte-preprocess';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -33,6 +34,7 @@ export default {
   },
   plugins: [
     svelte({
+      preprocess: sveltePreprocess({ postcss: true }),
       dev: !production,
       css: (css) => {
         css.write('renderer/dist/bundle.css');
@@ -48,7 +50,7 @@ export default {
     !production && livereload('renderer'),
     !production && serve(),
     resolve(),
-    postcss(),
+    // postcss(),
     commonjs(),
   ],
   watch: {

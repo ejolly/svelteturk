@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
 
+  import Tailwindcss from './Tailwindcss.svelte';
   import SidebarHeader from './components/SidebarHeader.svelte';
   import Sidebar from './components/Sidebar.svelte';
   import Modal from './components/Modal.svelte';
@@ -138,6 +139,7 @@
 </style>
 
 <svelte:window bind:online={mturkReady} />
+<Tailwindcss />
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
