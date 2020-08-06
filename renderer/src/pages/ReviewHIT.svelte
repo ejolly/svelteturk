@@ -74,14 +74,14 @@
       const resp = await mturk
         .updateExpirationForHIT({
           ExpireAt: new Date(0),
-          HITId: selectedHIT.HITId
+          HITId: selectedHIT.HITId,
         })
         .promise();
       console.log(resp);
       // TODO: LOGS: Use resp.header object to store server time log and action
       if (resp.$response.httpResponse.statusCode === 200) {
         const dbResp = await updateDoc('hits', selectedHIT._id, {
-          $set: { HITStatus: 'Unassignable' }
+          $set: { HITStatus: 'Unassignable' },
         });
         if (dbResp.type === 'success') {
           modalText = 'HIT ended and db updated successfully!';
@@ -160,6 +160,15 @@
   .status {
     pointer-events: none;
   }
+  th {
+    white-space: nowrap;
+  }
+  td {
+    white-space: nowrap;
+  }
+  .table-container {
+    padding-bottom: 3rem;
+  }
   .control.has-icons-right .icon {
     pointer-events: auto !important;
   }
@@ -218,19 +227,19 @@
       <div class="table-container">
         <table class="table is-hoverable">
           <thead>
-            <tr>
+            <tr class="table-row">
               <th />
               <th>HITId</th>
               <th>HITTypeId</th>
-              <th>Creation Time</th>
+              <th>Created</th>
               <th>Title</th>
               <th>Status</th>
-              <th>Max Assignments</th>
+              <th>Max Assts</th>
               <th>Expiration</th>
-              <th>Review Status</th>
-              <th># Pending</th>
-              <th># Available</th>
-              <th># Completed</th>
+              <th>Status</th>
+              <th>Pending</th>
+              <th>Available</th>
+              <th>Completed</th>
             </tr>
           </thead>
           <tbody>
@@ -239,8 +248,8 @@
                 <td>
                   <span class="tag is-success status">Complete</span>
                 </td>
-                <td type="text">{hit.HITId}</td>
-                <td type="text">{hit.HITTypeId}</td>
+                <td type="text">{hit.HITId.slice(0, 6)}</td>
+                <td type="text">{hit.HITTypeId.slice(0, 6)}</td>
                 <td type="number">{formatDate(hit.CreationTime)}</td>
                 <td type="text">{hit.Title}</td>
                 <td type="text">{hit.HITStatus}</td>

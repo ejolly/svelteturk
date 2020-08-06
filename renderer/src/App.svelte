@@ -30,18 +30,18 @@
     {
       state: 'home',
       title: 'Home',
-      component: Home
+      component: Home,
     },
     {
       state: 'createHIT',
       title: 'Create HIT',
-      component: CreateHIT
+      component: CreateHIT,
     },
     {
       state: 'reviewHITs',
       title: 'Review HITs',
-      component: ReviewHIT
-    }
+      component: ReviewHIT,
+    },
   ];
 
   // Reactive component "routing" based on the currentState
@@ -63,7 +63,7 @@
         // eslint-disable-next-line no-undef
         accessKeyId: awsKey,
         // eslint-disable-next-line no-undef
-        secretAccessKey: awsSecret
+        secretAccessKey: awsSecret,
       });
       mturkReady = true;
       console.log(mturk.endpoint.host);
@@ -123,7 +123,7 @@
     height: 100%;
   }
   .dashboard-panel.is-medium {
-    flex: 0 0 20rem;
+    flex: 0 0 13rem;
   }
   .dashboard-panel-header {
     margin-bottom: 0;
