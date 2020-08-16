@@ -105,63 +105,23 @@
   });
 </script>
 
-<style>
-  .is-scrollable {
-    overflow-y: auto;
-  }
-  .dashboard {
-    display: flex;
-    flex-direction: row;
-  }
-  .dashboard.is-full-height {
-    height: 100vh;
-  }
-  .dashboard-panel {
-    display: flex;
-    flex-direction: column;
-    padding: 2rem 1.5rem;
-    flex: 0 0 25rem;
-    height: 100%;
-  }
-  .dashboard-panel.is-medium {
-    flex: 0 0 13rem;
-  }
-  .dashboard-panel-header {
-    margin-bottom: 0;
-  }
-  .dashboard-main {
-    display: flex;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-</style>
-
 <svelte:window bind:online={mturkReady} />
 <Tailwindcss />
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
-<div class="dashboard is-full-height">
-  <div class="dashboard-panel is-medium has-thick-padding has-background-grey-lighter">
-    <!-- Sidebar header to display and toggle mturk mode -->
-    <header class="dashboard-panel-header">
-      <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
-    </header>
-    <!-- Sidebar menu to change app views ("states") -->
-    <div class="dashboard-panel-content">
-      <Sidebar on:changeState={updateState} />
-    </div>
+<div class="flex flex-row w-screen mx-4 mt-4">
+  <!-- Sidebar-->
+  <div class="w-64 p-3 mr-8">
+    <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
+    <Sidebar on:changeState={updateState} />
   </div>
-  <!-- Main app view -->
-  <div class="dashboard-main is-scrollable">
-    <section class="section">
-      <p class="title is-size-2">{title}</p>
-      <hr />
-      <section>
-        <svelte:component this={component} {mturk} />
-      </section>
-    </section>
+  <!-- Page view -->
+  <div class="w-4/5 overflow-y-auto">
+    <p class="text-5xl text-gray-900">{title}</p>
+    <hr class="mb-4 border-gray-500" />
+    <div>
+      <svelte:component this={component} {mturk} />
+    </div>
   </div>
 </div>
