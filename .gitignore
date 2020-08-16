@@ -101,3 +101,6 @@ renderer/dist/bundle.*
 
 # Nedb databases
 main/db/*.db
+
+# AF design files
+*.afdesign

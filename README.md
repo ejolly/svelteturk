@@ -6,6 +6,9 @@
 
 Svelte-Turk is a [Svelte](https://svelte.dev/) and [Electron]() desktop app for interacting with Amazon's Mechanical Turk (e.g. creating HITs, contacting workers, getting HIT and Assignment meta-data etc). All data is store locally using [Nedb](https://github.com/louischatriot/nedb). Designed to be lightweight, offering a way to store data and interact with Mturk without all the complications of setting up a backend or database server. The goal of the project is to offer a modern, but simple graphical alternative to something like [PsiTurk](https://psiturk.org/).  
 
+![](setup.jpg)  
+**Fig 1.** *Svelte-Turk only handles nodes and connections highlighted in green, namely the creation and management of HITs via communication with MTurk and a local database. It's up to you to build your experiment or survey and store appropriate data as see you see fit. (figure made with [isoflow](https://isoflow.io/))*
+
 ## Usage
 
 In order to use the app you need to obtain and make your AWS credentials available. You can follow the directions on the [psiturk website](https://psiturk.readthedocs.io/en/stable/amt_setup.html) to obtain your AWS credentials. Once you have them either:
