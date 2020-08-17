@@ -49,7 +49,7 @@
 </Modal>
 <div class="w-40">
   <p class="text-xl text-gray-600 uppercase">Menu</p>
-  <ul class="menu-list">
+  <ul>
     <li on:click={() => changeState('home')}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
         <path

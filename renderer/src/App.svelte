@@ -4,6 +4,7 @@
   import Tailwindcss from './Tailwindcss.svelte';
   import SidebarHeader from './components/SidebarHeader.svelte';
   import Sidebar from './components/Sidebar.svelte';
+  import Footer from './components/Footer.svelte';
   import Modal from './components/Modal.svelte';
   import CreateHIT from './pages/CreateHIT.svelte';
   import Home from './pages/Home.svelte';
@@ -110,18 +111,31 @@
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
-<div class="flex flex-row w-screen mx-4 mt-4">
-  <!-- Sidebar-->
-  <div class="w-64 p-3 mr-8">
-    <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
-    <Sidebar on:changeState={updateState} />
+<div class="flex flex-col w-screen h-screen">
+  <!-- Spacer to prevent scrolled text to appear under fixed page titles-->
+  <div class="fixed top-0 w-full h-8 bg-white" />
+  <!-- Main responsive container -->
+  <div class="flex flex-row flex-grow pr-4 overflow-auto">
+    <!-- Sidebar, fixed width-->
+    <nav class="fixed left-0 w-64 p-4 ml-1 bg-white">
+      <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
+      <Sidebar on:changeState={updateState} />
+    </nav>
+    <!-- Page, flex but offset width of sidebar -->
+    <main class="flex flex-col flex-grow p-4 ml-64">
+      <!-- Page Title fixed to prevent scrolling with content-->
+      <header class="fixed top-0 w-4/5 h-20 mt-4 text-5xl text-gray-900 bg-white">
+        {title}
+        <hr class="border-gray-500" />
+      </header>
+      <!-- Page Content-->
+      <div class="flex flex-row flex-grow p-1 mt-24">
+        <svelte:component this={component} {mturk} />
+      </div>
+    </main>
   </div>
-  <!-- Page view -->
-  <div class="w-4/5 overflow-y-auto">
-    <p class="text-5xl text-gray-900">{title}</p>
-    <hr class="mb-4 border-gray-500" />
-    <div>
-      <svelte:component this={component} {mturk} />
-    </div>
-  </div>
+  <!-- Footer for contact info -->
+  <footer class="fixed bottom-0 w-full bg-white">
+    <Footer />
+  </footer>
 </div>
