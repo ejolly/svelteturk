@@ -1,6 +1,7 @@
 <script>
   import { fly, fade } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
+  import Dialogue from '../components/Dialogue.svelte';
 
   const { ipcRenderer } = require('electron');
 
@@ -12,6 +13,7 @@
   let modalType;
   let modalText;
   let formError = false;
+  let showDialogue = false;
   // Create HIT vars
   let assignmentDuration = 3600;
   let description = '';
@@ -113,11 +115,13 @@
   const saveHIT = async () => {
     console.log('save HIT');
     checkFields();
+    showDialogue = true;
   };
 
   // load a HIT template to the db
   const loadHIT = async () => {
     console.log('load HIT');
+    showDialogue = true;
   };
 </script>
 
@@ -136,6 +140,9 @@
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
+{#if showDialogue}
+  <Dialogue on:close={() => (showDialogue = false)} />
+{/if}
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
   <form class="w-full">
     <div class="flex flex-wrap mb-6 -mx-3">
@@ -270,7 +277,7 @@
         Save Details
       </button>
       <button
-        on:click={loadHIT}
+        on:click|preventDefault={loadHIT}
         class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
         Load Details
       </button>
