@@ -53,13 +53,16 @@
     @apply shadow-outline;
   }
   .live {
-    @apply font-bold uppercase text-green-600;
+    @apply font-bold uppercase text-green-600 tracking-wider;
   }
   .sandbox {
-    @apply font-bold uppercase text-yellow-600;
+    @apply font-bold uppercase text-yellow-600 tracking-wider;
   }
   #mode {
     @apply ml-2;
+  }
+  .logo {
+    @apply text-purple-400 text-sm font-quantico;
   }
 </style>
 
@@ -67,7 +70,10 @@
   <p>{modalText}</p>
 </Modal>
 <div class="inline-flex items-center p-2">
-  <svg class="w-10 h-10 mr-2 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <svg
+    class="w-8 h-8 text-purple-400 fill-current stroke-current"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20">
     <path
       d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0
       01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0
@@ -76,7 +82,8 @@
       0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0
       01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
   </svg>
-  <h1 class="text-3xl">Svelte-Turk</h1>
+  <sup class="logo">Svelte</sup>
+  <span class="text-3xl font-quantico">Turk</span>
 </div>
 <div class="inline-flex items-center p-2">
   <label for="toggle">
@@ -88,4 +95,4 @@
   </label>
   <span class={live ? 'live' : 'sandbox'} id="mode">{mode}</span>
 </div>
-<hr class="w-56 my-2 border-gray-500" />
+<hr class="w-56 mt-2 mb-4 border-t-2 border-gray-500" />

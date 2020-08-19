@@ -4,6 +4,9 @@
 
   const { ipcRenderer } = require('electron');
 
+  // INPUTS
+  export let currentState;
+
   // VARIABLES
   let showModal = false;
   let modalText;
@@ -37,10 +40,13 @@
     @apply w-4 h-4 mr-2 fill-current;
   }
   li {
-    @apply inline-flex items-center px-2 py-1 text-lg text-gray-800 rounded cursor-pointer;
+    @apply inline-flex items-center px-2 py-1 my-1 text-lg text-gray-800 rounded cursor-pointer font-quantico;
+  }
+  .active {
+    @apply bg-purple-200 w-full;
   }
   li:hover {
-    @apply bg-gray-200;
+    @apply bg-purple-100 w-full;
   }
 </style>
 
@@ -48,9 +54,12 @@
   <p>{modalText}</p>
 </Modal>
 <div class="w-40">
-  <p class="text-xl text-gray-600 uppercase">Menu</p>
+  <p class="mb-4 text-xl tracking-wide text-gray-600 uppercase font-quantico">Menu</p>
   <ul>
-    <li on:click={() => changeState('home')}>
+    <li
+      class:active={currentState == 'home'}
+      class:hover={true}
+      on:click={() => changeState('home')}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
         <path
           d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0
@@ -59,7 +68,7 @@
       </svg>
       <span>Home</span>
     </li>
-    <li on:click={() => changeState('createHIT')}>
+    <li class:active={currentState == 'createHIT'} on:click={() => changeState('createHIT')}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path
           fill-rule="evenodd"
@@ -69,24 +78,20 @@
       </svg>
       <span>Create HIT</span>
     </li>
-    <li on:click={() => changeState('reviewHITs')}>
-
+    <li class:active={currentState == 'reviewHIT'} on:click={() => changeState('reviewHIT')}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
         <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
         <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
       </svg>
-
-      <span>Review HITs</span>
+      <span>Review HIT</span>
+    </li>
+    <li on:click={exportData}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
+      </svg>
+      <span>Export Data</span>
     </li>
   </ul>
-  <hr class="w-56 mt-2 mb-4 border-gray-500" />
-  <button
-    class="inline-flex items-center px-4 py-2 text-gray-800 bg-gray-300 rounded hover:bg-gray-400 focus:outline-none active:outine-none"
-    on:click={exportData}>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-      <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-    </svg>
-    <span>Export Data</span>
-  </button>
+  <hr class="w-56 mt-2 mb-4 border-t-2 border-gray-500" />
 </div>

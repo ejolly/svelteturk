@@ -50,7 +50,8 @@
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
     "nedb-promises": "^4.0.4",
-    "sirv-cli": "^1.0.3"
+    "sirv-cli": "^1.0.3",
+    "typeface-quantico": "0.0.71"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.52",

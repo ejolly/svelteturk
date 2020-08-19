@@ -10,6 +10,9 @@
   li {
     @apply inline-flex items-center px-2 py-1 mx-4 text-lg text-gray-800 rounded cursor-pointer;
   }
+  svg:hover {
+    @apply bg-purple-200 text-purple-700 rounded-lg;
+  }
   .tooltip .tooltip-text {
     @apply invisible p-1 absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -ml-10 -mt-10;
   }
@@ -17,11 +20,11 @@
     @apply visible;
   }
   svg {
-    @apply w-6 h-6;
+    @apply stroke-current w-7 h-7;
   }
 </style>
 
-<footer class="flex flex-col items-center p-0 border-t-2 border-gray-500">
+<footer class="fixed bottom-0 flex flex-col items-center w-full p-0 border-t-2 border-gray-500">
   <ul>
     <li class="tooltip">
       <a href="mailto:eshin.jolly@gmail.com">
@@ -38,14 +41,13 @@
           <path d="M21 3L14.5 21a.55 .55 0 0 1 -1 0L10 14L3 10.5a.55 .55 0 0 1 0 -1L21 3" />
         </svg>
       </a>
-      <span class="tooltip-text">Email Eshin</span>
+      <span class="tooltip-text">eshin.jolly@gmail.com</span>
     </li>
     <li class="tooltip">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         stroke-width="1.75"
-        stroke="#718096"
         fill="none"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -57,7 +59,7 @@
           1.267a12.334 12.334 0 0 0 -6.222 0C6.462 2.723 5.413 3.023 5.413 3.023a4.192 4.192 0 0 0
           -.08 3.227A4.566 4.566 0 004 9.486c0 4.64 2.709 5.68 5.5 6.014-.591.589-.56 1.183-.5 2V21" />
       </svg>
-      <span class="tooltip-text">Github source code</span>
+      <span class="tooltip-text">github.com/ejolly/svelte-turk</span>
     </li>
     <li class="tooltip">
       <svg
@@ -75,7 +77,7 @@
           1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84 0 0 0 .497
           -3.753C20.18 7.773 21.692 5.25 22 4.009z" />
       </svg>
-      <span class="tooltip-text">Twitter @Eshjolly</span>
+      <span class="tooltip-text">@Eshjolly</span>
     </li>
   </ul>
 </footer>

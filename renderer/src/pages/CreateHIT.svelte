@@ -93,113 +93,129 @@
   <p>{modalText}</p>
 </Modal>
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
-  <form on:submit|preventDefault={createHIT}>
-    <div class="columns">
-      <div class="column">
-        <div class="field">
-          <label class="label">Title</label>
-          <div class="control">
-            <input type="text" class="input" bind:value={title} required />
-          </div>
-        </div>
+  <form class="w-full" on:submit|preventDefault={createHIT}>
+    <div class="flex flex-wrap mb-6 -mx-3">
+      <div class="w-1/3 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Title
+        </label>
+        <input
+          class="block w-full px-4 py-2 text-gray-700 bg-gray-200 rounded"
+          type="text"
+          bind:value={title}
+          required />
       </div>
-      <div class="column">
-        <div class="field">
-          <label class="label">Keywords</label>
-          <div class="control">
-            <input type="text" class="input" bind:value={keywords} required />
-            <p class="help">Comma separated with no spaces</p>
-          </div>
-        </div>
+      <div class="w-1/3 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Keywords
+        </label>
+        <input
+          class="block w-full px-4 py-2 mb-2 text-gray-700 bg-gray-200 rounded"
+          type="text"
+          bind:value={keywords}
+          required />
       </div>
-      <div class="column">
-        <div class="field">
-          <label class="label">Experiment URL</label>
-          <div class="control">
-            <input type="text" class="input" bind:value={externalURL} required />
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="columns">
-      <div class="column">
-        <div class="field">
-          <label class="label">Reward</label>
-          <div class="control">
-            <input type="text" class="input" bind:value={reward} required />
-            <p class="help">Don't include $</p>
-          </div>
-        </div>
-      </div>
-      <div class="column">
-        <div class="field">
-          <label class="label">Approval Delay</label>
-          <div class="control">
-            <input type="text" class="input" bind:value={autoApprovalDelay} required />
-            <p class="help">In seconds</p>
-          </div>
-        </div>
-      </div>
-      <div class="column">
-        <div class="field">
-          <label class="label">Duration</label>
-          <div class="control">
-            <input type="text" class="input" bind:value={assignmentDuration} required />
-            <p class="help">In seconds. Default 1hr.</p>
-          </div>
-        </div>
-      </div>
-      <div class="column">
-        <div class="field">
-          <label class="label">Lifetime</label>
-          <div class="control">
-            <input type="text" class="input" bind:value={lifetime} required />
-            <p class="help">In seconds</p>
-          </div>
-        </div>
-      </div>
-      <div class="column">
-        <div class="field">
-          <label class="label">Max Assignments</label>
-          <div class="control">
-            <input type="text" class="input" bind:value={maxAssignments} required />
-            <p class="help">Number of available HITs</p>
-          </div>
-        </div>
+      <div class="w-1/3 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Experiment URL
+        </label>
+        <input
+          class="block w-full px-4 py-2 mb-2 text-gray-700 bg-gray-200 rounded"
+          type="text"
+          bind:value={externalURL}
+          required />
       </div>
     </div>
-    <div class="columns">
-      <div class="column is-narrow">
-        <div class="field">
-          <label class="label">Qualifications</label>
-          <div class="control">
-            <div class="select is-multiple minheight">
-              <select multiple bind:value={selectedQuals}>
-                {#each qualifications as qual}
-                  <option value={qual}>{qual}</option>
-                {/each}
-              </select>
-            </div>
-          </div>
-        </div>
+    <div class="flex flex-wrap mb-6 -mx-3">
+      <div class="w-1/5 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Reward
+        </label>
+        <input
+          class="block w-full px-4 py-2 text-gray-700 bg-gray-200 rounded"
+          type="text"
+          bind:value={reward}
+          required />
       </div>
-      <div class="column">
-        <div class="field">
-          <label class="label">Description</label>
-          <div class="control">
-            <textarea class="textarea minheight" placeholder="" bind:value={description} required />
-          </div>
-        </div>
+      <div class="w-1/5 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Approval Delay
+        </label>
+        <input
+          class="block w-full px-4 py-2 mb-2 text-gray-700 bg-gray-200 rounded"
+          type="text"
+          bind:value={autoApprovalDelay}
+          required />
+      </div>
+      <div class="w-1/5 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Duration
+        </label>
+        <input
+          class="block w-full px-4 py-2 mb-2 text-gray-700 bg-gray-200 rounded"
+          type="text"
+          bind:value={assignmentDuration}
+          required />
+      </div>
+      <div class="w-1/5 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Lifetime
+        </label>
+        <input
+          class="block w-full px-4 py-2 mb-2 text-gray-700 bg-gray-200 rounded"
+          type="text"
+          bind:value={lifetime}
+          required />
+      </div>
+      <div class="w-1/5 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Max Assignments
+        </label>
+        <input
+          class="block w-full px-4 py-2 mb-2 text-gray-700 bg-gray-200 rounded"
+          type="text"
+          bind:value={maxAssignments}
+          required />
       </div>
     </div>
-    <div class="columns">
-      <div class="column">
-        <div class="field">
-          <div class="control">
-            <button class="button is-success">Create HIT</button>
-          </div>
-        </div>
+    <div class="flex flex-wrap mb-6 -mx-3">
+      <div class="w-1/3 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Qualifications
+        </label>
+        <select
+          multiple
+          class="block w-full h-40 px-4 py-2 overflow-y-auto text-gray-700 bg-gray-200 rounded">
+          {#each qualifications as qual}
+            <option value={qual}>{qual}</option>
+          {/each}
+        </select>
       </div>
+      <div class="w-2/3 px-3">
+        <label class="block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase">
+          Description
+        </label>
+        <textarea
+          class="block w-full h-40 px-4 py-2 mb-2 overflow-y-auto text-gray-700 bg-gray-200 rounded resize-none"
+          type="text"
+          bind:value={description}
+          required />
+      </div>
+    </div>
+    <hr class="block w-full mt-2 mb-4 border-gray-500" />
+    <div class="flex flex-wrap items-center justify-center mb-6 -mx-3 space-x-4">
+      <button
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
+        Create HIT
+      </button>
+      <button
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
+        Save Details
+      </button>
+      <button
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
+        Load Details
+      </button>
     </div>
   </form>
 </div>

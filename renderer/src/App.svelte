@@ -17,7 +17,7 @@
   let awsKey;
   let awsSecret;
   // current app view ("state")
-  let currentState = 'home';
+  let currentState = 'createHIT';
   // main Mturk object on which API methods are called
   let mturk;
   // Mturk object availability status (e.g. no internet connection)
@@ -40,8 +40,8 @@
       component: CreateHIT,
     },
     {
-      state: 'reviewHITs',
-      title: 'Review HITs',
+      state: 'reviewHIT',
+      title: 'Review HIT',
       component: ReviewHIT,
     },
   ];
@@ -106,36 +106,41 @@
   });
 </script>
 
+<style global>
+  @import '../../node_modules/typeface-quantico/index.css';
+  .header {
+    margin-top: 3.41rem;
+    margin-left: 19rem;
+  }
+  .main {
+    margin-left: 19rem;
+    margin-top: 9rem;
+  }
+</style>
+
 <svelte:window bind:online={mturkReady} />
 <Tailwindcss />
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
-<div class="flex flex-col w-screen h-screen">
-  <!-- Spacer to prevent scrolled text to appear under fixed page titles-->
-  <div class="fixed top-0 w-full h-8 bg-white" />
-  <!-- Main responsive container -->
-  <div class="flex flex-row flex-grow pr-4 overflow-auto">
-    <!-- Sidebar, fixed width-->
-    <nav class="fixed left-0 w-64 p-4 ml-1 bg-white">
-      <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
-      <Sidebar on:changeState={updateState} />
-    </nav>
-    <!-- Page, flex but offset width of sidebar -->
-    <main class="flex flex-col flex-grow p-4 ml-64">
-      <!-- Page Title fixed to prevent scrolling with content-->
-      <header class="fixed top-0 w-4/5 h-20 mt-4 text-5xl text-gray-900 bg-white">
-        {title}
-        <hr class="border-gray-500" />
-      </header>
-      <!-- Page Content-->
-      <div class="flex flex-row flex-grow p-1 mt-24">
-        <svelte:component this={component} {mturk} />
-      </div>
+<!-- Main app container full window size not responsive-->
+<div class="w-screen h-screen">
+  <!-- Sidebar, fixed position and width-->
+  <nav class="fixed top-0 left-0 w-64 p-4 ml-1 bg-white">
+    <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
+    <Sidebar {currentState} on:changeState={updateState} />
+  </nav>
+  <!-- Page Title fixed to prevent scrolling with content-->
+  <header class="fixed top-0 left-0 w-full text-5xl text-gray-900 bg-white header font-quantico">
+    {title}
+    <hr class="w-64 border-t-2 border-gray-500" />
+  </header>
+  <!-- Main page, flex but offset width of sidebar and header -->
+  <div class="flex pr-4 mr-8 overflow-auto main">
+    <main class="flex-grow">
+      <svelte:component this={component} {mturk} />
     </main>
   </div>
   <!-- Footer for contact info -->
-  <footer class="fixed bottom-0 w-full bg-white">
-    <Footer />
-  </footer>
+  <Footer />
 </div>
