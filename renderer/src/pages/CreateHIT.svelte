@@ -14,6 +14,14 @@
   let modalText;
   let formError = false;
   let showDialogue = false;
+  let whichDialogue = 'save';
+  let saveError = false;
+  let saveErrorText = 'Required';
+  let loadError = false;
+  let saveName = '';
+  let loadNames;
+  let loadTemplates;
+  let loadName;
   // Create HIT vars
   let assignmentDuration = 3600;
   let description = '';
@@ -40,6 +48,9 @@
 
   // FUNCTIONS
   // Check to make sure no fields are empty
+  // TODO: add URL validation for externalURL
+  // TODO: add numeric checking for assignmentDuration, lifetime, reward, autoApprovalDelay, maxAssignments
+  // TODO: add comma separated list checking for keywords
   const checkFields = () => {
     formError = false;
     const fieldVals = [
@@ -57,8 +68,25 @@
     if (fieldVals.some((elem) => elem === undefined || elem === '')) {
       formError = true;
       console.error('form error');
-      console.log(fieldVals);
     }
+  };
+  const clearForm = () => {
+    assignmentDuration = '';
+    description = '';
+    lifetime = '';
+    reward = '';
+    title = '';
+    autoApprovalDelay = '';
+    keywords = '';
+    maxAssignments = '';
+    externalURL = '';
+    selectedQuals = [];
+  };
+  // Load previously saved HITs from db and refresh reactive vars
+  const loadSavedHITs = async () => {
+    loadTemplates = await ipcRenderer.invoke('findHITTemplates');
+    loadNames = loadTemplates.map((elem) => elem['name']);
+    loadName = undefined;
   };
 
   // Create a HIT and save it to db
@@ -74,9 +102,9 @@
             LifetimeInSeconds: parseInt(lifetime),
             Reward: reward,
             Title: title,
-            AutoApprovalDelayInSeconds: autoApprovalDelay,
+            AutoApprovalDelayInSeconds: parseInt(autoApprovalDelay),
             Keywords: keywords,
-            MaxAssignments: maxAssignments,
+            MaxAssignments: parseInt(maxAssignments),
             Question: externalQuestion,
           })
           .promise();
@@ -111,17 +139,95 @@
     }
   };
 
-  // save a HIT template to the db
-  const saveHIT = async () => {
-    console.log('save HIT');
+  // Open save dialogue
+  const openSave = async () => {
     checkFields();
-    showDialogue = true;
+    if (!formError) {
+      whichDialogue = 'save';
+      await loadSavedHITs();
+      showDialogue = true;
+    }
   };
 
-  // load a HIT template to the db
-  const loadHIT = async () => {
-    console.log('load HIT');
+  // Actually save hit
+  const saveTemplate = async () => {
+    console.log('save Template');
+    saveError = !!!saveName;
+    if (!saveError) {
+      if (loadNames.includes(saveName)) {
+        saveErrorText = 'This name already exists';
+        saveError = true;
+      } else {
+        try {
+          const dbResp = await ipcRenderer.invoke('saveHITTemplate', {
+            name: saveName,
+            assignmentDuration: parseInt(assignmentDuration),
+            description: description,
+            lifetime: parseInt(lifetime),
+            reward: parseInt(reward),
+            title: title,
+            autoApprovalDelay: parseInt(autoApprovalDelay),
+            keywords: keywords,
+            maxAssignments: parseInt(maxAssignments),
+            externalURL: externalURL,
+            selectedQuals: selectedQuals,
+          });
+          modalText = dbResp.text;
+          modalType = dbResp.type;
+          console.log('hit template saved');
+        } catch (err) {
+          console.error(err);
+          modalText = err;
+          modalType = 'error';
+        }
+        showDialogue = false;
+        showModal = true;
+        saveName = '';
+      }
+    }
+  };
+
+  // Open load dialogue
+  const openLoad = async () => {
+    whichDialogue = 'load';
+    await loadSavedHITs();
     showDialogue = true;
+    console.log(loadTemplates);
+  };
+
+  // Actualy load hit
+  const loadTemplate = async () => {
+    console.log('load Template');
+    loadError = !!!loadName;
+    if (!loadError) {
+      const HITData = loadTemplates.filter((elem) => elem['name'] === loadName)[0];
+      ({
+        assignmentDuration,
+        description,
+        lifetime,
+        reward,
+        title,
+        autoApprovalDelay,
+        keywords,
+        maxAssignments,
+        externalURL,
+        selectedQuals,
+      } = HITData);
+      showDialogue = false;
+    }
+  };
+  // Delete a hit template
+  const deleteTemplate = async () => {
+    console.log('delete Template');
+    console.log(loadName);
+    loadError = !!!loadName;
+    if (!loadError) {
+      const resp = await ipcRenderer.invoke('deleteHITTemplate', loadName);
+      modalText = resp.text;
+      modalType = resp.type;
+      showModal = true;
+      showDialogue = false;
+    }
   };
 </script>
 
@@ -135,13 +241,70 @@
   .error-text {
     @apply text-xs italic text-red-500;
   }
+  .disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
 </style>
 
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
 {#if showDialogue}
-  <Dialogue on:close={() => (showDialogue = false)} />
+  <Dialogue on:close={() => (showDialogue = false)}>
+    {#if whichDialogue === 'load'}
+      <form class="w-full">
+        <div class="flex flex-col items-center px-3">
+          <label class="self-start">
+            {#if loadNames.length === 0}No Templates Found{:else}Select Template{/if}
+          </label>
+          <select
+            bind:value={loadName}
+            class="block w-full px-4 py-2 leading-tight text-gray-700 bg-gray-200 rounded outline-none">
+            {#each loadNames as name}
+              <option value={name}>{name}</option>
+            {/each}
+          </select>
+          <p class="self-start error-text" class:visible={loadError} class:invisible={!loadError}>
+            Required
+          </p>
+          <div class="flex flex-row items-center">
+            <button
+              on:click|preventDefault={loadTemplate}
+              class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
+              class:disabled={loadNames.length === 0}
+              disabled={loadNames.length === 0}>
+              Load
+            </button>
+            <button
+              on:click|preventDefault={deleteTemplate}
+              class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
+              class:disabled={loadNames.length === 0}
+              disabled={loadNames.length === 0}>
+              Delete
+            </button>
+          </div>
+        </div>
+      </form>
+    {:else if whichDialogue === 'save'}
+      <form class="w-full">
+        <div class="flex flex-col items-center px-3">
+          <label class="self-start">Template Name</label>
+          <input class:border-red-500={saveError} type="text" bind:value={saveName} />
+          <p class="self-start error-text" class:visible={saveError} class:invisible={!saveError}>
+            {saveErrorText}
+          </p>
+          <button
+            on:click|preventDefault={saveTemplate}
+            disabled={!saveName}
+            class:disabled={!saveName}
+            class="px-4 py-2 m-auto text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none">
+            Save
+          </button>
+        </div>
+      </form>
+      <!-- Load-->
+    {/if}
+  </Dialogue>
 {/if}
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
   <form class="w-full">
@@ -243,6 +406,7 @@
         <label>Qualifications</label>
         <select
           multiple
+          bind:value={selectedQuals}
           class="block w-full h-40 px-4 py-2 overflow-y-auto text-gray-700 bg-gray-200 rounded outline-none">
           {#each qualifications as qual}
             <option value={qual}>{qual}</option>
@@ -272,14 +436,19 @@
         Create HIT
       </button>
       <button
-        on:click|preventDefault={saveHIT}
+        on:click|preventDefault={openSave}
         class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
-        Save Details
+        Save Template
       </button>
       <button
-        on:click|preventDefault={loadHIT}
+        on:click|preventDefault={openLoad}
         class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
-        Load Details
+        Load Template
+      </button>
+      <button
+        on:click|preventDefault={clearForm}
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
+        Clear
       </button>
     </div>
   </form>

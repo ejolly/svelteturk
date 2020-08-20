@@ -50,6 +50,11 @@ const createWindow = () => {
     timestampData: true,
     autoload: true,
   });
+  db.hitTemplates = Datastore.create({
+    filename: path.join(__dirname, 'db', 'hitTemplates.db'),
+    timestampData: true,
+    autoload: true,
+  });
 
   if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
     console.log('AWS credentials loaded from environment variables!');
@@ -230,4 +235,49 @@ ipcMain.handle('findAssts', async (ev) => {
 ipcMain.handle('findWorkers', async (ev) => {
   const docs = await db.workers.find({}).sort({ createdAt: -1 });
   return docs;
+});
+
+// Manage hit templates
+// TODO: refactor
+ipcMain.handle('findHITTemplates', async (ev) => {
+  const docs = await db.hitTemplates.find({}).sort({ name: 1 });
+  return docs;
+});
+
+ipcMain.handle('saveHITTemplate', async (ev, template) => {
+  let text;
+  let type;
+  try {
+    await db.hitTemplates.insert(template);
+    text = 'Template saved successfully';
+    type = 'success';
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return {
+    text,
+    type
+  };
+});
+
+ipcMain.handle('deleteHITTemplate', async (ev, name) => {
+  let text;
+  let type;
+  try {
+    const numRemoved = await db.hitTemplates.remove({ name }, { multi: false });
+    if (numRemoved) {
+      text = 'Deleted successfully';
+      type = 'success';
+    } else {
+      text = 'Document not found';
+      type = 'erorr';
+    }
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return { text, type };
 });
