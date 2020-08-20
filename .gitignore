@@ -8,8 +8,6 @@ lerna-debug.log*
 
 # Vim session 
 Session.vim
-# VSCode settings
-.vscode
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

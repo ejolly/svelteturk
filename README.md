@@ -2,16 +2,22 @@
 
 🚧 Work in Progress 🚧
 
-## [Project Homepage and Documentation](https://www.notion.so/ejolly/Svelte-Turk-6c250e6f736642b0a1271c027514d5fb)
+## [Development Roadmap](https://trello.com/b/Ha9M431u)  
 
-Svelte-Turk is a [Svelte](https://svelte.dev/) and [Electron]() desktop app for interacting with Amazon's Mechanical Turk (e.g. creating HITs, contacting workers, getting HIT and Assignment meta-data etc). All data is store locally using [Nedb](https://github.com/louischatriot/nedb). Designed to be lightweight, offering a way to store data and interact with Mturk without all the complications of setting up a backend or database server. The goal of the project is to offer a modern, but simple graphical alternative to something like [PsiTurk](https://psiturk.org/).  
+### [docs and project website (in progress)](https://www.notion.so/ejolly/Svelte-Turk-6c250e6f736642b0a1271c027514d5fb)  
+
+Svelte-Turk is a desktop application for interacting with [Amazon's Mechanical Turk](https://www.mturk.com/) service (e.g. creating HITs, contacting workers, getting HIT and Assignment meta-data etc). Designed to be a lightweight and simple tool for managing Mturk without the need to write any code, setup any servers, databases, etc. The goal of the project is to offer a modern graphical alternative to something like [PsiTurk](https://psiturk.org/).  
+
+*Note: Svelte Turk is **not** an experiment/survey builder or deployment tool. Users are left to manage this themselves using whatever services they prefer. All Svelte Turk needs is an HTTPS URL pointing to your experiment/survery in order to create HITs. This is accomplished via the [External Question](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html) option in MTurk. See the figure below for a visual explanation.*
+
+Built using [Electron](https://www.electronjs.org/) to provide cross OS compatibility. Interactivity and design is implemented using [SvelteJS](https://svelte.dev/) with styles and layouts implemented using [TailwindCSS](https://tailwindcss.com/). All data is stored **locally** using [Nedb](https://github.com/louischatriot/nedb).  
 
 ![](setup.jpg)  
 **Fig 1.** *Svelte-Turk only handles nodes and connections highlighted in green, namely the creation and management of HITs via communication with MTurk and a local database. It's up to you to build your experiment or survey and store appropriate data as see you see fit. (figure made with [isoflow](https://isoflow.io/))*
 
 ## Usage
 
-In order to use the app you need to obtain and make your AWS credentials available. You can follow the directions on the [psiturk website](https://psiturk.readthedocs.io/en/stable/amt_setup.html) to obtain your AWS credentials. Once you have them either:
+In order to use the app you need to obtain and make your AWS credentials available. You can follow the directions on the [psiturk website](https://psiturk.readthedocs.io/en/stable/amt_setup.html) to do this. Once you have them either:
 - export them to the environment variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
 - Save them in a `.awscredentials.json` file in your home directory (i.e. the `~` directory on macOS.) The contents of this file should look like:
 ```
@@ -21,9 +27,9 @@ In order to use the app you need to obtain and make your AWS credentials availab
 }
 ```
 
-Svelte-turk will look for these credentials in the order described above, i.e. will prefer environment variables if it sees them and only fall back to `.awscredentials.json` if they don't. If both are specified, environment variables will always take precedence.
+Svelte-turk will look for these credentials in the order described above, i.e. will prefer environment variables if it sees them and only fall back to `.awscredentials.json` if it doesn't. If both are specified, environment variables will always take precedence.
 
-If you are unsure if you have set these credentials properly, simply start the app, as svelte-turk will issue an error message if it can't locate them through either method. Then simply set them and restart the app.
+If you are unsure if you have set these credentials properly, simply start the app, as Svelte-Turk will issue an error message if it can't locate credentials through either method. Simply set them up according to the instructions above and restart the app to get going!
 
 ## Project structure
 

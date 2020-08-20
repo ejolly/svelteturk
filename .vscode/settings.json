@@ -1,0 +1,15 @@
+{
+  "eslint.validate": [
+    "javascript",
+    "typescript"
+  ],
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.formatOnSave": true,
+  "svelte.plugin.typescript.enable": false,
+  "svelte.plugin.css.diagnostics.enable": false,
+  "javascript.preferences.quoteStyle": "single",
+  "editor.wordWrap": "bounded",
+  "editor.wordWrapColumn": 100,
+}

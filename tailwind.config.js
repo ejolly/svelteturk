@@ -3,7 +3,6 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        baloo: ['Baloo Chettan', 'sans-serif'],
         quantico: ['Quantico', 'sans-serif']
       },
       width: {
