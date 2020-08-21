@@ -11,7 +11,12 @@
     "publish": "electron-forge publish",
     "svelte-build": "rollup -c",
     "svelte-dev": "rollup -c -w",
-    "svelte-start": "sirv renderer"
+    "svelte-start": "sirv renderer",
+    "docs-dev": "docsify serve docs-dev",
+    "docs-build": "rm -r docs && presite docs-dev --wait 10000 && touch docs/.nojekyll"
+  },
+  "presite": {
+    "outDir": "docs"
   },
   "keywords": [],
   "repository": "https://github.com/ejolly/svelte-turk",

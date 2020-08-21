@@ -55,6 +55,19 @@ Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](h
 2. `npm run package`
 3. Application will be generated in `out/`
 
+### Documentation development log
+1. Install tools: `npm install -g docsify presite serve`
+2. Create folder for documentation source files: `mkdir docs-dev`
+3. Configure presite to build to a `docs` folder: `"presite": { "outDir": "docs" }` to `package.json`
+4. Configure `npm run` commands to `scripts` in `package.json`: 
+    - `"docs-dev": "docsify serve docs-dev"` 
+    - `"docs-build": "rm -r docs && presite docs-dev --wait 10000 && touch docs/.nojekyll"`
+5. Launch live server to develop docs with `npm run docs-dev`
+6. Generate static files for hosting docs with `npm run docs-build`
+7. (Optional): test that pre-rendered static doc files look ok `serve docs`
+
+Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](https://tablerins.com/)  
+
 ### Note on hot-reloading
 
 `electron-reload` is configured to just watch the renderer directory (i.e. Svelte) and will auto-refresh to any changes made to the svelte code. `entr` is used to restart the entire electron server on any changes to the `main.js` file which is the main electron process ("server").  
