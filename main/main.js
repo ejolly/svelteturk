@@ -156,9 +156,15 @@ ipcMain.handle('export', async () => {
       properties: ['openDirectory', 'createDirectory'],
     });
     if (!result.canceled) {
+      const ts = new Date();
+      const day = ts.getDate();
+      let month = ts.getMonth() + 1;
+      month = month < 10 ? `0${month}` : `${month}`;
+      const year = ts.getFullYear();
+      const date = `${year}-${month}-${day}`;
       for (const dbName in db) {
         const docs = await db[dbName].find({}).sort({ createdAt: -1 });
-        const writePath = path.join(result.filePaths[0], `${dbName}.json`);
+        const writePath = path.join(result.filePaths[0], `${dbName}_${date}.json`);
         await fs.promises.writeFile(writePath, JSON.stringify(docs));
       }
       text = 'Export succesful!';
