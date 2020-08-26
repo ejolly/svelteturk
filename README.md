@@ -47,7 +47,7 @@ If you are unsure if you have set these credentials properly, simply start the a
 5. Configure tailwind and postcss using [this guide](https://dev.to/sarioglu/using-svelte-with-tailwindcss-a-better-approach-47ph)
 6. Launch the app with `npm run start` 
 
-Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](https://tablerins.com/)  
+Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](https://tablericons.com/)  
 
 ### Note on hot-reloading
 

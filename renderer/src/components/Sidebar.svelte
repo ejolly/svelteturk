@@ -37,7 +37,7 @@
 
 <style>
   svg {
-    @apply w-4 h-4 mr-2 fill-current;
+    @apply w-6 h-4 mr-2 fill-current;
   }
   li {
     @apply inline-flex items-center px-2 py-1 my-1 text-lg text-gray-800 rounded cursor-pointer font-quantico;

@@ -8,6 +8,18 @@
 
   // INPUTS
   export let mturk;
+  export let tableHeaders = [
+    'Title',
+    'Status',
+    'HITId',
+    'Created',
+    'Expiration',
+    'Max Assts',
+    'Review',
+    'Pending',
+    'Available',
+    'Completed',
+  ];
 
   // VARIABLES
   /* let rowSelected = false; */
@@ -53,11 +65,21 @@
   };
   const selectRow = (ev, hit) => {
     // Save clicked row
-    rowDOM = ev.target.parentNode;
-    // Saved selected hit
-    selectedHIT = hit;
+    if (rowDOM && rowDOM === ev.target.parentNode) {
+      selectedHIT = undefined;
+      rowDOM.classList.remove('bg-purple-200');
+      rowDOM.classList.add('hoverable');
+      rowDOM = undefined;
+    } else {
+      rowDOM = ev.target.parentNode;
+      rowDOM.classList.add('bg-purple-200');
+      rowDOM.classList.remove('hoverable');
+      console.log(rowDOM);
+      // Saved selected hit
+      selectedHIT = hit;
+    }
     // Update
-    updateTableRows();
+    // updateTableRows();
   };
 
   const deleteHIT = async (ev) => {
@@ -104,6 +126,10 @@
       showModal = true;
     }
     updateTableRows();
+  };
+
+  const extendHIT = async (ev) => {
+    console.log('extend HIT');
   };
 
   const formatDate = (date) => {
@@ -157,113 +183,98 @@
 </script>
 
 <style>
-  .status {
-    pointer-events: none;
-  }
-  th {
-    white-space: nowrap;
+  .header {
+    @apply mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase sticky border-b border-gray-200 px-4 py-3 bg-gray-100;
   }
   td {
-    white-space: nowrap;
+    @apply border-t border-gray-300 px-4 py-3 text-gray-700;
   }
-  .table-container {
-    padding-bottom: 3rem;
-  }
-  .control.has-icons-right .icon {
-    pointer-events: auto !important;
+  .hoverable:hover {
+    @apply bg-purple-100;
   }
 </style>
 
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
+<!---->
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
-  <div class="columns">
-    <div class="column">
-      <div class="field is-grouped" class:is-invisible={!rowSelected}>
-        <p class="control">
-          <button class="button is-success">Extend HIT</button>
-        </p>
-        <p class="control">
-          <button class="button is-warning" on:click={endHIT}>End HIT</button>
-        </p>
-        <p class="control">
-          <button class="button is-danger" on:click={deleteHIT}>Delete from db</button>
-        </p>
-      </div>
+  <div class="flex justify-between mb-2">
+    <p class="px-4 py-2 font-bold tracking-wide text-gray-700 uppercase">
+      Total HITs: {hitsFiltered.length}
+    </p>
+    <div
+      class="inline-flex items-center px-4 py-2 space-x-4"
+      class:invisible={!rowSelected}
+      class:visible={rowSelected}>
+      <button
+        on:click|preventDefault={extendHIT}
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
+        Extend HIT
+      </button>
+      <button
+        on:click|preventDefault={endHIT}
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
+        End HIT
+      </button>
+      <button
+        on:click|preventDefault={deleteHIT}
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
+        Delete from db
+      </button>
+    </div>
+    <div class="inline-flex items-center h-10 px-4 py-2 bg-gray-200 rounded">
+      <svg class="w-6 h-6 mr-2 fill-current" viewBox="0 0 20 20">
+        <path
+          fill-rule="evenodd"
+          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414
+          1.414l-4.816-4.816A6 6 0 012 8z"
+          clip-rule="evenodd" />
+      </svg>
+      <input
+        class="text-gray-700 bg-gray-200 outline-none focus:outline-none"
+        type="text"
+        placeholder="Search..."
+        bind:value={search}
+        on:keyup={() => filterEntries()} />
+      <svg
+        class="w-4 h-4 fill-current"
+        class:invisible={!search}
+        class:visible={search}
+        viewBox="0 0 20 20"
+        on:click={clearSearch}>
+        <path
+          fill-rule="evenodd"
+          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293
+          4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293
+          5.707a1 1 0 010-1.414z"
+          clip-rule="evenodd" />
+      </svg>
     </div>
   </div>
-  <div class="columns">
-    <div class="column is-full">
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <p>
-              <strong>Total HITs:</strong>
-              {hitsFiltered.length}
-            </p>
-          </div>
-        </div>
-        <div class="level-right">
-          <div class="level-item">
-            <div class="field">
-              <p class="control has-icons-right">
-                <input
-                  class="input"
-                  type="text"
-                  placeholder="Find a HIT"
-                  bind:value={search}
-                  on:keyup={() => filterEntries()} />
-                {#if search}
-                  <span class="icon is-small is-right" on:click={clearSearch}>
-                    <i class="fas fa-times" />
-                  </span>
-                {/if}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="table-container">
-        <table class="table is-hoverable">
-          <thead>
-            <tr class="table-row">
-              <th />
-              <th>HITId</th>
-              <th>HITTypeId</th>
-              <th>Created</th>
-              <th>Title</th>
-              <th>Status</th>
-              <th>Max Assts</th>
-              <th>Expiration</th>
-              <th>Status</th>
-              <th>Pending</th>
-              <th>Available</th>
-              <th>Completed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each hitsFiltered as hit}
-              <tr class="table-row" on:click={(ev) => selectRow(ev, hit)}>
-                <td>
-                  <span class="tag is-success status">Complete</span>
-                </td>
-                <td type="text">{hit.HITId.slice(0, 6)}</td>
-                <td type="text">{hit.HITTypeId.slice(0, 6)}</td>
-                <td type="number">{formatDate(hit.CreationTime)}</td>
-                <td type="text">{hit.Title}</td>
-                <td type="text">{hit.HITStatus}</td>
-                <td type="text">{hit.MaxAssignments}</td>
-                <td type="text">{formatDate(hit.Expiration)}</td>
-                <td type="text">{hit.HITReviewStatus}</td>
-                <td type="text">{hit.NumberOfAssignmentsPending}</td>
-                <td type="text">{hit.NumberOfAssignmentsAvailable}</td>
-                <td type="text">{hit.NumberOfAssignmentsCompleted}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+  <table class="w-full table-auto">
+    <thead>
+      <tr>
+        {#each tableHeaders as header}
+          <th class="header">{header}</th>
+        {/each}
+      </tr>
+    </thead>
+    <tbody>
+      {#each hitsFiltered as hit}
+        <tr on:click={(ev) => selectRow(ev, hit)} class="hoverable">
+          <td type="text">{hit.Title}</td>
+          <td type="text">{hit.HITStatus}</td>
+          <td type="text">{hit.HITId.slice(0, 6)}</td>
+          <td type="number">{formatDate(hit.CreationTime)}</td>
+          <td type="text">{formatDate(hit.Expiration)}</td>
+          <td type="text">{hit.MaxAssignments}</td>
+          <td type="text">{hit.HITReviewStatus}</td>
+          <td type="text">{hit.NumberOfAssignmentsPending}</td>
+          <td type="text">{hit.NumberOfAssignmentsAvailable}</td>
+          <td type="text">{hit.NumberOfAssignmentsCompleted}</td>
+        </tr>
+      {/each}
+    </tbody>
+  </table>
 </div>
