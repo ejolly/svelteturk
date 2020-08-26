@@ -8,15 +8,15 @@ pwd
 
 <!-- tabs:start -->
 
-#### ** English **
+#### ** Mac OS **
 
 Hello!
 
-#### ** French **
+#### ** Windows **
 
 Bonjour!
 
-#### ** Italian **
+#### ** Linux **
 
 Ciao!
 
