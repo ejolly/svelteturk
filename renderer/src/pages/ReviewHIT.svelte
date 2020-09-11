@@ -65,21 +65,29 @@
   };
   const selectRow = (ev, hit) => {
     // Save clicked row
-    if (rowDOM && rowDOM === ev.target.parentNode) {
-      selectedHIT = undefined;
-      rowDOM.classList.remove('bg-purple-200');
-      rowDOM.classList.add('hoverable');
-      rowDOM = undefined;
+    if (rowDOM) {
+      if (rowDOM === ev.target.parentNode) {
+        selectedHIT = undefined;
+        rowDOM.classList.remove('bg-purple-200');
+        rowDOM.classList.add('hoverable');
+        rowDOM = undefined;
+      } else {
+        rowDOM.classList.remove('bg-purple-200');
+        rowDOM.classList.add('hoverable');
+        rowDOM = ev.target.parentNode;
+        rowDOM.classList.add('bg-purple-200');
+        rowDOM.classList.remove('hoverable');
+        selectedHIT = hit;
+      }
     } else {
       rowDOM = ev.target.parentNode;
       rowDOM.classList.add('bg-purple-200');
       rowDOM.classList.remove('hoverable');
-      console.log(rowDOM);
-      // Saved selected hit
       selectedHIT = hit;
     }
     // Update
     // updateTableRows();
+    console.log(`Selected HIT: ${selectedHIT ? selectedHIT.HITId : 'no hit selected'}`);
   };
 
   const deleteHIT = async (ev) => {
