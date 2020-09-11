@@ -12,10 +12,10 @@ export const deleteDoc = async (dbName, id) => {
   return resp;
 };
 
-export const updateDoc = async (dbName, id, update) => {
+export const updateDoc = async (dbName, query, update) => {
   let resp;
   try {
-    resp = await ipcRenderer.invoke('updateDoc', dbName, id, update);
+    resp = await ipcRenderer.invoke('updateDoc', dbName, query, update);
   } catch (err) {
     console.error(err);
     resp = { text: err, type: 'error' };

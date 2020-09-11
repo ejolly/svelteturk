@@ -39,10 +39,55 @@
 
   // FUNCTIONS
   // Get all hits from db
-  const getHits = async () => {
+  const getHITs = async () => {
     hits = await ipcRenderer.invoke('findHits');
     hitsFiltered = hits;
-    console.log(hits);
+  };
+
+  const refreshHITs = async () => {
+    const refreshIcon = document.getElementById('refresh-icon');
+    refreshIcon.classList.remove('text-gray-600');
+    refreshIcon.classList.add('animate-spin', 'text-purple-700');
+    setTimeout(() => {
+      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+      refreshIcon.classList.add('text-gray-600');
+    }, 2000);
+    try {
+      hits.forEach(async (hit) => {
+        const resp = await mturk.getHIT({ HITId: hit.HITId }).promise();
+        const dbResp = await updateDoc(
+          'hits',
+          { HITId: resp.HIT.HITId },
+          {
+            $set: {
+              HITTypeId: resp.HIT.HITTypeId,
+              HITGroupId: resp.HIT.HITGroupId,
+              HITLayoutId: resp.HIT.HITLayoutId,
+              CreationTime: resp.HIT.CreationTime.toString(),
+              Title: resp.HIT.Title,
+              Description: resp.HIT.Description,
+              Keywords: resp.HIT.Keywords,
+              HITStatus: resp.HIT.HITStatus,
+              MaxAssignments: resp.HIT.MaxAssignments,
+              Reward: resp.HIT.Reward,
+              AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
+              Expiration: resp.HIT.Expiration.toString(),
+              AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
+              HITReviewStatus: resp.HIT.HITReviewStatus,
+              NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
+              NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
+              NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
+            },
+          }
+        );
+      });
+      await getHITs();
+    } catch (err) {
+      console.error(err);
+      modalText = err;
+      modalType = 'error';
+      showModal = true;
+    }
   };
 
   const updateTableRows = () => {
@@ -63,14 +108,17 @@
       rowDOM.className += ' is-selected';
     }
   };
+  const clearSelection = () => {
+    selectedHIT = undefined;
+    rowDOM.classList.remove('bg-purple-200');
+    rowDOM.classList.add('hoverable');
+    rowDOM = undefined;
+  };
   const selectRow = (ev, hit) => {
     // Save clicked row
     if (rowDOM) {
       if (rowDOM === ev.target.parentNode) {
-        selectedHIT = undefined;
-        rowDOM.classList.remove('bg-purple-200');
-        rowDOM.classList.add('hoverable');
-        rowDOM = undefined;
+        clearSelection();
       } else {
         rowDOM.classList.remove('bg-purple-200');
         rowDOM.classList.add('hoverable');
@@ -95,8 +143,8 @@
     modalText = resp.text;
     modalType = resp.type;
     showModal = true;
-    await getHits();
-    updateTableRows();
+    clearSelection();
+    await getHITs();
   };
 
   const endHIT = async (ev) => {
@@ -110,9 +158,15 @@
       console.log(resp);
       // TODO: LOGS: Use resp.header object to store server time log and action
       if (resp.$response.httpResponse.statusCode === 200) {
-        const dbResp = await updateDoc('hits', selectedHIT._id, {
-          $set: { HITStatus: 'Unassignable' },
-        });
+        // TODO: We don't want to manually set status, instead we should make another getHIT API
+        // becauese if they end a hit when it's already expired it'll update the local db, but the next refresh from mturk will change the status back to reviewable
+        const dbResp = await updateDoc(
+          'hits',
+          { _id: selectedHIT._id },
+          {
+            $set: { HITStatus: 'Unassignable' },
+          }
+        );
         if (dbResp.type === 'success') {
           modalText = 'HIT ended and db updated successfully!';
           modalType = 'success';
@@ -126,18 +180,19 @@
         modalType = 'notification';
       }
       showModal = true;
-      await getHits();
+      await getHITs();
     } catch (err) {
       console.error(err);
       modalText = err;
       modalType = 'error';
       showModal = true;
     }
-    updateTableRows();
+    clearSelection();
   };
 
   const extendHIT = async (ev) => {
     console.log('extend HIT');
+    clearSelection();
   };
 
   const formatDate = (date) => {
@@ -186,7 +241,7 @@
   };
 
   onMount(async () => {
-    await getHits();
+    await getHITs();
   });
 </script>
 
@@ -208,9 +263,23 @@
 <!---->
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
   <div class="flex justify-between mb-2">
-    <p class="px-4 py-2 font-bold tracking-wide text-gray-700 uppercase">
-      Total HITs: {hitsFiltered.length}
-    </p>
+    <div class="inline-flex items-center px-4 py-2">
+      <p class="px-4 py-2 font-bold tracking-wide text-gray-700 uppercase">
+        Total HITs: {hitsFiltered.length}
+      </p>
+      <svg
+        on:click={refreshHITs}
+        id="refresh-icon"
+        class="w-6 h-6 text-gray-600 rounded cursor-pointer stroke-current hover:bg-purple-200 hover:rounded-lg hover:text-purple-700"
+        viewBox="0 0 24 24"
+        stroke-width="2.25"
+        fill="none"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" />
+        <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
+      </svg>
+    </div>
     <div
       class="inline-flex items-center px-4 py-2 space-x-4"
       class:invisible={!rowSelected}

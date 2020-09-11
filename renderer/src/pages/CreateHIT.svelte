@@ -100,7 +100,7 @@
             AssignmentDurationInSeconds: parseInt(assignmentDuration),
             Description: description,
             LifetimeInSeconds: parseInt(lifetime),
-            Reward: reward,
+            Reward: reward.toString(),
             Title: title,
             AutoApprovalDelayInSeconds: parseInt(autoApprovalDelay),
             Keywords: keywords,
@@ -112,6 +112,8 @@
         const dbResp = await ipcRenderer.invoke('insertHIT', {
           HITId: resp.HIT.HITId,
           HITTypeId: resp.HIT.HITTypeId,
+          HITGroupId: resp.HIT.HITGroupId,
+          HITLayoutId: resp.HIT.HITLayoutId,
           CreationTime: resp.HIT.CreationTime.toString(),
           Title: resp.HIT.Title,
           Description: resp.HIT.Description,

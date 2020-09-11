@@ -206,11 +206,11 @@ ipcMain.handle('deleteDoc', async (ev, dbName, id) => {
 });
 
 // Update a doc in any db
-ipcMain.handle('updateDoc', async (ev, dbName, id, update) => {
+ipcMain.handle('updateDoc', async (ev, dbName, query, update) => {
   let text;
   let type;
   try {
-    const numAffected = await db[dbName].update({ _id: id }, update);
+    const numAffected = await db[dbName].update(query, update);
     if (numAffected) {
       text = 'Updated successfully';
       type = 'success';
