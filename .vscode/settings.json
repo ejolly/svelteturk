@@ -7,7 +7,7 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": true,
   "editor.formatOnSave": true,
-  "svelte.plugin.typescript.enable": false,
+  "svelte.plugin.typescript.enable": true,
   "svelte.plugin.css.diagnostics.enable": false,
   "javascript.preferences.quoteStyle": "single",
   "editor.wordWrap": "bounded",

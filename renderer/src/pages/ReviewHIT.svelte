@@ -1,8 +1,9 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
-  import { deleteDoc, updateDoc } from '../components/utils.js';
+  import Dialogue from '../components/Dialogue.svelte';
+  import { deleteDoc, updateDoc, wait } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -30,6 +31,10 @@
   let showModal = false;
   let modalText;
   let modalType;
+  let showDialogue = false;
+  let extendTime = '';
+  let extendError = false;
+  let refreshFromAWS;
   // The row DOM element
   let rowDOM;
   // The specific hit in JS
@@ -45,13 +50,10 @@
   };
 
   const refreshHITs = async () => {
+    console.log(`Refreshing HITs from AWS at: ${new Date().toString()}`);
     const refreshIcon = document.getElementById('refresh-icon');
     refreshIcon.classList.remove('text-gray-600');
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
-    setTimeout(() => {
-      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
-      refreshIcon.classList.add('text-gray-600');
-    }, 2000);
     try {
       hits.forEach(async (hit) => {
         const resp = await mturk.getHIT({ HITId: hit.HITId }).promise();
@@ -80,8 +82,12 @@
             },
           }
         );
+        // Asynchronously wait 1s between API calls so we don't get rate limited
+        await wait(1000);
       });
       await getHITs();
+      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+      refreshIcon.classList.add('text-gray-600');
     } catch (err) {
       console.error(err);
       modalText = err;
@@ -108,12 +114,15 @@
       rowDOM.className += ' is-selected';
     }
   };
+
   const clearSelection = () => {
     selectedHIT = undefined;
     rowDOM.classList.remove('bg-purple-200');
     rowDOM.classList.add('hoverable');
     rowDOM = undefined;
+    showDialogue = false;
   };
+
   const selectRow = (ev, hit) => {
     // Save clicked row
     if (rowDOM) {
@@ -164,7 +173,7 @@
           'hits',
           { _id: selectedHIT._id },
           {
-            $set: { HITStatus: 'Unassignable' },
+            $set: { Expiration: Date().toString() },
           }
         );
         if (dbResp.type === 'success') {
@@ -190,9 +199,60 @@
     clearSelection();
   };
 
+  const updateTime = () => {};
+
   const extendHIT = async (ev) => {
-    console.log('extend HIT');
-    clearSelection();
+    let update = parseInt(extendTime, 10);
+    if (Number.isInteger(update) && update >= 60) {
+      extendError = false;
+      const now = Date.now();
+      // TODO: figure out
+      // Adding 1 here because minimum time must be 60s and entering 60 submits a request for 59s to aws
+      update = (update + 1) * 1000;
+      const updatedTime = new Date(now + update);
+      try {
+        const resp = await mturk
+          .updateExpirationForHIT({
+            ExpireAt: updatedTime,
+            HITId: selectedHIT.HITId,
+          })
+          .promise();
+        console.log(resp);
+        // TODO: LOGS: Use resp.header object to store server time log and action
+        if (resp.$response.httpResponse.statusCode === 200) {
+          // TODO: We don't want to manually set status, instead we should make another getHIT API
+          // becauese if they end a hit when it's already expired it'll update the local db, but the next refresh from mturk will change the status back to reviewable
+          const dbResp = await updateDoc(
+            'hits',
+            { _id: selectedHIT._id },
+            {
+              $set: { Expiration: updatedTime.toString() },
+            }
+          );
+          if (dbResp.type === 'success') {
+            modalText = 'HIT extended and db updated successfully!';
+            modalType = 'success';
+          } else {
+            modalText = 'HIT extended successfully but could not update db. See console.';
+            modalType = 'notifcation';
+            console.log(dbResp);
+          }
+        } else {
+          modalText = 'Something unexpected happened! See console.';
+          modalType = 'notification';
+        }
+        showModal = true;
+        await getHITs();
+      } catch (err) {
+        console.error(err);
+        modalText = err;
+        modalType = 'error';
+        showModal = true;
+      }
+      clearSelection();
+    } else {
+      extendError = true;
+    }
   };
 
   const formatDate = (date) => {
@@ -242,6 +302,13 @@
 
   onMount(async () => {
     await getHITs();
+    refreshFromAWS = setInterval(refreshHITs, 60000);
+    console.log(`Auto HIT refreshing enabled on: ${new Date().toString()}`);
+  });
+
+  onDestroy(() => {
+    clearInterval(refreshFromAWS);
+    console.log(`Auto HIT refreshing disabled on: ${new Date().toString()}`);
   });
 </script>
 
@@ -255,12 +322,43 @@
   .hoverable:hover {
     @apply bg-purple-100;
   }
+  label {
+    @apply block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase;
+  }
+  input {
+    @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
+  }
+  .disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  .error-text {
+    @apply text-xs italic text-red-500;
+  }
 </style>
 
 <Modal {showModal} {modalType}>
   <p>{modalText}</p>
 </Modal>
-<!---->
+{#if showDialogue}
+  <Dialogue on:close={clearSelection}>
+    <form class="w-full">
+      <div class="flex flex-col items-center px-3">
+        <label class="self-start">Additional Duration</label>
+        <input type="text" bind:value={extendTime} placeholder="time in seconds" />
+        <p class="self-start error-text" class:visible={extendError} class:invisible={!extendError}>
+          Must be a valid time in seconds (minimum 60)
+        </p>
+        <button
+          on:click|preventDefault={extendHIT}
+          class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
+          class:disabled={extendTime === ''}
+          disabled={extendTime === ''}>
+          Submit
+        </button>
+      </div>
+    </form>
+  </Dialogue>
+{/if}
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
   <div class="flex justify-between mb-2">
     <div class="inline-flex items-center px-4 py-2">
@@ -285,7 +383,7 @@
       class:invisible={!rowSelected}
       class:visible={rowSelected}>
       <button
-        on:click|preventDefault={extendHIT}
+        on:click|preventDefault={() => (showDialogue = true)}
         class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
         Extend HIT
       </button>
@@ -309,7 +407,7 @@
           clip-rule="evenodd" />
       </svg>
       <input
-        class="text-gray-700 bg-gray-200 outline-none focus:outline-none"
+        class="text-gray-700 bg-gray-200 border-none outline-none focus:outline-none"
         type="text"
         placeholder="Search..."
         bind:value={search}

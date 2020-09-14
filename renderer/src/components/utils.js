@@ -22,3 +22,7 @@ export const updateDoc = async (dbName, query, update) => {
   }
   return resp;
 };
+
+export const wait = async (ms) => new Promise((resolve) => {
+  setTimeout(resolve, ms);
+});
