@@ -69,6 +69,7 @@
       });
       mturkReady = true;
       console.log(mturk.endpoint.host);
+      window.mturk = mturk;
     } catch (err) {
       console.error(err);
       modalText = err;

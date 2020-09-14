@@ -128,6 +128,8 @@
           NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
           NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
           NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
+          ExternalURL: externalURL,
+          Qualifications: selectedQuals,
         });
         modalText = dbResp.text;
         modalType = dbResp.type;
@@ -438,14 +440,14 @@
         Create HIT
       </button>
       <button
-        on:click|preventDefault={openSave}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
-        Save Template
-      </button>
-      <button
         on:click|preventDefault={openLoad}
         class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
         Load Template
+      </button>
+      <button
+        on:click|preventDefault={openSave}
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
+        Save Template
       </button>
       <button
         on:click|preventDefault={clearForm}

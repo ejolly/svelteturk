@@ -17,9 +17,10 @@
 
 <div
   class="fixed inset-0 z-50 flex overflow-auto bg-purple-100 bg-opacity-75 overlay"
-  transition:fade={{ duration: 350 }}>
+  transition:fade={{ duration: 350 }}
+  on:click|self={() => dispatch('close')}>
   <div
-    class="relative flex flex-col items-center justify-center w-full max-w-md p-8 m-auto text-gray-800 bg-white border border-gray-500 rounded shadow-md font-quantico">
+    class="relative flex flex-col items-center justify-center p-8 m-auto text-gray-800 bg-white border border-gray-500 rounded shadow-md font-quantico">
     <slot>
       <p>I'm inside a flex container. Put something in me!</p>
     </slot>

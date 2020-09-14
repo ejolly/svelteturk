@@ -23,7 +23,8 @@
   ];
 
   // VARIABLES
-  /* let rowSelected = false; */
+  const refreshFrequency = 30000;
+  const spinnerDuration = 5000;
   let search = '';
   let timer;
   let hits = [];
@@ -32,6 +33,7 @@
   let modalText;
   let modalType;
   let showDialogue = false;
+  let whichDialogue = '';
   let extendTime = '';
   let extendError = false;
   let refreshFromAWS;
@@ -54,6 +56,10 @@
     const refreshIcon = document.getElementById('refresh-icon');
     refreshIcon.classList.remove('text-gray-600');
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
+    setTimeout(() => {
+      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+      refreshIcon.classList.add('text-gray-600');
+    }, spinnerDuration);
     try {
       hits.forEach(async (hit) => {
         const resp = await mturk.getHIT({ HITId: hit.HITId }).promise();
@@ -86,8 +92,6 @@
         await wait(1000);
       });
       await getHITs();
-      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
-      refreshIcon.classList.add('text-gray-600');
     } catch (err) {
       console.error(err);
       modalText = err;
@@ -121,6 +125,7 @@
     rowDOM.classList.add('hoverable');
     rowDOM = undefined;
     showDialogue = false;
+    extendTime = '';
   };
 
   const selectRow = (ev, hit) => {
@@ -142,9 +147,6 @@
       rowDOM.classList.remove('hoverable');
       selectedHIT = hit;
     }
-    // Update
-    // updateTableRows();
-    console.log(`Selected HIT: ${selectedHIT ? selectedHIT.HITId : 'no hit selected'}`);
   };
 
   const deleteHIT = async (ev) => {
@@ -199,7 +201,15 @@
     clearSelection();
   };
 
-  const updateTime = () => {};
+  const showHITInfo = async (ev) => {
+    whichDialogue = 'info';
+    showDialogue = true;
+  };
+
+  const showHITExtend = () => {
+    whichDialogue = 'extend';
+    showDialogue = true;
+  };
 
   const extendHIT = async (ev) => {
     let update = parseInt(extendTime, 10);
@@ -217,7 +227,6 @@
             HITId: selectedHIT.HITId,
           })
           .promise();
-        console.log(resp);
         // TODO: LOGS: Use resp.header object to store server time log and action
         if (resp.$response.httpResponse.statusCode === 200) {
           // TODO: We don't want to manually set status, instead we should make another getHIT API
@@ -301,14 +310,16 @@
   };
 
   onMount(async () => {
+    // Load hits from local db
     await getHITs();
-    refreshFromAWS = setInterval(refreshHITs, 60000);
-    console.log(`Auto HIT refreshing enabled on: ${new Date().toString()}`);
+    // Start an auto-refreshing API call every refreshFrequency seconds
+    refreshFromAWS = setInterval(refreshHITs, refreshFrequency);
+    console.log(`Auto HIT refreshing started on: ${new Date().toString()}`);
   });
 
   onDestroy(() => {
     clearInterval(refreshFromAWS);
-    console.log(`Auto HIT refreshing disabled on: ${new Date().toString()}`);
+    console.log(`Auto HIT refreshing ended on: ${new Date().toString()}`);
   });
 </script>
 
@@ -329,7 +340,7 @@
     @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
   }
   .disabled {
-    @apply opacity-50 cursor-not-allowed;
+    @apply opacity-50 cursor-not-allowed select-none;
   }
   .error-text {
     @apply text-xs italic text-red-500;
@@ -341,22 +352,88 @@
 </Modal>
 {#if showDialogue}
   <Dialogue on:close={clearSelection}>
-    <form class="w-full">
-      <div class="flex flex-col items-center px-3">
-        <label class="self-start">Additional Duration</label>
-        <input type="text" bind:value={extendTime} placeholder="time in seconds" />
-        <p class="self-start error-text" class:visible={extendError} class:invisible={!extendError}>
-          Must be a valid time in seconds (minimum 60)
-        </p>
-        <button
-          on:click|preventDefault={extendHIT}
-          class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
-          class:disabled={extendTime === ''}
-          disabled={extendTime === ''}>
-          Submit
-        </button>
+    {#if whichDialogue === 'extend'}
+      <form class="w-full">
+        <div class="flex flex-col items-center px-3">
+          <label class="self-start">Additional Duration</label>
+          <input type="text" bind:value={extendTime} placeholder="time in seconds" />
+          <p
+            class="self-start error-text"
+            class:visible={extendError}
+            class:invisible={!extendError}>
+            Must be a valid time in seconds (minimum 60)
+          </p>
+          <button
+            on:click|preventDefault={extendHIT}
+            class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
+            class:disabled={extendTime === ''}
+            disabled={extendTime === ''}>
+            Submit
+          </button>
+        </div>
+      </form>
+    {:else if whichDialogue === 'info'}
+      <div class="container">
+        <form class="w-full">
+          <div class="flex flex-wrap mb-6 -mx-3">
+            <div class="w-1/3 px-3">
+              <label>Title</label>
+              <input readonly type="text" bind:value={selectedHIT.Title} />
+            </div>
+            <div class="w-1/3 px-3">
+              <label>Keywords</label>
+              <input type="text" readonly bind:value={selectedHIT.Keywords} />
+            </div>
+            <div class="w-1/3 px-3">
+              <label>Experiment URL</label>
+              <input type="text" readonly bind:value={selectedHIT.ExternalURL} />
+            </div>
+          </div>
+          <div class="flex flex-wrap mb-6 -mx-3">
+            <div class="w-3/12 px-3">
+              <label>Created</label>
+              <input type="text" readonly bind:value={selectedHIT.CreationTime} />
+            </div>
+            <div class="w-3/12 px-3">
+              <label>Expires</label>
+              <input type="text" readonly bind:value={selectedHIT.Expiration} />
+            </div>
+            <div class="w-2/12 px-3">
+              <label>Reward</label>
+              <input type="text" readonly bind:value={selectedHIT.Reward} />
+            </div>
+            <div class="w-2/12 px-3">
+              <label>Approval Delay</label>
+              <input type="text" readonly bind:value={selectedHIT.AutoApprovalDelayInSeconds} />
+            </div>
+            <div class="w-2/12 px-3">
+              <label>Max Assignments</label>
+              <input type="text" readonly bind:value={selectedHIT.MaxAssignments} />
+            </div>
+          </div>
+          <div class="flex flex-wrap mb-6 -mx-3">
+            <div class="w-1/3 px-3">
+              <label>Qualifications</label>
+              <select
+                multiple
+                class="block w-full h-40 px-4 py-2 overflow-y-auto text-gray-700 bg-gray-200 rounded outline-none">
+                {#each selectedHIT.Qualifications || [] as qual}
+                  <option disabled value={qual}>{qual}</option>
+                {/each}
+              </select>
+            </div>
+            <div class="w-2/3 px-3">
+              <label>Description</label>
+              <textarea
+                class="block w-full h-40 px-4 py-2 mb-2 overflow-y-auto text-gray-700 bg-gray-200 border rounded outline-none resize-none"
+                type="text"
+                readonly
+                bind:value={selectedHIT.Description} />
+            </div>
+          </div>
+        </form>
       </div>
-    </form>
+    {/if}
   </Dialogue>
 {/if}
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
@@ -383,7 +460,12 @@
       class:invisible={!rowSelected}
       class:visible={rowSelected}>
       <button
-        on:click|preventDefault={() => (showDialogue = true)}
+        on:click|preventDefault={showHITInfo}
+        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
+        HIT Details
+      </button>
+      <button
+        on:click|preventDefault={showHITExtend}
         class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
         Extend HIT
       </button>
