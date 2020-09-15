@@ -11,7 +11,7 @@
   // VARIABLES
   let showModal = false;
   let modalType;
-  let modalText;
+  let modalText = 'lots of text here';
   // Make accountBalance reactive with respect to mturk which comes from App.svelte
   // This re-executes getAccountBalance() whenever mturk changes
   // mturk changes when SidebarHeader dispatches to App.svelte, which then
@@ -52,7 +52,7 @@
   });
 </script>
 
-<Modal {showModal} {modalType}>
+<Modal {showModal} {modalType} on:close={() => (showModal = false)}>
   <p>{modalText}</p>
 </Modal>
 <div class="container" in:fly={{ y: 200, duration: 250 }}>

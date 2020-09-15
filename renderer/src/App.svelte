@@ -17,7 +17,7 @@
   let awsKey;
   let awsSecret;
   // current app view ("state")
-  let currentState = 'reviewHIT';
+  let currentState = 'home';
   // main Mturk object on which API methods are called
   let mturk;
   // Mturk object availability status (e.g. no internet connection)
