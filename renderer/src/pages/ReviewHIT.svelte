@@ -442,18 +442,20 @@
       <p class="px-4 py-2 font-bold tracking-wide text-gray-700 uppercase">
         Total HITs: {hitsFiltered.length}
       </p>
-      <svg
-        on:click={refreshHITs}
-        id="refresh-icon"
-        class="w-6 h-6 text-gray-600 rounded cursor-pointer stroke-current hover:bg-purple-200 hover:rounded-lg hover:text-purple-700"
-        viewBox="0 0 24 24"
-        stroke-width="2.25"
-        fill="none"
-        stroke-linecap="round"
-        stroke-linejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" />
-        <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
-      </svg>
+      <p>
+        <svg
+          on:click={refreshHITs}
+          id="refresh-icon"
+          class="w-6 h-6 text-gray-600 rounded cursor-pointer stroke-current hover:bg-purple-200 hover:rounded-lg hover:text-purple-700"
+          viewBox="0 0 24 24"
+          stroke-width="2.25"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" />
+          <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
+        </svg>
+      </p>
     </div>
     <div
       class="inline-flex items-center px-4 py-2 space-x-4"

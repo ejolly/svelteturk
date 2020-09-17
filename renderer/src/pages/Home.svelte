@@ -22,7 +22,7 @@
   const getAccountBalance = async () => {
     try {
       const resp = await mturk.getAccountBalance().promise();
-      accountBalance = `$${resp.AvailableBalance}`;
+      accountBalance = `${resp.AvailableBalance}`;
     } catch (error) {
       console.error(error);
       showModal = true;
@@ -52,38 +52,53 @@
   });
 </script>
 
+<style>
+  .label {
+    @apply font-sans text-xs font-bold tracking-wide uppercase text-gray-700;
+  }
+</style>
+
 <Modal {showModal} {modalType} on:close={() => (showModal = false)}>
   <p>{modalText}</p>
 </Modal>
-<div class="container" in:fly={{ y: 200, duration: 250 }}>
-  <div class="columns">
-    <div class="column">
-      {#await accountBalance}
-        <p>Account Balance: Loading...</p>
-      {:then accountBalance}
-        <p>Account Balance: {accountBalance}</p>
-      {/await}
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 font-quantico">
+  <div class="py-8 text-center">
+    <div class="md:border-r">
+      <div class="label">Account Balance</div>
+      <div class="mb-2 text-grey-darker">
+        <span class="text-xl text-purple-600 align-top">$</span>
+        <span class="text-3xl">
+          {#await accountBalance}Loading...{:then accountBalance}{accountBalance}{/await}
+        </span>
+      </div>
     </div>
   </div>
-  <div class="columns">
-    <div class="column">
-      <p>Number of HITs: {numHITs}</p>
+  <div class="py-8 text-center">
+    <div class="lg:border-r">
+      <div class="label">Number of HITs</div>
+      <div class="mb-2 text-grey-darker">
+        <span class="text-xl text-purple-600 align-top">+</span>
+        <span class="text-3xl">{numHITs}</span>
+      </div>
     </div>
   </div>
-  <div class="columns">
-    <div class="column">
-      <p>Number of Assignments: {numAssts}</p>
+  <div class="py-8 text-center">
+    <div class="md:border-r">
+      <div class="flex-no-wrap label">Number of Assignments</div>
+      <div class="mb-2 text-grey-darker">
+        <span class="text-xl text-purple-600 align-top">+</span>
+        <span class="text-3xl">{numAssts}</span>
+      </div>
     </div>
   </div>
-  <div class="columns">
-    <div class="column">
-      <p>Number of Workers: {numWorkers}</p>
-    </div>
-  </div>
-  <div class="columns">
-    <div class="column">
-      <!-- Example modal usage -->
-      <button on:click={() => (showModal = true)}>Show</button>
+  <div class="py-8 text-center">
+    <div>
+      <div class="label">Number of Workers</div>
+      <div class="mb-2 text-grey-darker">
+        <span class="text-xl text-purple-600 align-top">+</span>
+        <span class="text-3xl">{numWorkers}</span>
+      </div>
     </div>
   </div>
 </div>
