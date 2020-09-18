@@ -62,7 +62,9 @@
   <p>{modalText}</p>
 </Modal>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 font-quantico">
+<div
+  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 font-quantico"
+  in:fly={{ y: 200, duration: 250 }}>
   <div class="py-8 text-center">
     <div class="md:border-r">
       <div class="label">Account Balance</div>

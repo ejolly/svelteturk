@@ -91,7 +91,6 @@
 
   // Create a HIT and save it to db
   const createHIT = async () => {
-    console.log('create HIT');
     checkFields();
     if (!formError) {
       try {
@@ -139,7 +138,6 @@
         modalType = 'error';
       }
       showModal = true;
-      console.log('hit submitted');
     }
   };
 
@@ -155,7 +153,6 @@
 
   // Actually save hit
   const saveTemplate = async () => {
-    console.log('save Template');
     saveError = !!!saveName;
     if (!saveError) {
       if (loadNames.includes(saveName)) {
@@ -178,7 +175,6 @@
           });
           modalText = dbResp.text;
           modalType = dbResp.type;
-          console.log('hit template saved');
         } catch (err) {
           console.error(err);
           modalText = err;
@@ -196,12 +192,10 @@
     whichDialogue = 'load';
     await loadSavedHITs();
     showDialogue = true;
-    console.log(loadTemplates);
   };
 
   // Actualy load hit
   const loadTemplate = async () => {
-    console.log('load Template');
     loadError = !!!loadName;
     if (!loadError) {
       const HITData = loadTemplates.filter((elem) => elem['name'] === loadName)[0];
@@ -222,8 +216,6 @@
   };
   // Delete a hit template
   const deleteTemplate = async () => {
-    console.log('delete Template');
-    console.log(loadName);
     loadError = !!!loadName;
     if (!loadError) {
       const resp = await ipcRenderer.invoke('deleteHITTemplate', loadName);

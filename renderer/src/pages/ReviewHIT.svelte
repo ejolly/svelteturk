@@ -3,7 +3,7 @@
   import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
-  import { deleteDoc, updateDoc, wait } from '../components/utils.js';
+  import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -166,7 +166,6 @@
           HITId: selectedHIT.HITId,
         })
         .promise();
-      console.log(resp);
       // TODO: LOGS: Use resp.header object to store server time log and action
       if (resp.$response.httpResponse.statusCode === 200) {
         // TODO: We don't want to manually set status, instead we should make another getHIT API
@@ -264,27 +263,6 @@
     }
   };
 
-  const formatDate = (date) => {
-    const dateTime = new Date(date);
-    const year = dateTime.getFullYear() - 2000;
-    const month = dateTime.getMonth();
-    const day = dateTime.getDate();
-    let hours = dateTime.getHours();
-    let ampm;
-    if (hours > 12) {
-      ampm = 'pm';
-      hours -= 12;
-    } else if (hours === 12) {
-      ampm = 'pm';
-    } else {
-      ampm = 'am';
-    }
-    hours = hours > 12 ? hours - 12 : hours;
-    let minutes = dateTime.getMinutes();
-    minutes = minutes < 10 ? `0${minutes}` : minutes;
-    return `${month}/${day}/${year} - ${hours}:${minutes}${ampm}`;
-  };
-
   const filterEntries = () => {
     clearTimeout(timer);
     timer = setTimeout(() => {
@@ -376,17 +354,21 @@
       <div class="container">
         <form class="w-full">
           <div class="flex flex-wrap mb-6 -mx-3">
-            <div class="w-1/3 px-3">
+            <div class="w-1/4 px-3">
               <label>Title</label>
               <input readonly type="text" bind:value={selectedHIT.Title} />
             </div>
-            <div class="w-1/3 px-3">
+            <div class="w-1/4 px-3">
               <label>Keywords</label>
               <input type="text" readonly bind:value={selectedHIT.Keywords} />
             </div>
-            <div class="w-1/3 px-3">
+            <div class="w-1/4 px-3">
               <label>Experiment URL</label>
               <input type="text" readonly bind:value={selectedHIT.ExternalURL} />
+            </div>
+            <div class="w-1/4 px-3">
+              <label>Hit Id</label>
+              <input readonly type="text" bind:value={selectedHIT.HITId} />
             </div>
           </div>
           <div class="flex flex-wrap mb-6 -mx-3">
@@ -440,7 +422,7 @@
   <div class="flex justify-between mb-2">
     <div class="inline-flex items-center px-4 py-2">
       <p class="px-4 py-2 font-bold tracking-wide text-gray-700 uppercase">
-        Total HITs: {hitsFiltered.length}
+        Total: {hitsFiltered.length}
       </p>
       <p>
         <svg

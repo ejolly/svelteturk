@@ -9,6 +9,7 @@
   import CreateHIT from './pages/CreateHIT.svelte';
   import Home from './pages/Home.svelte';
   import ReviewHIT from './pages/ReviewHIT.svelte';
+  import ReviewAsst from './pages/ReviewAsst.svelte';
 
   const { ipcRenderer } = require('electron');
 
@@ -17,7 +18,7 @@
   let awsKey;
   let awsSecret;
   // current app view ("state")
-  let currentState = 'reviewHIT';
+  let currentState = 'reviewAsst';
   // main Mturk object on which API methods are called
   let mturk;
   // Mturk object availability status (e.g. no internet connection)
@@ -43,6 +44,11 @@
       state: 'reviewHIT',
       title: 'Review HIT',
       component: ReviewHIT,
+    },
+    {
+      state: 'reviewAsst',
+      title: 'Review Assignments',
+      component: ReviewAsst,
     },
   ];
 
@@ -137,7 +143,7 @@
     <hr class="w-64 border-t-2 border-gray-500" />
   </header>
   <!-- Main page, flex but offset width of sidebar and header -->
-  <div class="flex pr-4 mr-8 overflow-auto main">
+  <div class="flex pr-4 mr-8 overflow-hidden main">
     <main class="flex-grow">
       <svelte:component this={component} {mturk} />
     </main>

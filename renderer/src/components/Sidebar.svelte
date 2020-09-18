@@ -40,7 +40,7 @@
     @apply w-6 h-4 mr-2 fill-current;
   }
   li {
-    @apply inline-flex items-center px-2 py-1 my-1 text-lg text-gray-800 rounded cursor-pointer font-quantico;
+    @apply inline-flex items-center px-2 py-1 my-1 text-lg text-gray-800 rounded cursor-pointer font-quantico whitespace-no-wrap;
   }
   .active {
     @apply bg-purple-200 w-full;
@@ -85,6 +85,14 @@
         <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
       </svg>
       <span>Review HIT</span>
+    </li>
+    <li class:active={currentState == 'reviewAsst'} on:click={() => changeState('reviewAsst')}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
+        <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
+        <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
+      </svg>
+      <span>Review Assts</span>
     </li>
     <li on:click={exportData}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">

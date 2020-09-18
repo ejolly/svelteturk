@@ -207,11 +207,11 @@ ipcMain.handle('deleteDoc', async (ev, dbName, id) => {
 });
 
 // Update a doc in any db
-ipcMain.handle('updateDoc', async (ev, dbName, query, update) => {
+ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
   let text;
   let type;
   try {
-    const numAffected = await db[dbName].update(query, update);
+    const numAffected = await db[dbName].update(query, update, options);
     if (numAffected) {
       text = 'Updated successfully';
       type = 'success';
@@ -235,6 +235,12 @@ ipcMain.handle('findHits', async (ev) => {
 // Return all assts
 ipcMain.handle('findAssts', async (ev) => {
   const docs = await db.assts.find({}).sort({ createdAt: -1 });
+  return docs;
+});
+
+// Return assts for a specific HIT
+ipcMain.handle('findAsstsForHIT', async (ev, HITId) => {
+  const docs = await db.assts.find({ HITId }).sort({ createdAt: -1 });
   return docs;
 });
 
