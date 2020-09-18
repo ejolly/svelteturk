@@ -25,6 +25,7 @@
   let showDialogue = false;
   let HITDrawerOpen = false;
   let whichDialogue = '';
+  let requesterFeedback = '';
   let refreshFromAWS;
   let rowDOM;
   let selectedAsst;
@@ -158,15 +159,110 @@
   };
 
   const approveAsst = async () => {
-    console.log('approve');
+    if (selectedAsst.Status === 'Submitted') {
+      try {
+        const resp = await mturk.approveAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
+        if (resp.$respond.httpResponse.statusCode === 200) {
+          const dbResp = await updateDoc(
+            'assts',
+            { AsstId: selectedAsst.AsstId },
+            {
+              $set: {
+                Status: 'Approved',
+                ReviewTime: new Date().toString(),
+              },
+            }
+          );
+          if (dbResp.type === 'success') {
+            modalText = 'Asst approved and db updated successfully!';
+            modalType = 'success';
+          } else {
+            modalText = 'Asst approved but could not update db. See console.';
+            modalType = 'notification';
+            console.log(dbResp);
+          }
+        } else {
+          modalText = 'Something unexpected happened! See console.';
+          modalType = 'notification';
+        }
+        showModal = true;
+        await getAssts();
+      } catch (err) {
+        console.error(err);
+        modalText = err;
+        modalType = 'error';
+        showModal = true;
+      }
+    } else {
+      modalText = 'Assignment has already been reviewed!';
+      modalType = 'notification';
+      showModal = true;
+    }
+    clearSelection();
+  };
+
+  const showRejectAsst = () => {
+    if (selectedAsst.Status === 'Submitted') {
+      whichDialogue = 'reject-single';
+      showDialogue = true;
+    } else {
+      modalText = 'Assignment has already been reviewed!';
+      modalType = 'notification';
+      showModal = true;
+      clearSelection();
+    }
   };
 
   const rejectAsst = async () => {
-    console.log('reject');
+    try {
+      const resp = await mturk
+        .rejectAssignment({
+          AssignmentId: selectedAsst.AsstId,
+          RequesterFeedback: requesterFeedback,
+        })
+        .promise();
+      if (resp.$respond.httpResponse.statusCode === 200) {
+        const dbResp = await updateDoc(
+          'assts',
+          { AsstId: selectedAsst.AsstId },
+          {
+            $set: {
+              Status: 'Rejected',
+              ReviewTime: new Date().toString(),
+              RequesterFeedback: requesterFeedback,
+            },
+          }
+        );
+        if (dbResp.type === 'success') {
+          modalText = 'Assignment rejected and db updated successfully!';
+          modalType = 'success';
+        } else {
+          modalText = 'Assignment rejected but could not update db. See console.';
+          modalType = 'notification';
+          console.log(dbResp);
+        }
+      } else {
+        modalText = 'Something unexpected happened! See console.';
+        modalType = 'notification';
+      }
+      showModal = true;
+      await getAssts();
+    } catch (err) {
+      console.error(err);
+      modalText = err;
+      modalType = 'error';
+      showModal = true;
+    }
+    clearSelection();
   };
 
   const toggleHITSelect = () => {
     HITDrawerOpen = !HITDrawerOpen;
+  };
+
+  // Because on some elements outside the dropdown we always just want to close thise dropdown
+  const closeHITSelect = () => {
+    HITDrawerOpen = false;
   };
 
   const deleteAsst = async () => {
@@ -215,6 +311,9 @@
   .disabled {
     @apply opacity-50 cursor-not-allowed select-none;
   }
+  .dialogue {
+    width: 25rem;
+  }
   .error-text {
     @apply text-xs italic text-red-500;
   }
@@ -223,9 +322,32 @@
 <Modal {showModal} {modalType} on:close={() => (showModal = false)}>
   <p>{modalText}</p>
 </Modal>
-<!-- Dialogue here -->
-<div class="container h-screen" in:fly={{ y: 200, duration: 250 }} on:click|self={toggleHITSelect}>
-  <div class="flex justify-between mb-2" on:click|self={toggleHITSelect}>
+{#if showDialogue}
+  <Dialogue on:close={clearSelection}>
+    {#if whichDialogue === 'reject-single'}
+      <div class="dialogue">
+        <form class="w-full">
+          <div class="flex flex-col items-center px-3">
+            <label class="self-start">Requestor Feedback</label>
+            <input
+              type="text"
+              bind:value={requesterFeedback}
+              placeholder="provide a reason for rejection" />
+            <button
+              on:click|preventDefault={rejectAsst}
+              class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
+              class:disabled={requesterFeedback === ''}
+              disabled={requesterFeedback === ''}>
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    {/if}
+  </Dialogue>
+{/if}
+<div class="container h-screen" in:fly={{ y: 200, duration: 250 }} on:click|self={closeHITSelect}>
+  <div class="flex justify-between mb-2" on:click|self={closeHITSelect}>
     <div class="inline-flex items-center px-4 py-2">
       <!-- Dropdown selector -->
       <div class="relative inline-block">
@@ -261,7 +383,7 @@
                   class:selected={selectedHIT === 'all'}
                   role="menuitem"
                   on:click={() => changeHIT('all')}>
-                  <p class="text-base">All</p>
+                  <p class="text-base uppercase">Show All</p>
                 </div>
                 {#each hits as hit}
                   <div
@@ -306,7 +428,7 @@
         Approve
       </button>
       <button
-        on:click|preventDefault={rejectAsst}
+        on:click|preventDefault={showRejectAsst}
         class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
         Reject
       </button>

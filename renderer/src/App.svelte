@@ -18,7 +18,7 @@
   let awsKey;
   let awsSecret;
   // current app view ("state")
-  let currentState = 'reviewAsst';
+  let currentState = 'home';
   // main Mturk object on which API methods are called
   let mturk;
   // Mturk object availability status (e.g. no internet connection)
@@ -127,7 +127,7 @@
 
 <svelte:window bind:online={mturkReady} />
 <Tailwindcss />
-<Modal {showModal} {modalType}>
+<Modal {showModal} {modalType} on:close={() => (showModal = false)}>
   <p>{modalText}</p>
 </Modal>
 <!-- Main app container full window size not responsive-->
@@ -138,7 +138,8 @@
     <Sidebar {currentState} on:changeState={updateState} />
   </nav>
   <!-- Page Title fixed to prevent scrolling with content-->
-  <header class="fixed top-0 left-0 w-full text-5xl text-gray-900 bg-white header font-quantico">
+  <header
+    class="fixed top-0 left-0 w-full text-5xl text-gray-900 bg-transparent header font-quantico">
     {title}
     <hr class="w-64 border-t-2 border-gray-500" />
   </header>

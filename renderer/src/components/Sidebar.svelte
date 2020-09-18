@@ -50,7 +50,7 @@
   }
 </style>
 
-<Modal {showModal} {modalType}>
+<Modal {showModal} {modalType} on:close={() => (showModal = false)}>
   <p>{modalText}</p>
 </Modal>
 <div class="w-40">

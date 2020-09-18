@@ -30,7 +30,7 @@ export const wait = async (ms) => new Promise((resolve) => {
 export const formatDate = (date) => {
   const dateTime = new Date(date);
   const year = dateTime.getFullYear() - 2000;
-  const month = dateTime.getMonth();
+  const month = dateTime.getMonth() + 1;
   const day = dateTime.getDate();
   let hours = dateTime.getHours();
   let ampm;

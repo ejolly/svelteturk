@@ -200,7 +200,7 @@
     clearSelection();
   };
 
-  const showHITInfo = async (ev) => {
+  const showHITInfo = () => {
     whichDialogue = 'info';
     showDialogue = true;
   };
@@ -219,6 +219,7 @@
       // Adding 1 here because minimum time must be 60s and entering 60 submits a request for 59s to aws
       update = (update + 1) * 1000;
       const updatedTime = new Date(now + update);
+      console.log(updatedTime);
       try {
         const resp = await mturk
           .updateExpirationForHIT({
@@ -234,7 +235,7 @@
             'hits',
             { _id: selectedHIT._id },
             {
-              $set: { Expiration: updatedTime.toString() },
+              $set: { Expiration: updatedTime.toString(), Status: 'Assignable' },
             }
           );
           if (dbResp.type === 'success') {
