@@ -81,6 +81,7 @@
     maxAssignments = '';
     externalURL = '';
     selectedQuals = [];
+    formError = false;
   };
   // Load previously saved HITs from db and refresh reactive vars
   const loadSavedHITs = async () => {
@@ -234,12 +235,6 @@
   label {
     @apply block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase;
   }
-  .error-text {
-    @apply text-xs italic text-red-500;
-  }
-  .disabled {
-    @apply opacity-50 cursor-not-allowed;
-  }
 </style>
 
 <Modal {showModal} {modalType} on:close={() => (showModal = false)}>
@@ -263,18 +258,16 @@
           <p class="self-start error-text" class:visible={loadError} class:invisible={!loadError}>
             Required
           </p>
-          <div class="flex flex-row items-center">
+          <div class="flex flex-row items-center justify-center space-x-4">
             <button
+              class="button"
               on:click|preventDefault={loadTemplate}
-              class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
-              class:disabled={loadNames.length === 0}
               disabled={loadNames.length === 0}>
               Load
             </button>
             <button
+              class="button"
               on:click|preventDefault={deleteTemplate}
-              class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
-              class:disabled={loadNames.length === 0}
               disabled={loadNames.length === 0}>
               Delete
             </button>
@@ -289,11 +282,7 @@
           <p class="self-start error-text" class:visible={saveError} class:invisible={!saveError}>
             {saveErrorText}
           </p>
-          <button
-            on:click|preventDefault={saveTemplate}
-            disabled={!saveName}
-            class:disabled={!saveName}
-            class="px-4 py-2 m-auto text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none">
+          <button on:click|preventDefault={saveTemplate} disabled={!saveName} class="button">
             Save
           </button>
         </div>
@@ -426,26 +415,10 @@
     </div>
     <hr class="block w-full mt-2 mb-4 border-gray-500" />
     <div class="flex flex-wrap items-center justify-center mb-6 -mx-3 space-x-4">
-      <button
-        on:click|preventDefault={createHIT}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
-        Create HIT
-      </button>
-      <button
-        on:click|preventDefault={openLoad}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
-        Load Template
-      </button>
-      <button
-        on:click|preventDefault={openSave}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
-        Save Template
-      </button>
-      <button
-        on:click|preventDefault={clearForm}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
-        Clear
-      </button>
+      <button class="button" on:click|preventDefault={createHIT}> Create HIT </button>
+      <button class="button" on:click|preventDefault={openLoad}> Load Template </button>
+      <button class="button" on:click|preventDefault={openSave}> Save Template </button>
+      <button class="button" on:click|preventDefault={clearForm}> Clear </button>
     </div>
   </form>
 </div>

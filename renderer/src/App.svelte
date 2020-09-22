@@ -18,7 +18,7 @@
   let awsKey;
   let awsSecret;
   // current app view ("state")
-  let currentState = 'reviewAssts';
+  let currentState = 'home';
   // main Mturk object on which API methods are called
   let mturk;
   // Mturk object availability status (e.g. no internet connection)
@@ -113,7 +113,7 @@
   });
 </script>
 
-<style global>
+<style>
   @import '../../node_modules/typeface-quantico/index.css';
   .header {
     margin-top: 3.41rem;
@@ -122,6 +122,24 @@
   .main {
     margin-left: 19rem;
     margin-top: 9rem;
+  }
+  :global(.button) {
+    @apply px-4 py-2 text-gray-800 bg-gray-200 rounded font-quantico;
+  }
+  :global(.button:hover:enabled) {
+    @apply text-purple-600 bg-purple-100;
+  }
+  :global(.button:active) {
+    @apply outline-none;
+  }
+  :global(.button:focus) {
+    @apply outline-none;
+  }
+  :global(.button:disabled) {
+    @apply opacity-50 cursor-not-allowed select-none;
+  }
+  :global(.error-text) {
+    @apply text-xs italic text-red-500;
   }
 </style>
 

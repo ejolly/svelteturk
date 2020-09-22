@@ -27,6 +27,7 @@
   let requesterFeedback = '';
   let bonusAmount = '';
   let bonusError = false;
+  let uploadedBonuses = [];
   let refreshFromAWS;
   let rowDOM;
   let selectedAsst;
@@ -321,9 +322,66 @@
     showDialogue = true;
   };
 
+  const showBonusViaFile = () => {
+    whichDialogue = 'bonus-file';
+    showDialogue = true;
+  };
+
+  const exportAsstsForBonus = async () => {
+    let exportedAssts = [];
+    for (const asst of asstsFiltered) {
+      exportedAssts.push({ AsstId: asst.AsstId, WorkerId: asst.WorkerId, Bonus: '' });
+    }
+    try {
+      const resp = await ipcRenderer.invoke('exportAsstsForBonus', exportedAssts);
+      modalText = resp.text;
+      modalType = resp.type;
+    } catch (err) {
+      console.error(err);
+      modalText = err;
+      modalType = 'error';
+    }
+    showModal = true;
+    showDialogue = false;
+  };
+
+  const importAsstsForBonus = async () => {
+    try {
+      const resp = await ipcRenderer.invoke('importAsstsForBonus');
+      modalText = resp.text;
+      modalType = resp.type;
+      if (resp.data) {
+        // reset incase they reimport
+        uploadedBonuses = [];
+        bonusError = false;
+        for (const asst of resp.data) {
+          if (asst.Bonus && !validateBonus(asst.Bonus)) {
+            asst['bonusError'] = true;
+            bonusError = true;
+          } else {
+            asst['bonusError'] = false;
+          }
+          uploadedBonuses = [...uploadedBonuses, asst];
+        }
+        whichDialogue = 'bonus-file-upload-results';
+      }
+    } catch (err) {
+      console.error(err);
+      modalText = err;
+      modalType = 'error';
+      showModal = true;
+    }
+  };
+
+  const validateBonus = (val) => {
+    if (val) {
+      const amount = parseFloat(val);
+      return !Number.isNaN(amount) && amount > 0;
+    }
+  };
+
   const bonusAll = async () => {
-    const amount = parseInt(bonusAmount, 10);
-    if (Number.isInteger(amount) && amount >= 0) {
+    if (validateBonus(bonusAmount)) {
       bonusError = false;
       showDialogue = false;
       const refreshIcon = document.getElementById('refresh-icon');
@@ -370,6 +428,10 @@
     }
   };
 
+  const bonusFromFile = async () => {
+    console.log('bonus from file');
+  };
+
   const toggleHITSelect = () => {
     HITDrawerOpen = !HITDrawerOpen;
   };
@@ -408,18 +470,6 @@
 </script>
 
 <style>
-  button {
-    @apply px-4 py-2 text-gray-800 bg-gray-200 rounded;
-  }
-  button:hover {
-    @apply text-purple-600 bg-purple-100;
-  }
-  button:active {
-    @apply outline-none;
-  }
-  button:focus {
-    @apply outline-none;
-  }
   .header {
     @apply mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase sticky border-b border-gray-200 px-4 py-3 bg-gray-100;
   }
@@ -441,14 +491,10 @@
   input {
     @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
   }
-  .disabled {
-    @apply opacity-50 cursor-not-allowed select-none;
-  }
   .dialogue {
     width: 25rem;
-  }
-  .error-text {
-    @apply text-xs italic text-red-500;
+    height: 100%;
+    overflow-y: auto;
   }
 </style>
 
@@ -459,8 +505,8 @@
   <Dialogue on:close={clearSelection}>
     <div class="dialogue">
       <form class="w-full">
-        <div class="flex flex-col items-center px-3">
-          {#if whichDialogue === 'reject-single'}
+        {#if whichDialogue === 'reject-single'}
+          <div class="flex flex-col items-center px-3">
             <label class="self-start">Requestor Feedback</label>
             <input
               type="text"
@@ -468,12 +514,13 @@
               placeholder="provide a reason for rejection" />
             <button
               on:click|preventDefault={rejectAsst}
-              class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
-              class:disabled={requesterFeedback === ''}
+              class="button"
               disabled={requesterFeedback === ''}>
               Submit
             </button>
-          {:else if whichDialogue === 'bonus-all'}
+          </div>
+        {:else if whichDialogue === 'bonus-all'}
+          <div class="flex flex-col items-center px-3">
             <label class="self-start">Bonus in USD</label>
             <input type="text" bind:value={bonusAmount} placeholder="enter a number" />
             <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
@@ -486,13 +533,51 @@
               placeholder="tell the worker why they're receiving a bonus" />
             <button
               on:click|preventDefault={bonusAll}
-              class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
-              class:disabled={bonusAmount === '' || requesterFeedback === ''}
+              class="button"
               disabled={bonusAmount === '' || requesterFeedback === ''}>
               Submit
             </button>
-          {/if}
-        </div>
+          </div>
+        {:else if whichDialogue === 'bonus-file-upload-results'}
+          <div class="flex flex-col px-3">
+            <h2 class="mx-auto mb-2 text-2xl">Please verify import</h2>
+            <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
+              Some errors were detected. Make sure each bonus is a valid number greater than 0.
+              Leave blank to skip bonusing a worker.
+            </p>
+            <table class="w-full table-auto">
+              <thead>
+                <tr>
+                  <th class="header">Asst Id</th>
+                  <th class="header">Worker Id</th>
+                  <th class="header">Bonus</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each uploadedBonuses as asst}
+                  <tr class:bg-red-200={asst.bonusError}>
+                    <td type="text">{asst.AsstId.slice(0, 6)}</td>
+                    <td type="text">{asst.WorkerId}</td>
+                    <td type="text">{asst.Bonus ? `$${asst.Bonus}` : ''}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+            <div class="flex justify-center px-3 space-x-4">
+              <button on:click|preventDefault={bonusFromFile} class="button" disabled={bonusError}>
+                Submit
+              </button>
+              <button on:click|preventDefault={importAsstsForBonus} class="button">
+                Reimport
+              </button>
+            </div>
+          </div>
+        {:else if whichDialogue === 'bonus-file'}
+          <div class="flex justify-center px-3 space-x-4">
+            <button on:click|preventDefault={exportAsstsForBonus} class="button"> Export </button>
+            <button on:click|preventDefault={importAsstsForBonus} class="button"> Import </button>
+          </div>
+        {/if}
       </form>
     </div>
   </Dialogue>
@@ -571,12 +656,13 @@
     </div>
     <div class="inline-flex items-center px-4 py-2 space-x-4 font-quantico">
       {#if rowSelected}
-        <button on:click|preventDefault={approveAsst}>Approve</button>
-        <button on:click|preventDefault={showRejectAsst}> Reject </button>
-        <button on:click|preventDefault={deleteAsst}> Delete from db </button>
+        <button class="button" on:click|preventDefault={approveAsst}>Approve</button>
+        <button class="button" on:click|preventDefault={showRejectAsst}> Reject </button>
+        <button class="button" on:click|preventDefault={deleteAsst}> Delete from db </button>
       {:else}
-        <button on:click|preventDefault={approveAll}>Approve All</button>
-        <button on:click|preventDefault={showBonusAll}>Bonus All</button>
+        <button class="button" on:click|preventDefault={approveAll}>Approve All</button>
+        <button class="button" on:click|preventDefault={showBonusAll}>Bonus All</button>
+        <button class="button" on:click|preventDefault={showBonusViaFile}>Bonus from File</button>
       {/if}
     </div>
     <div class="inline-flex items-center h-10 px-4 py-2 bg-gray-200 rounded">

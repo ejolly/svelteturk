@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, nativeTheme, dialog } = require('electron')
 const path = require('path');
 const Datastore = require('nedb-promises');
 const fs = require('fs');
+const Papa = require('papaparse');
+
 
 // Hot reload just the renderer (i.e. svelte changes)
 // Changes to this file require restarting the electron process
@@ -182,6 +184,77 @@ ipcMain.handle('export', async () => {
   return {
     text,
     type,
+  };
+});
+
+// Export selected Assignements to JSON for bonusing
+ipcMain.handle('exportAsstsForBonus', async (ev, assts) => {
+  let text;
+  let type;
+  try {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Export Assignments for Bonus',
+      defaultPath: `${app.getPath('home')}/Desktop/`,
+      buttonLabel: 'Save',
+      message: 'Where do you want to save the file?',
+      showsTagField: false,
+      properties: ['openDirectory', 'createDirectory'],
+    });
+    if (!result.canceled) {
+      const writePath = path.join(result.filePaths[0], 'assignments.csv');
+      const csv = await Papa.unparse(assts);
+      await fs.promises.writeFile(writePath, csv);
+      text = 'Export succesful!';
+      type = 'success';
+    } else {
+      text = 'Export cancelled';
+      type = 'notification';
+    }
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return {
+    text,
+    type,
+  };
+});
+
+// Import Assignemts for bonusing
+ipcMain.handle('importAsstsForBonus', async () => {
+  let text;
+  let type;
+  let data;
+  try {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Export Assignments for Bonus',
+      defaultPath: `${app.getPath('home')}/Desktop/`,
+      buttonLabel: 'Load',
+      message: 'Select assignments file with bonuses',
+      showsTagField: false,
+      properties: ['openFile'],
+    });
+    if (!result.canceled) {
+      const filePath = path.join(result.filePaths[0]);
+      const fileData = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
+      const parsed = await Papa.parse(fileData, { header: true });
+      data = parsed.data;
+      text = 'Import succesful!';
+      type = 'success';
+    } else {
+      text = 'Import cancelled';
+      type = 'notification';
+    }
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return {
+    text,
+    type,
+    data,
   };
 });
 

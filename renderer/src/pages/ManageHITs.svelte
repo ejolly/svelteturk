@@ -295,12 +295,6 @@
   input {
     @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
   }
-  .disabled {
-    @apply opacity-50 cursor-not-allowed select-none;
-  }
-  .error-text {
-    @apply text-xs italic text-red-500;
-  }
 </style>
 
 <Modal {showModal} {modalType} on:close={() => (showModal = false)}>
@@ -319,11 +313,7 @@
             class:invisible={!extendError}>
             Must be a valid time in seconds (minimum 60)
           </p>
-          <button
-            on:click|preventDefault={extendHIT}
-            class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
-            class:disabled={extendTime === ''}
-            disabled={extendTime === ''}>
+          <button on:click|preventDefault={extendHIT} class="button" disabled={extendTime === ''}>
             Submit
           </button>
         </div>
@@ -421,26 +411,10 @@
       class="inline-flex items-center px-4 py-2 space-x-4"
       class:invisible={!rowSelected}
       class:visible={rowSelected}>
-      <button
-        on:click|preventDefault={showHITInfo}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
-        HIT Details
-      </button>
-      <button
-        on:click|preventDefault={showHITExtend}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
-        Extend HIT
-      </button>
-      <button
-        on:click|preventDefault={endHIT}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
-        End HIT
-      </button>
-      <button
-        on:click|preventDefault={deleteHIT}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
-        Delete from db
-      </button>
+      <button on:click|preventDefault={showHITInfo} class="button"> HIT Details </button>
+      <button on:click|preventDefault={showHITExtend} class="button"> Extend HIT </button>
+      <button on:click|preventDefault={endHIT} class="button"> End HIT </button>
+      <button on:click|preventDefault={deleteHIT} class="button"> Delete from db </button>
     </div>
     <div class="inline-flex items-center h-10 px-4 py-2 bg-gray-200 rounded">
       <svg class="w-6 h-6 mr-2 fill-current" viewBox="0 0 20 20">
