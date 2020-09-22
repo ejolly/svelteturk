@@ -26,10 +26,12 @@
   let HITDrawerOpen = false;
   let whichDialogue = '';
   let requesterFeedback = '';
+  let bonusAmount = '';
+  let bonusError = false;
   let refreshFromAWS;
   let rowDOM;
   let selectedAsst;
-  let selectedHIT;
+  let selectedHIT = 'all';
   let tableHeaders = [
     'Status',
     'Asst Id',
@@ -38,13 +40,14 @@
     'Accepted',
     'Submitted',
     'Reviewed',
-    'Review Feedback',
+    'Bonus',
+    'Bonus Time',
   ];
   $: rowSelected = !!selectedAsst;
 
   // FUNCTIONS
   const getAssts = async () => {
-    if (selectedHIT && selectedHIT === 'all') {
+    if (selectedHIT === 'all') {
       assts = await ipcRenderer.invoke('findAssts');
     } else {
       assts = await ipcRenderer.invoke('findAsstsForHIT', selectedHIT.HITId);
@@ -69,14 +72,10 @@
       const refreshIcon = document.getElementById('refresh-icon');
       refreshIcon.classList.remove('text-gray-600');
       refreshIcon.classList.add('animate-spin', 'text-purple-700');
-      setTimeout(() => {
-        refreshIcon.classList.remove('animate-spin', 'text-purple-700');
-        refreshIcon.classList.add('text-gray-600');
-      }, spinnerDuration);
       try {
         const resp = await mturk.listAssignmentsForHIT({ HITId: selectedHIT.HITId }).promise();
         const Assignments = await resp.Assignments;
-        Assignments.forEach(async (asst) => {
+        for (const asst of Assignments) {
           const dbResp = await updateDoc(
             'assts',
             { AsstId: asst.AssignmentId },
@@ -94,8 +93,10 @@
             },
             { upsert: true }
           );
-        });
+        }
         await getAssts();
+        refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+        refreshIcon.classList.add('text-gray-600');
       } catch (err) {
         console.error(err);
         modalText = err;
@@ -133,9 +134,14 @@
 
   const clearSelection = () => {
     selectedAsst = undefined;
-    rowDOM.classList.remove('bg-purple-200');
-    rowDOM.classList.add('hoverable');
-    rowDOM = undefined;
+    bonusAmount = '';
+    requesterFeedback = '';
+    bonusError = false;
+    if (rowDOM) {
+      rowDOM.classList.remove('bg-purple-200');
+      rowDOM.classList.add('hoverable');
+      rowDOM = undefined;
+    }
     showDialogue = false;
   };
 
@@ -162,7 +168,7 @@
     if (selectedAsst.Status === 'Submitted') {
       try {
         const resp = await mturk.approveAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
-        if (resp.$respond.httpResponse.statusCode === 200) {
+        if (resp.$response.httpResponse.statusCode === 200) {
           const dbResp = await updateDoc(
             'assts',
             { AsstId: selectedAsst.AsstId },
@@ -201,6 +207,54 @@
     clearSelection();
   };
 
+  const approveAll = async () => {
+    const statuses = asstsFiltered.map((e) => e['Status']);
+    if (statuses.every((e) => ['Approved', 'Rejected'].includes(e))) {
+      modalText = 'All assignments already reviewed!';
+      modalType = 'notification';
+      showModal = true;
+    } else {
+      const refreshIcon = document.getElementById('refresh-icon');
+      refreshIcon.classList.remove('text-gray-600');
+      refreshIcon.classList.add('animate-spin', 'text-purple-700');
+      try {
+        for (const asst of asstsFiltered) {
+          if (asst.Status === 'Submitted') {
+            console.log(`Approval request for: ${asst.AsstId}`);
+            const resp = await mturk.approveAssignment({ AssignmentId: asst.AsstId }).promise();
+            if (resp.$response.httpResponse.statusCode === 200) {
+              const dbResp = await updateDoc(
+                'assts',
+                { AsstId: asst.AsstId },
+                {
+                  $set: {
+                    Status: 'Approved',
+                    ReviewTime: new Date().toString(),
+                  },
+                }
+              );
+              await wait(1000);
+            }
+          } else {
+            console.log(`Already reviewd: ${asst.AsstId}`);
+          }
+        }
+        await getAssts();
+        modalText = 'All assignments approved successfully!';
+        modalType = 'success';
+      } catch (err) {
+        console.error(err);
+        modalText = err;
+        modalType = 'error';
+      }
+      showModal = true;
+      clearSelection();
+      await getAssts();
+      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+      refreshIcon.classList.add('text-gray-600');
+    }
+  };
+
   const showRejectAsst = () => {
     if (selectedAsst.Status === 'Submitted') {
       whichDialogue = 'reject-single';
@@ -221,7 +275,7 @@
           RequesterFeedback: requesterFeedback,
         })
         .promise();
-      if (resp.$respond.httpResponse.statusCode === 200) {
+      if (resp.$response.httpResponse.statusCode === 200) {
         const dbResp = await updateDoc(
           'assts',
           { AsstId: selectedAsst.AsstId },
@@ -256,6 +310,60 @@
     clearSelection();
   };
 
+  const showBonusAll = () => {
+    whichDialogue = 'bonus-all';
+    showDialogue = true;
+  };
+
+  const bonusAll = async () => {
+    const amount = parseInt(bonusAmount, 10);
+    if (Number.isInteger(amount) && amount >= 0) {
+      bonusError = false;
+      showDialogue = false;
+      const refreshIcon = document.getElementById('refresh-icon');
+      refreshIcon.classList.remove('text-gray-600');
+      refreshIcon.classList.add('animate-spin', 'text-purple-700');
+      try {
+        for (const asst of asstsFiltered) {
+          const resp = await mturk
+            .sendBonus({
+              AssignmentId: asst.AsstId,
+              BonusAmount: bonusAmount,
+              Reason: requesterFeedback,
+              WorkerId: asst.WorkerId,
+            })
+            .promise();
+          if (resp.$response.httpResponse.statusCode === 200) {
+            const dbResp = await updateDoc(
+              'assts',
+              { AsstId: asst.AsstId },
+              {
+                $set: {
+                  Bonus: amount,
+                  BonusTime: new Date().toString(),
+                },
+              }
+            );
+            await wait(1000);
+          }
+        }
+        modalText = 'All assignments bonused successfully!';
+        modalType = 'success';
+      } catch (err) {
+        console.error(err);
+        modalText = err;
+        modalType = 'error';
+      }
+      showModal = true;
+      clearSelection();
+      await getAssts();
+      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+      refreshIcon.classList.add('text-gray-600');
+    } else {
+      bonusError = true;
+    }
+  };
+
   const toggleHITSelect = () => {
     HITDrawerOpen = !HITDrawerOpen;
   };
@@ -287,6 +395,18 @@
 </script>
 
 <style>
+  button {
+    @apply px-4 py-2 text-gray-800 bg-gray-200 rounded;
+  }
+  button:hover {
+    @apply text-purple-600 bg-purple-100;
+  }
+  button:active {
+    @apply outline-none;
+  }
+  button:focus {
+    @apply outline-none;
+  }
   .header {
     @apply mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase sticky border-b border-gray-200 px-4 py-3 bg-gray-100;
   }
@@ -324,10 +444,10 @@
 </Modal>
 {#if showDialogue}
   <Dialogue on:close={clearSelection}>
-    {#if whichDialogue === 'reject-single'}
-      <div class="dialogue">
-        <form class="w-full">
-          <div class="flex flex-col items-center px-3">
+    <div class="dialogue">
+      <form class="w-full">
+        <div class="flex flex-col items-center px-3">
+          {#if whichDialogue === 'reject-single'}
             <label class="self-start">Requestor Feedback</label>
             <input
               type="text"
@@ -340,10 +460,28 @@
               disabled={requesterFeedback === ''}>
               Submit
             </button>
-          </div>
-        </form>
-      </div>
-    {/if}
+          {:else if whichDialogue === 'bonus-all'}
+            <label class="self-start">Bonus in USD</label>
+            <input type="text" bind:value={bonusAmount} placeholder="enter a number" />
+            <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
+              Must be a valid number greater than 0
+            </p>
+            <label class="self-start">Bonus Reason</label>
+            <input
+              type="text"
+              bind:value={requesterFeedback}
+              placeholder="tell the worker why they're receiving a bonus" />
+            <button
+              on:click|preventDefault={bonusAll}
+              class="px-4 py-2 m-2 text-gray-800 bg-gray-200 rounded font-quantico hover:bg-purple-100 focus:outline-none active:outline-none"
+              class:disabled={bonusAmount === '' || requesterFeedback === ''}
+              disabled={bonusAmount === '' || requesterFeedback === ''}>
+              Submit
+            </button>
+          {/if}
+        </div>
+      </form>
+    </div>
   </Dialogue>
 {/if}
 <div class="container h-screen" in:fly={{ y: 200, duration: 250 }} on:click|self={closeHITSelect}>
@@ -418,25 +556,15 @@
         </svg>
       </p>
     </div>
-    <div
-      class="inline-flex items-center px-4 py-2 space-x-4"
-      class:invisible={!rowSelected}
-      class:visible={rowSelected}>
-      <button
-        on:click|preventDefault={approveAsst}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
-        Approve
-      </button>
-      <button
-        on:click|preventDefault={showRejectAsst}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 hover:border-purple-400 font-quantico focus:outline-none active:outline-none">
-        Reject
-      </button>
-      <button
-        on:click|preventDefault={deleteAsst}
-        class="px-4 py-2 text-gray-800 bg-gray-200 rounded hover:bg-purple-100 font-quantico focus:outline-none active:outline-none">
-        Delete from db
-      </button>
+    <div class="inline-flex items-center px-4 py-2 space-x-4 font-quantico">
+      {#if rowSelected}
+        <button on:click|preventDefault={approveAsst}>Approve</button>
+        <button on:click|preventDefault={showRejectAsst}> Reject </button>
+        <button on:click|preventDefault={deleteAsst}> Delete from db </button>
+      {:else}
+        <button on:click|preventDefault={approveAll}>Approve All</button>
+        <button on:click|preventDefault={showBonusAll}>Bonus All</button>
+      {/if}
     </div>
     <div class="inline-flex items-center h-10 px-4 py-2 bg-gray-200 rounded">
       <svg class="w-6 h-6 mr-2 fill-current" viewBox="0 0 20 20">
@@ -485,7 +613,8 @@
           <td type="number">{formatDate(asst.AcceptTime)}</td>
           <td type="text">{formatDate(asst.SubmitTime)}</td>
           <td type="text">{asst.ReviewTime ? formatDate(asst.ReviewTime) : ''}</td>
-          <td type="text">{asst.RequesterFeedback || ''}</td>
+          <td type="text">{asst.Bonus ? `$${asst.Bonus}` : ''}</td>
+          <td type="text">{asst.BonusTime ? formatDate(asst.BonusTime) : ''}</td>
         </tr>
       {/each}
     </tbody>

@@ -8,7 +8,7 @@
   import Modal from './components/Modal.svelte';
   import CreateHIT from './pages/CreateHIT.svelte';
   import Home from './pages/Home.svelte';
-  import ReviewHIT from './pages/ReviewHIT.svelte';
+  import ManageHITs from './pages/ManageHITs.svelte';
   import ReviewAsst from './pages/ReviewAsst.svelte';
 
   const { ipcRenderer } = require('electron');
@@ -18,7 +18,7 @@
   let awsKey;
   let awsSecret;
   // current app view ("state")
-  let currentState = 'home';
+  let currentState = 'reviewAssts';
   // main Mturk object on which API methods are called
   let mturk;
   // Mturk object availability status (e.g. no internet connection)
@@ -41,12 +41,12 @@
       component: CreateHIT,
     },
     {
-      state: 'reviewHIT',
-      title: 'Review HIT',
-      component: ReviewHIT,
+      state: 'manageHITs',
+      title: 'Manage HITs',
+      component: ManageHITs,
     },
     {
-      state: 'reviewAsst',
+      state: 'reviewAssts',
       title: 'Review Assignments',
       component: ReviewAsst,
     },

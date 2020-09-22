@@ -1,6 +1,8 @@
 // Utilities functions used throughout the app
 const { ipcRenderer } = require('electron');
 
+// Delete a document in any database
+// Args: database name, document ._id
 export const deleteDoc = async (dbName, id) => {
   let resp;
   try {
@@ -12,6 +14,8 @@ export const deleteDoc = async (dbName, id) => {
   return resp;
 };
 
+// Update a document in any database
+// Args: database name, doc query, update operation, options
 export const updateDoc = async (dbName, query, update, options) => {
   let resp;
   try {
@@ -23,10 +27,14 @@ export const updateDoc = async (dbName, query, update, options) => {
   return resp;
 };
 
+// Asychronously wait which can be used within another async func
+// Args: time in ms
 export const wait = async (ms) => new Promise((resolve) => {
   setTimeout(resolve, ms);
 });
 
+// Format a data to Month/Data/Year - Hours:Minutesam/pm
+// Args: date object
 export const formatDate = (date) => {
   const dateTime = new Date(date);
   const year = dateTime.getFullYear() - 2000;

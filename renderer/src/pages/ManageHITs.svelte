@@ -16,7 +16,6 @@
     'Created',
     'Expiration',
     'Max Assts',
-    'Review',
     'Pending',
     'Available',
     'Completed',
@@ -56,12 +55,8 @@
     const refreshIcon = document.getElementById('refresh-icon');
     refreshIcon.classList.remove('text-gray-600');
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
-    setTimeout(() => {
-      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
-      refreshIcon.classList.add('text-gray-600');
-    }, spinnerDuration);
     try {
-      hits.forEach(async (hit) => {
+      for (const hit of hits) {
         const resp = await mturk.getHIT({ HITId: hit.HITId }).promise();
         const dbResp = await updateDoc(
           'hits',
@@ -90,8 +85,10 @@
         );
         // Asynchronously wait 1s between API calls so we don't get rate limited
         await wait(1000);
-      });
+      }
       await getHITs();
+      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+      refreshIcon.classList.add('text-gray-600');
     } catch (err) {
       console.error(err);
       modalText = err;
@@ -511,7 +508,6 @@
           <td type="number">{formatDate(hit.CreationTime)}</td>
           <td type="text">{formatDate(hit.Expiration)}</td>
           <td type="text">{hit.MaxAssignments}</td>
-          <td type="text">{hit.HITReviewStatus}</td>
           <td type="text">{hit.NumberOfAssignmentsPending}</td>
           <td type="text">{hit.NumberOfAssignmentsAvailable}</td>
           <td type="text">{hit.NumberOfAssignmentsCompleted}</td>
