@@ -23,7 +23,6 @@
 
   // VARIABLES
   const refreshFrequency = 30000;
-  const spinnerDuration = 5000;
   let search = '';
   let timer;
   let hits = [];
@@ -94,25 +93,6 @@
       modalText = err;
       modalType = 'error';
       showModal = true;
-    }
-  };
-
-  const updateTableRows = () => {
-    // Get all rows manually by css because they could have changed
-    const tableRows = document.getElementsByClassName('table-row');
-    // If clicked row already has class unselected it and all other rows
-    if (rowDOM.className === 'table-row is-selected') {
-      for (const r of tableRows) {
-        r.className = 'table-row';
-      }
-      selectedHIT = undefined;
-      rowDOM = undefined;
-    } else {
-      // Otherwise unselect everything else first then select this one
-      for (const r of tableRows) {
-        r.className = 'table-row';
-      }
-      rowDOM.className += ' is-selected';
     }
   };
 

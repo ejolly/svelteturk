@@ -13,7 +13,6 @@
 
   // VARIABLES
   const refreshFrequency = 30000;
-  const spinnerDuration = 5000;
   let search = '';
   let timer;
   let assts = [];
@@ -60,49 +59,56 @@
     selectedHIT = 'all';
   };
 
-  const refreshAssts = async () => {
-    if (selectedHIT === 'all') {
-      modalText = 'Choose a specific HIT to refresh assignments';
-      modalType = 'notification';
-      showModal = true;
-    } else {
-      console.log(
-        `Refreshing Assts for HIT ${selectedHIT.HITId} from AWS at: ${new Date().toString()}`
+  const updateAsstsInDB = async (asstList) => {
+    for (const asst of asstList) {
+      const dbResp = await updateDoc(
+        'assts',
+        { AsstId: asst.AssignmentId },
+        {
+          $set: {
+            WorkerId: asst.WorkerId,
+            HITId: asst.HITId,
+            Status: asst.AssignmentStatus,
+            AutoApprovalTime: asst.AutoApprovalTime,
+            AcceptTime: asst.AcceptTime,
+            SubmitTime: asst.SubmitTime,
+            ReviewTime: asst.ApprovalTime || asst.RejectionTime || asst.AutoApprovalTime,
+            RequesterFeedback: asst.RequesterFeedback,
+          },
+        },
+        { upsert: true }
       );
-      const refreshIcon = document.getElementById('refresh-icon');
-      refreshIcon.classList.remove('text-gray-600');
-      refreshIcon.classList.add('animate-spin', 'text-purple-700');
-      try {
+    }
+  };
+
+  const refreshAssts = async () => {
+    const refreshIcon = document.getElementById('refresh-icon');
+    refreshIcon.classList.remove('text-gray-600');
+    refreshIcon.classList.add('animate-spin', 'text-purple-700');
+    try {
+      if (selectedHIT === 'all') {
+        console.log(`Refreshing Assts for ALL HITs from AWS at: ${new Date().toString()}`);
+        for (const hit of hits) {
+          const resp = await mturk.listAssignmentsForHIT({ HITId: hit.HITId }).promise();
+          const Assignments = await resp.Assignments;
+          await updateAsstsInDB(Assignments);
+        }
+      } else {
+        console.log(
+          `Refreshing Assts for HIT ${selectedHIT.HITId} from AWS at: ${new Date().toString()}`
+        );
         const resp = await mturk.listAssignmentsForHIT({ HITId: selectedHIT.HITId }).promise();
         const Assignments = await resp.Assignments;
-        for (const asst of Assignments) {
-          const dbResp = await updateDoc(
-            'assts',
-            { AsstId: asst.AssignmentId },
-            {
-              $set: {
-                WorkerId: asst.WorkerId,
-                HITId: asst.HITId,
-                Status: asst.AssignmentStatus,
-                AutoApprovalTime: asst.AutoApprovalTime,
-                AcceptTime: asst.AcceptTime,
-                SubmitTime: asst.SubmitTime,
-                ReviewTime: asst.ApprovalTime || asst.RejectionTime || asst.AutoApprovalTime,
-                RequesterFeedback: asst.RequesterFeedback,
-              },
-            },
-            { upsert: true }
-          );
-        }
-        await getAssts();
-        refreshIcon.classList.remove('animate-spin', 'text-purple-700');
-        refreshIcon.classList.add('text-gray-600');
-      } catch (err) {
-        console.error(err);
-        modalText = err;
-        modalType = 'error';
-        showModal = true;
+        await updateAsstsInDB(Assignments);
       }
+      await getAssts();
+      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+      refreshIcon.classList.add('text-gray-600');
+    } catch (err) {
+      console.error(err);
+      modalText = err;
+      modalType = 'error';
+      showModal = true;
     }
   };
 
@@ -391,6 +397,13 @@
   onMount(async () => {
     await getHITs();
     await getAssts();
+    refreshFromAWS = setInterval(refreshAssts, refreshFrequency);
+    console.log(`Auto Assignments rereshing started on: ${new Date().toString()}`);
+  });
+
+  onDestroy(() => {
+    clearInterval(refreshFromAWS);
+    console.log(`Auto Assignments refreshing ended on: ${new Date().toString()}`);
   });
 </script>
 
