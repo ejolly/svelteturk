@@ -9,7 +9,7 @@
   import CreateHIT from './pages/CreateHIT.svelte';
   import Home from './pages/Home.svelte';
   import ManageHITs from './pages/ManageHITs.svelte';
-  import ReviewAsst from './pages/ReviewAsst.svelte';
+  import ReviewAssts from './pages/ReviewAssts.svelte';
 
   const { ipcRenderer } = require('electron');
 
@@ -48,7 +48,7 @@
     {
       state: 'reviewAssts',
       title: 'Review Assignments',
-      component: ReviewAsst,
+      component: ReviewAssts,
     },
   ];
 
