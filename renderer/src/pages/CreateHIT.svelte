@@ -240,57 +240,55 @@
 <Modal bind:showModal bind:modalType>
   <p>{modalText}</p>
 </Modal>
-{#if showDialogue}
-  <Dialogue on:close={() => (showDialogue = false)}>
-    {#if whichDialogue === 'load'}
-      <form class="w-full">
-        <div class="flex flex-col items-center px-3">
-          <label class="self-start">
-            {#if loadNames.length === 0}No Templates Found{:else}Select Template{/if}
-          </label>
-          <select
-            bind:value={loadName}
-            class="block w-full px-4 py-2 leading-tight text-gray-700 bg-gray-200 rounded outline-none">
-            {#each loadNames as name}
-              <option value={name}>{name}</option>
-            {/each}
-          </select>
-          <p class="self-start error-text" class:visible={loadError} class:invisible={!loadError}>
-            Required
-          </p>
-          <div class="flex flex-row items-center justify-center space-x-4">
-            <button
-              class="button"
-              on:click|preventDefault={loadTemplate}
-              disabled={loadNames.length === 0}>
-              Load
-            </button>
-            <button
-              class="button"
-              on:click|preventDefault={deleteTemplate}
-              disabled={loadNames.length === 0}>
-              Delete
-            </button>
-          </div>
-        </div>
-      </form>
-    {:else if whichDialogue === 'save'}
-      <form class="w-full">
-        <div class="flex flex-col items-center px-3">
-          <label class="self-start">Template Name</label>
-          <input class:border-red-500={saveError} type="text" bind:value={saveName} />
-          <p class="self-start error-text" class:visible={saveError} class:invisible={!saveError}>
-            {saveErrorText}
-          </p>
-          <button on:click|preventDefault={saveTemplate} disabled={!saveName} class="button">
-            Save
+<Dialogue bind:showDialogue on:close={() => (showDialogue = false)}>
+  {#if whichDialogue === 'load'}
+    <form class="w-full">
+      <div class="flex flex-col items-center px-3">
+        <label class="self-start">
+          {#if loadNames.length === 0}No Templates Found{:else}Select Template{/if}
+        </label>
+        <select
+          bind:value={loadName}
+          class="block w-full px-4 py-2 leading-tight text-gray-700 bg-gray-200 rounded outline-none">
+          {#each loadNames as name}
+            <option value={name}>{name}</option>
+          {/each}
+        </select>
+        <p class="self-start error-text" class:visible={loadError} class:invisible={!loadError}>
+          Required
+        </p>
+        <div class="flex flex-row items-center justify-center space-x-4">
+          <button
+            class="button"
+            on:click|preventDefault={loadTemplate}
+            disabled={loadNames.length === 0}>
+            Load
+          </button>
+          <button
+            class="button"
+            on:click|preventDefault={deleteTemplate}
+            disabled={loadNames.length === 0}>
+            Delete
           </button>
         </div>
-      </form>
-      <!-- Load-->
-    {/if}
-  </Dialogue>
-{/if}
+      </div>
+    </form>
+  {:else if whichDialogue === 'save'}
+    <form class="w-full">
+      <div class="flex flex-col items-center px-3">
+        <label class="self-start">Template Name</label>
+        <input class:border-red-500={saveError} type="text" bind:value={saveName} />
+        <p class="self-start error-text" class:visible={saveError} class:invisible={!saveError}>
+          {saveErrorText}
+        </p>
+        <button on:click|preventDefault={saveTemplate} disabled={!saveName} class="button">
+          Save
+        </button>
+      </div>
+    </form>
+    <!-- Load-->
+  {/if}
+</Dialogue>
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
   <form class="w-full">
     <div class="flex flex-wrap mb-6 -mx-3">

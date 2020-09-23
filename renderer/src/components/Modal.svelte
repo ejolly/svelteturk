@@ -1,15 +1,13 @@
 <script>
-  // Reusuable notification component that displays the top of the screen
   import { fly } from 'svelte/transition';
-  import { createEventDispatcher } from 'svelte';
+
+  // DESCRIPTION
+  // Simple component that appears at the top of the screen and has to be closed manually. Comes in three flavors: error (red), success (green), and notification (blue). Unlike Dialogue.svelte, it doesn't emit any events to the parent
 
   // INPUTS
   export let showModal = false;
   export let modalType = 'notification';
   export let modalText = 'Put something in me';
-
-  // VARIABLES
-  const dispatch = createEventDispatcher();
 </script>
 
 <style>

@@ -541,113 +541,113 @@
   input {
     @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
   }
-  .dialogue {
-    width: 35rem;
-    height: 100%;
-    overflow-y: auto;
+  .dialogue-button {
+    @apply mt-2;
   }
 </style>
 
 <Modal bind:showModal bind:modalType bind:modalText />
-{#if showDialogue}
-  <Dialogue on:close={clearSelection}>
-    <div class="dialogue">
-      <form class="w-full">
-        {#if whichDialogue === 'reject-single'}
-          <div class="flex flex-col items-center px-3">
-            <label class="self-start">Requestor Feedback</label>
-            <input
-              type="text"
-              bind:value={requesterFeedback}
-              placeholder="provide a reason for rejection" />
-            <button
-              on:click|preventDefault={rejectAsst}
-              class="button"
-              disabled={requesterFeedback === ''}>
-              Submit
-            </button>
-          </div>
-        {:else if whichDialogue === 'bonus-all'}
-          <div class="flex flex-col items-center px-3">
-            <label class="self-start">Bonus in USD</label>
-            <input type="text" bind:value={bonusAmount} placeholder="enter a number" />
-            <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
-              Must be a valid number greater than 0
-            </p>
-            <label class="self-start">Bonus Reason</label>
-            <input
-              type="text"
-              bind:value={requesterFeedback}
-              placeholder="tell the worker why they're receiving a bonus" />
-            <button
-              on:click|preventDefault={bonusAll}
-              class="button"
-              disabled={bonusAmount === '' || requesterFeedback === ''}>
-              Submit
-            </button>
-          </div>
-        {:else if whichDialogue === 'bonus-file-upload-results'}
-          <div class="flex flex-col px-3">
-            <h2 class="mx-auto mb-2 text-2xl">Please verify import</h2>
-            <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
-              Some errors were detected. Make sure each bonus is a valid number greater than 0 and
-              the reason for that bonus is not blank. Leave both fiels blank to skip bonusing a
-              worker.
-            </p>
-            <table class="w-full table-auto">
-              <thead>
-                <tr>
-                  <th class="header">Asst Id</th>
-                  <th class="header">Worker Id</th>
-                  <th class="header">Bonus</th>
-                  <th class="header">Reason</th>
+<Dialogue bind:showDialogue on:close={clearSelection}>
+  <div class="h-full overflow-y-auto w-ful">
+    <form class="max-w-xl">
+      {#if whichDialogue === 'reject-single'}
+        <div class="flex flex-col items-center px-3">
+          <label class="self-start">Requestor Feedback</label>
+          <input
+            type="text"
+            bind:value={requesterFeedback}
+            placeholder="provide a reason for rejection" />
+          <button
+            on:click|preventDefault={rejectAsst}
+            class="button dialogue-button"
+            disabled={requesterFeedback === ''}>
+            Submit
+          </button>
+        </div>
+      {:else if whichDialogue === 'bonus-all'}
+        <div class="flex flex-col items-center px-3">
+          <label class="self-start">Bonus in USD</label>
+          <input type="text" bind:value={bonusAmount} placeholder="enter a number" />
+          <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
+            Must be a valid number greater than 0
+          </p>
+          <label class="self-start">Bonus Reason</label>
+          <input
+            type="text"
+            bind:value={requesterFeedback}
+            placeholder="tell the worker why they're receiving a bonus" />
+          <button
+            on:click|preventDefault={bonusAll}
+            class="button dialogue-button"
+            disabled={bonusAmount === '' || requesterFeedback === ''}>
+            Submit
+          </button>
+        </div>
+      {:else if whichDialogue === 'bonus-file-upload-results'}
+        <div class="flex flex-col px-3">
+          <h2 class="mx-auto mb-2 text-2xl">Please verify import</h2>
+          <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
+            Some errors were detected. Make sure each bonus is a valid number greater than 0 and the
+            reason for that bonus is not blank. Leave both fiels blank to skip bonusing a worker.
+          </p>
+          <table class="w-full table-auto">
+            <thead>
+              <tr>
+                <th class="header">Asst Id</th>
+                <th class="header">Worker Id</th>
+                <th class="header">Bonus</th>
+                <th class="header">Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each uploadedBonuses as asst}
+                <tr class:bg-red-200={asst.bonusError}>
+                  <td type="text">{asst.AsstId.slice(0, 6)}</td>
+                  <td type="text">{asst.WorkerId}</td>
+                  <td type="text">{asst.Bonus ? `$${asst.Bonus}` : ''}</td>
+                  <td type="text">{asst.BonusReason}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {#each uploadedBonuses as asst}
-                  <tr class:bg-red-200={asst.bonusError}>
-                    <td type="text">{asst.AsstId.slice(0, 6)}</td>
-                    <td type="text">{asst.WorkerId}</td>
-                    <td type="text">{asst.Bonus ? `$${asst.Bonus}` : ''}</td>
-                    <td type="text">{asst.BonusReason}</td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-            <div class="flex justify-center px-3 space-x-4">
-              <button on:click|preventDefault={bonusFromFile} class="button" disabled={bonusError}>
-                Submit
-              </button>
-              <button on:click|preventDefault={importAsstsForBonus} class="button">
-                Reimport
-              </button>
-            </div>
+              {/each}
+            </tbody>
+          </table>
+          <div class="flex justify-center px-3 space-x-4">
+            <button
+              on:click|preventDefault={bonusFromFile}
+              class="button dialogue-button"
+              disabled={bonusError}>
+              Submit
+            </button>
+            <button on:click|preventDefault={importAsstsForBonus} class="button dialogue-button">
+              Reimport
+            </button>
           </div>
-        {:else if whichDialogue === 'bonus-file'}
-          <div class="flex flex-col justify-center px-6">
-            <ol class="mx-auto mb-2 list-decimal">
-              <li class="mb-2">
-                Press Export to create an assignments.csv file. This file will respect any search or
-                HIT selection you have performed.
-              </li>
-              <li class="mb-2">
-                Open the file and fill out the <em>Bonus</em> and <em>Reason</em> column for each Assignment
-                or leave them blank to skip bonusing a Worker.
-              </li>
-              <li class="mb-2">
-                Press Import to upload your edited file and validate your changes.
-              </li>
-            </ol>
-          </div>
-          <div class="flex justify-center space-x-4">
-            <button on:click|preventDefault={exportAsstsForBonus} class="button"> Export </button>
-            <button on:click|preventDefault={importAsstsForBonus} class="button"> Import </button>
-          </div>
-        {/if}
-      </form>
-    </div>
-  </Dialogue>
-{/if}
+        </div>
+      {:else if whichDialogue === 'bonus-file'}
+        <div class="flex flex-col justify-center px-6">
+          <ol class="mx-auto mb-2 list-decimal">
+            <li class="mb-2">
+              Press Export to create an assignments.csv file. This file will respect any search or
+              HIT selection you have performed.
+            </li>
+            <li class="mb-2">
+              Open the file and fill out the <em>Bonus</em> and <em>Reason</em> column for each Assignment
+              or leave them blank to skip bonusing a Worker.
+            </li>
+            <li class="mb-2">Press Import to upload your edited file and validate your changes.</li>
+          </ol>
+        </div>
+        <div class="flex justify-center space-x-4">
+          <button on:click|preventDefault={exportAsstsForBonus} class="button dialogue-button">
+            Export
+          </button>
+          <button on:click|preventDefault={importAsstsForBonus} class="button dialogue-button">
+            Import
+          </button>
+        </div>
+      {/if}
+    </form>
+  </div>
+</Dialogue>
 <div class="container h-screen" in:fly={{ y: 200, duration: 250 }} on:click|self={closeHITSelect}>
   <div class="flex justify-between mb-2" on:click|self={closeHITSelect}>
     <div class="inline-flex items-center px-4 py-2">

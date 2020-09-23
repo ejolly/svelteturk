@@ -298,92 +298,87 @@
 </style>
 
 <Modal bind:showModal bind:modalType bind:modalText />
-{#if showDialogue}
-  <Dialogue on:close={clearSelection}>
-    {#if whichDialogue === 'extend'}
+<Dialogue bind:showDialogue on:close={clearSelection}>
+  {#if whichDialogue === 'extend'}
+    <form class="w-full">
+      <div class="flex flex-col items-center px-3">
+        <label class="self-start">Additional Duration</label>
+        <input type="text" bind:value={extendTime} placeholder="time in seconds" />
+        <p class="self-start error-text" class:visible={extendError} class:invisible={!extendError}>
+          Must be a valid time in seconds (minimum 60)
+        </p>
+        <button on:click|preventDefault={extendHIT} class="button" disabled={extendTime === ''}>
+          Submit
+        </button>
+      </div>
+    </form>
+  {:else if whichDialogue === 'info'}
+    <div class="container">
       <form class="w-full">
-        <div class="flex flex-col items-center px-3">
-          <label class="self-start">Additional Duration</label>
-          <input type="text" bind:value={extendTime} placeholder="time in seconds" />
-          <p
-            class="self-start error-text"
-            class:visible={extendError}
-            class:invisible={!extendError}>
-            Must be a valid time in seconds (minimum 60)
-          </p>
-          <button on:click|preventDefault={extendHIT} class="button" disabled={extendTime === ''}>
-            Submit
-          </button>
+        <div class="flex flex-wrap mb-6 -mx-3">
+          <div class="w-1/4 px-3">
+            <label>Title</label>
+            <input readonly type="text" bind:value={selectedHIT.Title} />
+          </div>
+          <div class="w-1/4 px-3">
+            <label>Keywords</label>
+            <input type="text" readonly bind:value={selectedHIT.Keywords} />
+          </div>
+          <div class="w-1/4 px-3">
+            <label>Experiment URL</label>
+            <input type="text" readonly bind:value={selectedHIT.ExternalURL} />
+          </div>
+          <div class="w-1/4 px-3">
+            <label>Hit Id</label>
+            <input readonly type="text" bind:value={selectedHIT.HITId} />
+          </div>
+        </div>
+        <div class="flex flex-wrap mb-6 -mx-3">
+          <div class="w-3/12 px-3">
+            <label>Created</label>
+            <input type="text" readonly bind:value={selectedHIT.CreationTime} />
+          </div>
+          <div class="w-3/12 px-3">
+            <label>Expires</label>
+            <input type="text" readonly bind:value={selectedHIT.Expiration} />
+          </div>
+          <div class="w-2/12 px-3">
+            <label>Reward</label>
+            <input type="text" readonly bind:value={selectedHIT.Reward} />
+          </div>
+          <div class="w-2/12 px-3">
+            <label>Approval Delay</label>
+            <input type="text" readonly bind:value={selectedHIT.AutoApprovalDelayInSeconds} />
+          </div>
+          <div class="w-2/12 px-3">
+            <label>Max Assignments</label>
+            <input type="text" readonly bind:value={selectedHIT.MaxAssignments} />
+          </div>
+        </div>
+        <div class="flex flex-wrap mb-6 -mx-3">
+          <div class="w-1/3 px-3">
+            <label>Qualifications</label>
+            <select
+              multiple
+              class="block w-full h-40 px-4 py-2 overflow-y-auto text-gray-700 bg-gray-200 rounded outline-none">
+              {#each selectedHIT.Qualifications || [] as qual}
+                <option disabled value={qual}>{qual}</option>
+              {/each}
+            </select>
+          </div>
+          <div class="w-2/3 px-3">
+            <label>Description</label>
+            <textarea
+              class="block w-full h-40 px-4 py-2 mb-2 overflow-y-auto text-gray-700 bg-gray-200 border rounded outline-none resize-none"
+              type="text"
+              readonly
+              bind:value={selectedHIT.Description} />
+          </div>
         </div>
       </form>
-    {:else if whichDialogue === 'info'}
-      <div class="container">
-        <form class="w-full">
-          <div class="flex flex-wrap mb-6 -mx-3">
-            <div class="w-1/4 px-3">
-              <label>Title</label>
-              <input readonly type="text" bind:value={selectedHIT.Title} />
-            </div>
-            <div class="w-1/4 px-3">
-              <label>Keywords</label>
-              <input type="text" readonly bind:value={selectedHIT.Keywords} />
-            </div>
-            <div class="w-1/4 px-3">
-              <label>Experiment URL</label>
-              <input type="text" readonly bind:value={selectedHIT.ExternalURL} />
-            </div>
-            <div class="w-1/4 px-3">
-              <label>Hit Id</label>
-              <input readonly type="text" bind:value={selectedHIT.HITId} />
-            </div>
-          </div>
-          <div class="flex flex-wrap mb-6 -mx-3">
-            <div class="w-3/12 px-3">
-              <label>Created</label>
-              <input type="text" readonly bind:value={selectedHIT.CreationTime} />
-            </div>
-            <div class="w-3/12 px-3">
-              <label>Expires</label>
-              <input type="text" readonly bind:value={selectedHIT.Expiration} />
-            </div>
-            <div class="w-2/12 px-3">
-              <label>Reward</label>
-              <input type="text" readonly bind:value={selectedHIT.Reward} />
-            </div>
-            <div class="w-2/12 px-3">
-              <label>Approval Delay</label>
-              <input type="text" readonly bind:value={selectedHIT.AutoApprovalDelayInSeconds} />
-            </div>
-            <div class="w-2/12 px-3">
-              <label>Max Assignments</label>
-              <input type="text" readonly bind:value={selectedHIT.MaxAssignments} />
-            </div>
-          </div>
-          <div class="flex flex-wrap mb-6 -mx-3">
-            <div class="w-1/3 px-3">
-              <label>Qualifications</label>
-              <select
-                multiple
-                class="block w-full h-40 px-4 py-2 overflow-y-auto text-gray-700 bg-gray-200 rounded outline-none">
-                {#each selectedHIT.Qualifications || [] as qual}
-                  <option disabled value={qual}>{qual}</option>
-                {/each}
-              </select>
-            </div>
-            <div class="w-2/3 px-3">
-              <label>Description</label>
-              <textarea
-                class="block w-full h-40 px-4 py-2 mb-2 overflow-y-auto text-gray-700 bg-gray-200 border rounded outline-none resize-none"
-                type="text"
-                readonly
-                bind:value={selectedHIT.Description} />
-            </div>
-          </div>
-        </form>
-      </div>
-    {/if}
-  </Dialogue>
-{/if}
+    </div>
+  {/if}
+</Dialogue>
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
   <div class="flex justify-between mb-2">
     <div class="inline-flex items-center px-4 py-2">
