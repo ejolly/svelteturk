@@ -1,3 +1,4 @@
+import * as yup from 'yup';
 // Utilities functions used throughout the app
 const { ipcRenderer } = require('electron');
 
@@ -55,3 +56,19 @@ export const formatDate = (date) => {
   minutes = minutes < 10 ? `0${minutes}` : minutes;
   return `${month}/${day}/${year} - ${hours}:${minutes}${ampm}`;
 };
+
+// Create HIT validation
+export const HITSchema = yup.object().shape({
+  assignmentDuration: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('Assignment Duration is required'),
+  description: yup.string().required('HIT Description is required'),
+  lifetime: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('HIT Lifetime is required'),
+  reward: yup.string().matches(/^\d{0,3}(\.\d{1,2})?$/, 'Must be a valid USD value').required('HIT Reward is required'),
+  title: yup.string().required('HIT Title is required'),
+  autoApprovalDelay: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer'),
+  keywords: yup.string('Must be a comma separated list of words without spaces').required('Keywords are required'),
+  maxAssignments: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('Maximum Assignments is required'),
+  externalURL: yup.string().url('Must be a valid URL').required('External URL is required'),
+});
+
+// Extract yup errors into an object
+export const extractErrors = ({ inner }) => inner.reduce((acc, err) => ({ ...acc, [err.path]: err.message }), {});

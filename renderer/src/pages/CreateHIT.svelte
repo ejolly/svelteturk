@@ -2,6 +2,8 @@
   import { fly, fade } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
+  import Input from '../components/Input.svelte';
+  import { HITSchema, extractErrors } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -12,7 +14,6 @@
   let showModal = false;
   let modalType;
   let modalText;
-  let formError = false;
   let showDialogue = false;
   let whichDialogue = 'save';
   let saveError = false;
@@ -22,137 +23,109 @@
   let loadNames;
   let loadTemplates;
   let loadName;
-  // Create HIT vars
-  let assignmentDuration = 3600;
-  let description = '';
-  let lifetime = 86400;
-  let reward = '1';
-  let title = '';
-  let autoApprovalDelay = 10;
-  let keywords = 'research,experiment';
-  let maxAssignments = 2;
-  let externalURL = '';
-  let selectedQuals = ['--Unselect All--'];
+  let errors = {};
+  let hitParams = {
+    assignmentDuration: 3600,
+    description: '',
+    lifetime: 86400,
+    reward: '1',
+    title: '',
+    autoApprovalDelay: 10,
+    keywords: 'research,experiment',
+    maxAssignments: 2,
+    externalURL: '',
+    selectedQuals: ['--Unselect All--'],
+  };
   const qualifications = ['--Unselect All--', '> 95% Approval', 'Adult only', 'US Only', 'Masters'];
   $: {
-    if (selectedQuals.includes('--Unselect All--')) {
-      selectedQuals = [];
+    if (hitParams.selectedQuals.includes('--Unselect All--')) {
+      hitParams['selectedQuals'] = [];
     }
   }
 
   $: externalQuestion = `
   <ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">
-  <ExternalURL>${externalURL}</ExternalURL>
+  <ExternalURL>${hitParams.externalURL}</ExternalURL>
   <FrameHeight>900</FrameHeight>
   </ExternalQuestion>`;
 
   // FUNCTIONS
-  // Check to make sure no fields are empty
-  // TODO: add URL validation for externalURL
-  // TODO: add numeric checking for assignmentDuration, lifetime, reward, autoApprovalDelay, maxAssignments
-  // TODO: add comma separated list checking for keywords
-  const checkFields = () => {
-    formError = false;
-    const fieldVals = [
-      assignmentDuration,
-      description,
-      lifetime,
-      reward,
-      title,
-      autoApprovalDelay,
-      keywords,
-      maxAssignments,
-      externalURL,
-      selectedQuals,
-    ];
-    if (fieldVals.some((elem) => elem === undefined || elem === '')) {
-      formError = true;
-      console.error('form error');
-    }
-  };
-  const clearForm = () => {
-    assignmentDuration = '';
-    description = '';
-    lifetime = '';
-    reward = '';
-    title = '';
-    autoApprovalDelay = '';
-    keywords = '';
-    maxAssignments = '';
-    externalURL = '';
-    selectedQuals = [];
-    formError = false;
-  };
   // Load previously saved HITs from db and refresh reactive vars
   const loadSavedHITs = async () => {
     loadTemplates = await ipcRenderer.invoke('findHITTemplates');
     loadNames = loadTemplates.map((elem) => elem['name']);
     loadName = undefined;
   };
-
-  // Create a HIT and save it to db
+  // Create a HIT, validate hit params, and save it to db
   const createHIT = async () => {
-    checkFields();
-    if (!formError) {
-      try {
-        const resp = await mturk
-          .createHIT({
-            AssignmentDurationInSeconds: parseInt(assignmentDuration),
-            Description: description,
-            LifetimeInSeconds: parseInt(lifetime),
-            Reward: reward.toString(),
-            Title: title,
-            AutoApprovalDelayInSeconds: parseInt(autoApprovalDelay),
-            Keywords: keywords,
-            MaxAssignments: parseInt(maxAssignments),
-            Question: externalQuestion,
-          })
-          .promise();
-        // TODO: LOGS use resp.header to get server time
-        const dbResp = await ipcRenderer.invoke('insertHIT', {
-          HITId: resp.HIT.HITId,
-          HITTypeId: resp.HIT.HITTypeId,
-          HITGroupId: resp.HIT.HITGroupId,
-          HITLayoutId: resp.HIT.HITLayoutId,
-          CreationTime: resp.HIT.CreationTime.toString(),
-          Title: resp.HIT.Title,
-          Description: resp.HIT.Description,
-          Keywords: resp.HIT.Keywords,
-          HITStatus: resp.HIT.HITStatus,
-          MaxAssignments: resp.HIT.MaxAssignments,
-          Reward: resp.HIT.Reward,
-          AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
-          Expiration: resp.HIT.Expiration.toString(),
-          AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
-          HITReviewStatus: resp.HIT.HITReviewStatus,
-          NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
-          NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
-          NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
-          ExternalURL: externalURL,
-          Qualifications: selectedQuals,
-        });
-        modalText = dbResp.text;
-        modalType = dbResp.type;
-      } catch (err) {
+    try {
+      await HITSchema.validate(hitParams, { abortEarly: false });
+      errors = {};
+      const resp = await mturk
+        .createHIT({
+          AssignmentDurationInSeconds: hitParams.assignmentDuration,
+          Description: hitParams.description,
+          LifetimeInSeconds: hitParams.lifetime,
+          Reward: hitParams.reward,
+          Title: hitParams.title,
+          AutoApprovalDelayInSeconds: hitParams.autoApprovalDelay,
+          Keywords: hitParams.keywords,
+          MaxAssignments: hitParams.maxAssignments,
+          Question: externalQuestion,
+        })
+        .promise();
+      // TODO: LOGS use resp.header to get server time
+      const dbResp = await ipcRenderer.invoke('insertHIT', {
+        HITId: resp.HIT.HITId,
+        HITTypeId: resp.HIT.HITTypeId,
+        HITGroupId: resp.HIT.HITGroupId,
+        HITLayoutId: resp.HIT.HITLayoutId,
+        CreationTime: resp.HIT.CreationTime.toString(),
+        Title: resp.HIT.Title,
+        Description: resp.HIT.Description,
+        Keywords: resp.HIT.Keywords,
+        HITStatus: resp.HIT.HITStatus,
+        MaxAssignments: resp.HIT.MaxAssignments,
+        Reward: resp.HIT.Reward,
+        AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
+        Expiration: resp.HIT.Expiration.toString(),
+        AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
+        HITReviewStatus: resp.HIT.HITReviewStatus,
+        NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
+        NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
+        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
+        ExternalURL: hitParams.externalURL,
+        Qualifications: hitParams.selectedQuals,
+      });
+      modalText = dbResp.text;
+      modalType = dbResp.type;
+      showModal = true;
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        errors = extractErrors(err);
+      } else {
         console.error(err);
         modalText = err;
         modalType = 'error';
+        showModal = true;
       }
-      showModal = true;
     }
   };
 
-  // Open save dialogue
+  // Open save dialogue and validate hit params
   const openSave = async () => {
-    checkFields();
-    if (!formError) {
-      whichDialogue = 'save';
+    try {
+      await HITSchema.validate(hitParams, { abortEarly: false });
       await loadSavedHITs();
+      errors = {};
+      whichDialogue = 'save';
       showDialogue = true;
+    } catch (err) {
+      errors = extractErrors(err);
     }
   };
 
-  // Actually save hit
+  // Save hit template and validate hit params
   const saveTemplate = async () => {
     saveError = !!!saveName;
     if (!saveError) {
@@ -163,19 +136,21 @@
         try {
           const dbResp = await ipcRenderer.invoke('saveHITTemplate', {
             name: saveName,
-            assignmentDuration: parseInt(assignmentDuration),
-            description: description,
-            lifetime: parseInt(lifetime),
-            reward: parseInt(reward),
-            title: title,
-            autoApprovalDelay: parseInt(autoApprovalDelay),
-            keywords: keywords,
-            maxAssignments: parseInt(maxAssignments),
-            externalURL: externalURL,
-            selectedQuals: selectedQuals,
+            assignmentDuration: hitParams.assignmentDuration,
+            description: hitParams.description,
+            lifetime: hitParams.lifetime,
+            reward: hitParams.reward,
+            title: hitParams.title,
+            autoApprovalDelay: hitParams.autoApprovalDelay,
+            keywords: hitParams.keywords,
+            maxAssignments: hitParams.maxAssignments,
+            externalURL: hitParams.externalURL,
+            selectedQuals: hitParams.selectedQuals,
           });
           modalText = dbResp.text;
           modalType = dbResp.type;
+          showDialogue = false;
+          showModal = true;
         } catch (err) {
           console.error(err);
           modalText = err;
@@ -183,8 +158,8 @@
         }
         showDialogue = false;
         showModal = true;
-        saveName = '';
       }
+      saveName = '';
     }
   };
 
@@ -195,26 +170,15 @@
     showDialogue = true;
   };
 
-  // Actualy load hit
+  // Load hit template
   const loadTemplate = async () => {
     loadError = !!!loadName;
     if (!loadError) {
-      const HITData = loadTemplates.filter((elem) => elem['name'] === loadName)[0];
-      ({
-        assignmentDuration,
-        description,
-        lifetime,
-        reward,
-        title,
-        autoApprovalDelay,
-        keywords,
-        maxAssignments,
-        externalURL,
-        selectedQuals,
-      } = HITData);
+      hitParams = loadTemplates.filter((elem) => elem['name'] === loadName)[0];
       showDialogue = false;
     }
   };
+
   // Delete a hit template
   const deleteTemplate = async () => {
     loadError = !!!loadName;
@@ -290,98 +254,57 @@
   {/if}
 </Dialogue>
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
-  <form class="w-full">
+  <form class="w-full" on:submit|preventDefault={createHIT}>
     <div class="flex flex-wrap mb-6 -mx-3">
       <div class="w-1/3 px-3">
-        <label>Title</label>
-        <input class:border-red-500={formError && title === ''} type="text" bind:value={title} />
-        <p
-          class="error-text"
-          class:visible={formError && title === ''}
-          class:invisible={!formError || title !== ''}>
-          Required
-        </p>
+        <Input label="Title" type="text" error={errors.title} bind:value={hitParams.title} />
       </div>
       <div class="w-1/3 px-3">
-        <label>Keywords</label>
-        <input type="text" bind:value={keywords} />
-      </div>
-      <div class="w-1/3 px-3">
-        <label>Experiment URL</label>
-        <input
-          class:border-red-500={formError && externalURL === ''}
+        <Input
+          label="Keywords"
           type="text"
-          bind:value={externalURL} />
-        <p
-          class="error-text"
-          class:visible={formError && externalURL === ''}
-          class:invisible={!formError || externalURL !== ''}>
-          Required
-        </p>
+          error={errors.keywords}
+          bind:value={hitParams.keywords} />
+      </div>
+      <div class="w-1/3 px-3">
+        <Input
+          label="Experiment URL"
+          type="text"
+          error={errors.externalURL}
+          bind:value={hitParams.externalURL} />
       </div>
     </div>
     <div class="flex flex-wrap mb-6 -mx-3">
       <div class="w-1/5 px-3">
-        <label>Reward</label>
-        <input class:border-red-500={formError && reward === ''} type="text" bind:value={reward} />
-        <p
-          class="error-text"
-          class:visible={formError && reward === ''}
-          class:invisible={!formError || reward !== ''}>
-          Required
-        </p>
+        <Input label="Reward" type="text" error={errors.reward} bind:value={hitParams.reward} />
       </div>
       <div class="w-1/5 px-3">
-        <label>Approval Delay</label>
-        <input
-          class:border-red-500={formError && autoApprovalDelay === ''}
-          type="text"
-          bind:value={autoApprovalDelay} />
-        <p
-          class="error-text"
-          class:visible={formError && autoApprovalDelay === ''}
-          class:invisible={!formError || autoApprovalDelay !== ''}>
-          Required
-        </p>
+        <Input
+          label="Approval Delay"
+          type="number"
+          error={errors.autoApprovalDelay}
+          bind:value={hitParams.autoApprovalDelay} />
       </div>
       <div class="w-1/5 px-3">
-        <label>Duration</label>
-        <input
-          class:border-red-500={formError && assignmentDuration === ''}
-          type="text"
-          bind:value={assignmentDuration} />
-        <p
-          class="error-text"
-          class:visible={formError && assignmentDuration === ''}
-          class:invisible={!formError || assignmentDuration !== ''}>
-          Required
-        </p>
+        <Input
+          label="Duration"
+          type="number"
+          error={errors.assignmentDuration}
+          bind:value={hitParams.assignmentDuration} />
       </div>
       <div class="w-1/5 px-3">
-        <label>Lifetime</label>
-        <input
-          class:border-red-500={formError && lifetime === ''}
-          type="text"
-          bind:value={lifetime} />
-        <p
-          class="error-text"
-          class:visible={formError && lifetime === ''}
-          class:invisible={!formError || lifetime !== ''}>
-          Required
-        </p>
+        <Input
+          label="Lifetime"
+          type="number"
+          error={errors.lifetime}
+          bind:value={hitParams.lifetime} />
       </div>
       <div class="w-1/5 px-3">
-        <label>Max Assignments</label>
-        <input
-          class:border-red-500={formError && maxAssignments === ''}
-          type="text"
-          bind:value={maxAssignments} />
-        <p
-          class="error-text"
-          class:visible={formError && maxAssignments === ''}
-          class:invisible={!formError || maxAssignments !== ''}>
-          Required
-        </p>
+        <Input
+          label="Max Assignments"
+          type="number"
+          error={errors.maxAssignments}
+          bind:value={hitParams.maxAssignments} />
       </div>
     </div>
     <div class="flex flex-wrap mb-6 -mx-3">
@@ -389,7 +312,7 @@
         <label>Qualifications</label>
         <select
           multiple
-          bind:value={selectedQuals}
+          bind:value={hitParams.selectedQuals}
           class="block w-full h-40 px-4 py-2 overflow-y-auto text-gray-700 bg-gray-200 rounded outline-none">
           {#each qualifications as qual}
             <option value={qual}>{qual}</option>
@@ -397,26 +320,19 @@
         </select>
       </div>
       <div class="w-2/3 px-3">
-        <label>Description</label>
-        <textarea
-          class="block w-full h-40 px-4 py-2 mb-2 overflow-y-auto text-gray-700 bg-gray-200 border rounded outline-none resize-none"
-          class:border-red-500={formError && description === ''}
-          type="text"
-          bind:value={description} />
-        <p
-          class="error-text"
-          class:visible={formError && description === ''}
-          class:invisible={!formError || description !== ''}>
-          Required
-        </p>
+        <Input
+          label="Description"
+          type="textarea"
+          error={errors.description}
+          bind:value={hitParams.description} />
       </div>
     </div>
     <hr class="block w-full mt-2 mb-4 border-gray-500" />
     <div class="flex flex-wrap items-center justify-center mb-6 -mx-3 space-x-4">
-      <button class="button" on:click|preventDefault={createHIT}> Create HIT </button>
+      <button class="button" type="submit"> Create HIT </button>
       <button class="button" on:click|preventDefault={openLoad}> Load Template </button>
       <button class="button" on:click|preventDefault={openSave}> Save Template </button>
-      <button class="button" on:click|preventDefault={clearForm}> Clear </button>
+      <button class="button" type="reset"> Clear </button>
     </div>
   </form>
 </div>
