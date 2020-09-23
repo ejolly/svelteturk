@@ -1,10 +1,12 @@
 - Getting Started
   - [Quick Start](quick_start.md)
   - [Getting Your Mturk Credentials](aws_credentials.md)
+  - [Mturk Basics and Terminology](basics.md)
 
 ---
 
 - Usage Guide
+  - [Sandbox vs Going Live](modes.md)
   - [Creating HITs](create.md)
   - [Managing HITs](manage.md)
   - [Reviewing Assignments](review.md)
