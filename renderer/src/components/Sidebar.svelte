@@ -50,9 +50,7 @@
   }
 </style>
 
-<Modal {showModal} {modalType} on:close={() => (showModal = false)}>
-  <p>{modalText}</p>
-</Modal>
+<Modal bind:showModal bind:modalType bind:modalText />
 <div class="w-40">
   <p class="mb-4 text-xl tracking-wide text-gray-600 uppercase font-quantico">Menu</p>
   <ul>

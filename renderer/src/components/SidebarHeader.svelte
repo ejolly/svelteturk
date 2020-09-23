@@ -22,6 +22,11 @@
       dispatch('switchMturkMode', {
         live,
       });
+      if (live) {
+        modalText = 'Svelte Turk is now in Live mode!';
+        modalType = 'notification';
+        showModal = true;
+      }
     } else {
       modalText = 'No internet connectivity!';
       modalType = 'error';
@@ -66,9 +71,7 @@
   }
 </style>
 
-<Modal {showModal} {modalType}>
-  <p>{modalText}</p>
-</Modal>
+<Modal bind:showModal bind:modalType bind:modalText />
 <div class="inline-flex items-center p-2">
   <svg
     class="w-8 h-8 text-purple-400 fill-current stroke-current"

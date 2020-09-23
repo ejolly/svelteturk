@@ -237,7 +237,7 @@
   }
 </style>
 
-<Modal {showModal} {modalType} on:close={() => (showModal = false)}>
+<Modal bind:showModal bind:modalType>
   <p>{modalText}</p>
 </Modal>
 {#if showDialogue}

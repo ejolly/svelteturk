@@ -145,9 +145,7 @@
 
 <svelte:window bind:online={mturkReady} />
 <Tailwindcss />
-<Modal {showModal} {modalType} on:close={() => (showModal = false)}>
-  <p>{modalText}</p>
-</Modal>
+<Modal bind:showModal bind:modalType bind:modalText />
 <!-- Main app container full window size not responsive-->
 <div class="w-screen h-screen">
   <!-- Sidebar, fixed position and width-->

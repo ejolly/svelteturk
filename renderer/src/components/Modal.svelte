@@ -6,6 +6,7 @@
   // INPUTS
   export let showModal = false;
   export let modalType = 'notification';
+  export let modalText = 'Put something in me';
 
   // VARIABLES
   const dispatch = createEventDispatcher();
@@ -47,11 +48,11 @@
       class:error={modalType === 'error'}
       class:success={modalType === 'success'}>
       <slot>
-        <p>I'm inside a flex container. Put something in me!</p>
+        <p>{modalText}</p>
       </slot>
       <span class="absolute top-0 bottom-0 right-0 p-2">
         <svg
-          on:click={() => dispatch('close')}
+          on:click={() => (showModal = false)}
           class="w-6 h-6 fill-current"
           class:notification-close={modalType === 'notification'}
           class:error-close={modalType === 'error'}
@@ -68,8 +69,4 @@
       </span>
     </div>
   </div>
-  <!-- <div class="absolute z-50" transition:fly={{ y: -200, duration: 500 }}>
-    <button class="delete" on:click={() => (showModal = false)} />
-    <slot />
-  </div> -->
 {/if}

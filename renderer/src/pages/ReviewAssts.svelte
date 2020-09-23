@@ -548,9 +548,7 @@
   }
 </style>
 
-<Modal {showModal} {modalType} on:close={() => (showModal = false)}>
-  <p>{modalText}</p>
-</Modal>
+<Modal bind:showModal bind:modalType bind:modalText />
 {#if showDialogue}
   <Dialogue on:close={clearSelection}>
     <div class="dialogue">

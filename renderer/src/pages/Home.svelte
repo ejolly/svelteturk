@@ -58,10 +58,7 @@
   }
 </style>
 
-<Modal {showModal} {modalType} on:close={() => (showModal = false)}>
-  <p>{modalText}</p>
-</Modal>
-
+<Modal bind:showModal bind:modalType bind:modalText />
 <div
   class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 font-quantico"
   in:fly={{ y: 200, duration: 250 }}>
