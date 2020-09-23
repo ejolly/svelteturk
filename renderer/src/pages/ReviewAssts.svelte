@@ -330,7 +330,12 @@
   const exportAsstsForBonus = async () => {
     let exportedAssts = [];
     for (const asst of asstsFiltered) {
-      exportedAssts.push({ AsstId: asst.AsstId, WorkerId: asst.WorkerId, Bonus: '' });
+      exportedAssts.push({
+        AsstId: asst.AsstId,
+        WorkerId: asst.WorkerId,
+        Bonus: '',
+        BonusReason: '',
+      });
     }
     try {
       const resp = await ipcRenderer.invoke('exportAsstsForBonus', exportedAssts);
@@ -355,11 +360,13 @@
         uploadedBonuses = [];
         bonusError = false;
         for (const asst of resp.data) {
-          if (asst.Bonus && !validateBonus(asst.Bonus)) {
-            asst['bonusError'] = true;
-            bonusError = true;
-          } else {
-            asst['bonusError'] = false;
+          if (asst.Bonus) {
+            if (!validateBonus(asst.Bonus) || asst.BonusReason === '') {
+              asst['bonusError'] = true;
+              bonusError = true;
+            } else {
+              asst['bonusError'] = false;
+            }
           }
           uploadedBonuses = [...uploadedBonuses, asst];
         }
@@ -403,7 +410,8 @@
               { AsstId: asst.AsstId },
               {
                 $set: {
-                  Bonus: amount,
+                  Bonus: bonusAmount,
+                  BonusReason: requesterFeedback,
                   BonusTime: new Date().toString(),
                 },
               }
@@ -429,7 +437,49 @@
   };
 
   const bonusFromFile = async () => {
-    console.log('bonus from file');
+    showDialogue = false;
+    const refreshIcon = document.getElementById('refresh-icon');
+    refreshIcon.classList.remove('text-gray-600');
+    refreshIcon.classList.add('animate-spin', 'text-purple-700');
+    try {
+      for (const asst of uploadedBonuses) {
+        if (asst.Bonus) {
+          const resp = await mturk
+            .sendBonus({
+              AssignmentId: asst.AsstId,
+              BonusAmount: asst.Bonus,
+              Reason: asst.BonusReason,
+              WorkerId: asst.WorkerId,
+            })
+            .promise();
+          if (resp.$response.httpResponse.statusCode === 200) {
+            const dbResp = await updateDoc(
+              'assts',
+              { AsstId: asst.AsstId },
+              {
+                $set: {
+                  Bonus: asst.Bonus,
+                  BonusTime: new Date().toString(),
+                  BonusReason: asst.Feedback,
+                },
+              }
+            );
+            await wait(1000);
+          }
+        }
+      }
+      modalText = 'All assignments bonused successfully!';
+      modalType = 'success';
+    } catch (err) {
+      console.error(err);
+      modalText = err;
+      modalType = 'error';
+    }
+    showModal = true;
+    clearSelection();
+    await getAssts();
+    refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+    refreshIcon.classList.add('text-gray-600');
   };
 
   const toggleHITSelect = () => {
@@ -492,7 +542,7 @@
     @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
   }
   .dialogue {
-    width: 25rem;
+    width: 35rem;
     height: 100%;
     overflow-y: auto;
   }
@@ -542,8 +592,9 @@
           <div class="flex flex-col px-3">
             <h2 class="mx-auto mb-2 text-2xl">Please verify import</h2>
             <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
-              Some errors were detected. Make sure each bonus is a valid number greater than 0.
-              Leave blank to skip bonusing a worker.
+              Some errors were detected. Make sure each bonus is a valid number greater than 0 and
+              the reason for that bonus is not blank. Leave both fiels blank to skip bonusing a
+              worker.
             </p>
             <table class="w-full table-auto">
               <thead>
@@ -551,6 +602,7 @@
                   <th class="header">Asst Id</th>
                   <th class="header">Worker Id</th>
                   <th class="header">Bonus</th>
+                  <th class="header">Reason</th>
                 </tr>
               </thead>
               <tbody>
@@ -559,6 +611,7 @@
                     <td type="text">{asst.AsstId.slice(0, 6)}</td>
                     <td type="text">{asst.WorkerId}</td>
                     <td type="text">{asst.Bonus ? `$${asst.Bonus}` : ''}</td>
+                    <td type="text">{asst.BonusReason}</td>
                   </tr>
                 {/each}
               </tbody>
@@ -573,7 +626,22 @@
             </div>
           </div>
         {:else if whichDialogue === 'bonus-file'}
-          <div class="flex justify-center px-3 space-x-4">
+          <div class="flex flex-col justify-center px-6">
+            <ol class="mx-auto mb-2 list-decimal">
+              <li class="mb-2">
+                Press Export to create an assignments.csv file. This file will respect any search or
+                HIT selection you have performed.
+              </li>
+              <li class="mb-2">
+                Open the file and fill out the <em>Bonus</em> and <em>Reason</em> column for each Assignment
+                or leave them blank to skip bonusing a Worker.
+              </li>
+              <li class="mb-2">
+                Press Import to upload your edited file and validate your changes.
+              </li>
+            </ol>
+          </div>
+          <div class="flex justify-center space-x-4">
             <button on:click|preventDefault={exportAsstsForBonus} class="button"> Export </button>
             <button on:click|preventDefault={importAsstsForBonus} class="button"> Import </button>
           </div>
