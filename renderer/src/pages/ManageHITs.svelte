@@ -3,7 +3,7 @@
   import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
-  import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
+  import { deleteDoc, updateDoc, wait, formatDate, refreshFrequency } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -22,7 +22,6 @@
   ];
 
   // VARIABLES
-  const refreshFrequency = 30000;
   let search = '';
   let timer;
   let hits = [];
@@ -55,36 +54,37 @@
     refreshIcon.classList.remove('text-gray-600');
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
     try {
-      for (const hit of hits) {
-        const resp = await mturk.getHIT({ HITId: hit.HITId }).promise();
-        const dbResp = await updateDoc(
-          'hits',
-          { HITId: resp.HIT.HITId },
-          {
-            $set: {
-              HITTypeId: resp.HIT.HITTypeId,
-              HITGroupId: resp.HIT.HITGroupId,
-              HITLayoutId: resp.HIT.HITLayoutId,
-              CreationTime: resp.HIT.CreationTime.toString(),
-              Title: resp.HIT.Title,
-              Description: resp.HIT.Description,
-              Keywords: resp.HIT.Keywords,
-              HITStatus: resp.HIT.HITStatus,
-              MaxAssignments: resp.HIT.MaxAssignments,
-              Reward: resp.HIT.Reward,
-              AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
-              Expiration: resp.HIT.Expiration.toString(),
-              AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
-              HITReviewStatus: resp.HIT.HITReviewStatus,
-              NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
-              NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
-              NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
-            },
-          }
-        );
-        // Asynchronously wait 1s between API calls so we don't get rate limited
-        await wait(1000);
-      }
+      await Promise.all(
+        hits.map(async (hit) => {
+          const resp = await mturk.getHIT({ HITId: hit.HITId }).promise();
+          await updateDoc(
+            'hits',
+            { HITId: resp.HIT.HITId },
+            {
+              $set: {
+                HITTypeId: resp.HIT.HITTypeId,
+                HITGroupId: resp.HIT.HITGroupId,
+                HITLayoutId: resp.HIT.HITLayoutId,
+                CreationTime: resp.HIT.CreationTime.toString(),
+                Title: resp.HIT.Title,
+                Description: resp.HIT.Description,
+                Keywords: resp.HIT.Keywords,
+                HITStatus: resp.HIT.HITStatus,
+                MaxAssignments: resp.HIT.MaxAssignments,
+                Reward: resp.HIT.Reward,
+                AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
+                Expiration: resp.HIT.Expiration.toString(),
+                AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
+                HITReviewStatus: resp.HIT.HITReviewStatus,
+                NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
+                NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
+                NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
+              },
+            }
+          );
+          await wait(1000);
+        })
+      );
       await getHITs();
       refreshIcon.classList.remove('animate-spin', 'text-purple-700');
       refreshIcon.classList.add('text-gray-600');
@@ -145,7 +145,7 @@
         .promise();
       // TODO: LOGS: Use resp.header object to store server time log and action
       if (resp.$response.httpResponse.statusCode === 200) {
-        // TODO: We don't want to manually set status, instead we should make another getHIT API
+        // FIXME: We don't want to manually set status, instead we should make another getHIT API
         // becauese if they end a hit when it's already expired it'll update the local db, but the next refresh from mturk will change the status back to reviewable
         const dbResp = await updateDoc(
           'hits',
@@ -192,8 +192,7 @@
     if (Number.isInteger(update) && update >= 60) {
       extendError = false;
       const now = Date.now();
-      // TODO: figure out
-      // Adding 1 here because minimum time must be 60s and entering 60 submits a request for 59s to aws
+      // NOTE: Adding 1 here because minimum time must be 60s and entering 60 submits a request for 59s to aws
       update = (update + 1) * 1000;
       const updatedTime = new Date(now + update);
       console.log(updatedTime);
@@ -206,7 +205,7 @@
           .promise();
         // TODO: LOGS: Use resp.header object to store server time log and action
         if (resp.$response.httpResponse.statusCode === 200) {
-          // TODO: We don't want to manually set status, instead we should make another getHIT API
+          // FIXME: We don't want to manually set status, instead we should make another getHIT API
           // becauese if they end a hit when it's already expired it'll update the local db, but the next refresh from mturk will change the status back to reviewable
           const dbResp = await updateDoc(
             'hits',
@@ -268,6 +267,9 @@
   onMount(async () => {
     // Load hits from local db
     await getHITs();
+    // NOTE: this is commented out so that user navigation around the app doesn't keep triggering refreshes, which can take long if there are lots of hits
+    // Get their latest statuses
+    // await refreshHITs();
     // Start an auto-refreshing API call every refreshFrequency seconds
     refreshFromAWS = setInterval(refreshHITs, refreshFrequency);
     console.log(`Auto HIT refreshing started on: ${new Date().toString()}`);

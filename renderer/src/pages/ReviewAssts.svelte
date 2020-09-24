@@ -4,7 +4,7 @@
   import { cubicInOut } from 'svelte/easing';
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
-  import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
+  import { deleteDoc, updateDoc, wait, formatDate, refreshFrequency } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -12,7 +12,6 @@
   export let mturk;
 
   // VARIABLES
-  const refreshFrequency = 30000;
   let search = '';
   let timer;
   let assts = [];
@@ -61,25 +60,31 @@
   };
 
   const updateAsstsInDB = async (asstList) => {
-    for (const asst of asstList) {
-      const dbResp = await updateDoc(
-        'assts',
-        { AsstId: asst.AssignmentId },
-        {
-          $set: {
-            WorkerId: asst.WorkerId,
-            HITId: asst.HITId,
-            Status: asst.AssignmentStatus,
-            AutoApprovalTime: asst.AutoApprovalTime,
-            AcceptTime: asst.AcceptTime,
-            SubmitTime: asst.SubmitTime,
-            ReviewTime: asst.ApprovalTime || asst.RejectionTime || asst.AutoApprovalTime,
-            RequesterFeedback: asst.RequesterFeedback,
-          },
-        },
-        { upsert: true }
-      );
+    if (!Array.isArray(asstList)) {
+      asstList = [asstList];
     }
+    // Promise.all because execution order doesn't matter and if any db write fails we want them all to fail
+    await Promise.all(
+      asstList.map(async (asst) => {
+        await updateDoc(
+          'assts',
+          { AsstId: asst.AssignmentId },
+          {
+            $set: {
+              WorkerId: asst.WorkerId,
+              HITId: asst.HITId,
+              Status: asst.AssignmentStatus,
+              AutoApprovalTime: asst.AutoApprovalTime,
+              AcceptTime: asst.AcceptTime,
+              SubmitTime: asst.SubmitTime,
+              ReviewTime: asst.ApprovalTime || asst.RejectionTime || asst.AutoApprovalTime,
+              RequesterFeedback: asst.RequesterFeedback,
+            },
+          },
+          { upsert: true }
+        );
+      })
+    );
   };
 
   const refreshAssts = async () => {
@@ -89,11 +94,14 @@
     try {
       if (selectedHIT === 'all') {
         console.log(`Refreshing Assts for ALL HITs from AWS at: ${new Date().toString()}`);
-        for (const hit of hits) {
-          const resp = await mturk.listAssignmentsForHIT({ HITId: hit.HITId }).promise();
-          const Assignments = await resp.Assignments;
-          await updateAsstsInDB(Assignments);
-        }
+        // Promise.all because execution order doesn't matter and if reasing from mturk fails for 1 HIT we want it to fail for all
+        await Promise.all(
+          hits.map(async (hit) => {
+            const resp = await mturk.listAssignmentsForHIT({ HITId: hit.HITId }).promise();
+            await updateAsstsInDB(resp.Assignments);
+            await wait(1000);
+          })
+        );
       } else {
         console.log(
           `Refreshing Assts for HIT ${selectedHIT.HITId} from AWS at: ${new Date().toString()}`
@@ -225,6 +233,7 @@
       refreshIcon.classList.remove('text-gray-600');
       refreshIcon.classList.add('animate-spin', 'text-purple-700');
       try {
+        // for of instead of Promise.all because we don't want single failures to block approval attempts and db writes for the other successfull assignments
         for (const asst of asstsFiltered) {
           if (asst.Status === 'Submitted') {
             console.log(`Approval request for: ${asst.AsstId}`);
@@ -395,6 +404,7 @@
       refreshIcon.classList.remove('text-gray-600');
       refreshIcon.classList.add('animate-spin', 'text-purple-700');
       try {
+        // for of instead of Promise.all because we don't want single failures to block approval attempts and db writes for the other successfull assignments
         for (const asst of asstsFiltered) {
           const resp = await mturk
             .sendBonus({
@@ -442,6 +452,7 @@
     refreshIcon.classList.remove('text-gray-600');
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
     try {
+      // for of instead of Promise.all because we don't want single failures to block bonus attempts and db writes for the other successfull assignments
       for (const asst of uploadedBonuses) {
         if (asst.Bonus) {
           const resp = await mturk
@@ -507,8 +518,14 @@
   };
 
   onMount(async () => {
+    // Load hits from local db for getting assigments
     await getHITs();
+    // Load assts from local db
     await getAssts();
+    // NOTE: this is commented out so that user navigation around the app doesn't keep triggering refreshes, which can take long if there are lots of assignments
+    // Get their latest statuses
+    // await refreshAssts();
+    // Start auto-refreshing
     refreshFromAWS = setInterval(refreshAssts, refreshFrequency);
     console.log(`Auto Assignments rereshing started on: ${new Date().toString()}`);
   });

@@ -1,6 +1,9 @@
 import * as yup from 'yup';
-// Utilities functions used throughout the app
+
 const { ipcRenderer } = require('electron');
+
+// Global variables
+export const refreshFrequency = 30000;
 
 // Delete a document in any database
 // Args: database name, document ._id
