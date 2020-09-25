@@ -67,6 +67,7 @@ const createWindow = () => {
     width: 1280,
     height: 1024,
     minWidth: 1090,
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true
@@ -129,6 +130,9 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  // Only show the window once it's ready
+  mainWindow.once('ready-to-show', () => mainWindow.show());
 };
 
 app.on('ready', createWindow);
