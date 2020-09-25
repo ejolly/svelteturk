@@ -37,7 +37,9 @@ export default {
       // this means it assumes postcss-load-config is installed as a dependency
       // and expects to find a postcss.config.js file to load
       // otherwise we would need a rollup postcss plugin or to pass in a specific parser
-      preprocess: sveltePreprocess({ postcss: true }),
+      // globalStyle: true allows us to use <style global> in a svelte components
+      // rather than being restricted to Svelte's :global() pseudo-selector
+      preprocess: sveltePreprocess({ postcss: true, globalStyle: true }),
       dev: !production,
       css: (css) => {
         css.write('renderer/dist/bundle.css');

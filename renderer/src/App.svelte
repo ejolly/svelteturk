@@ -113,7 +113,7 @@
   });
 </script>
 
-<style>
+<style global>
   @import '../../node_modules/typeface-quantico/index.css';
   .header {
     margin-top: 3.41rem;
@@ -123,22 +123,22 @@
     margin-left: 19rem;
     margin-top: 9rem;
   }
-  :global(.button) {
+  .button {
     @apply px-4 py-2 text-gray-800 bg-gray-200 rounded font-quantico;
   }
-  :global(.button:hover:enabled) {
+  .button:hover:enabled {
     @apply text-purple-600 bg-purple-100;
   }
-  :global(.button:active) {
+  .button:active {
     @apply outline-none;
   }
-  :global(.button:focus) {
+  .button:focus {
     @apply outline-none;
   }
-  :global(.button:disabled) {
+  .button:disabled {
     @apply opacity-50 cursor-not-allowed select-none;
   }
-  :global(.error-text) {
+  .error-text {
     @apply text-xs italic text-red-500;
   }
 </style>
