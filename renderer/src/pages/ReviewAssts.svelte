@@ -77,7 +77,7 @@
               AutoApprovalTime: asst.AutoApprovalTime,
               AcceptTime: asst.AcceptTime,
               SubmitTime: asst.SubmitTime,
-              ReviewTime: asst.ApprovalTime || asst.RejectionTime || asst.AutoApprovalTime,
+              ReviewTime: asst.ApprovalTime || asst.RejectionTime,
               RequesterFeedback: asst.RequesterFeedback,
             },
           },
@@ -182,29 +182,25 @@
   const approveAsst = async () => {
     if (selectedAsst.Status === 'Submitted') {
       try {
-        const resp = await mturk.approveAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
-        if (resp.$response.httpResponse.statusCode === 200) {
-          const dbResp = await updateDoc(
-            'assts',
-            { AsstId: selectedAsst.AsstId },
-            {
-              $set: {
-                Status: 'Approved',
-                ReviewTime: new Date().toString(),
-              },
-            }
-          );
-          if (dbResp.type === 'success') {
-            modalText = 'Asst approved and db updated successfully!';
-            modalType = 'success';
-          } else {
-            modalText = 'Asst approved but could not update db. See console.';
-            modalType = 'notification';
-            console.log(dbResp);
+        await mturk.approveAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
+        const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
+        const dbResp = await updateDoc(
+          'assts',
+          { AsstId: asst.AsstId },
+          {
+            $set: {
+              Status: resp.Assignment.AssignmentStatus,
+              ReviewTime: resp.Assignment.ApprovalTime,
+            },
           }
+        );
+        if (dbResp.type === 'success') {
+          modalText = 'Asst approved and db updated successfully!';
+          modalType = 'success';
         } else {
-          modalText = 'Something unexpected happened! See console.';
+          modalText = 'Asst approved but could not update db. See console.';
           modalType = 'notification';
+          console.log(dbResp);
         }
         showModal = true;
         await getAssts();
@@ -237,20 +233,19 @@
         for (const asst of asstsFiltered) {
           if (asst.Status === 'Submitted') {
             console.log(`Approval request for: ${asst.AsstId}`);
-            const resp = await mturk.approveAssignment({ AssignmentId: asst.AsstId }).promise();
-            if (resp.$response.httpResponse.statusCode === 200) {
-              const dbResp = await updateDoc(
-                'assts',
-                { AsstId: asst.AsstId },
-                {
-                  $set: {
-                    Status: 'Approved',
-                    ReviewTime: new Date().toString(),
-                  },
-                }
-              );
-              await wait(1000);
-            }
+            await mturk.approveAssignment({ AssignmentId: asst.AsstId }).promise();
+            const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
+            await updateDoc(
+              'assts',
+              { AsstId: asst.AsstId },
+              {
+                $set: {
+                  Status: resp.Assignment.AssignmentStatus,
+                  ReviewTime: resp.Assignment.ApprovalTime,
+                },
+              }
+            );
+            await wait(1000);
           } else {
             console.log(`Already reviewd: ${asst.AsstId}`);
           }
@@ -285,35 +280,31 @@
 
   const rejectAsst = async () => {
     try {
-      const resp = await mturk
+      await mturk
         .rejectAssignment({
           AssignmentId: selectedAsst.AsstId,
           RequesterFeedback: requesterFeedback,
         })
         .promise();
-      if (resp.$response.httpResponse.statusCode === 200) {
-        const dbResp = await updateDoc(
-          'assts',
-          { AsstId: selectedAsst.AsstId },
-          {
-            $set: {
-              Status: 'Rejected',
-              ReviewTime: new Date().toString(),
-              RequesterFeedback: requesterFeedback,
-            },
-          }
-        );
-        if (dbResp.type === 'success') {
-          modalText = 'Assignment rejected and db updated successfully!';
-          modalType = 'success';
-        } else {
-          modalText = 'Assignment rejected but could not update db. See console.';
-          modalType = 'notification';
-          console.log(dbResp);
+      const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
+      const dbResp = await updateDoc(
+        'assts',
+        { AsstId: selectedAsst.AsstId },
+        {
+          $set: {
+            Status: resp.Assignment.AssignmentStatus,
+            ReviewTime: resp.Assignment.RejectionTime,
+            RequesterFeedback: requesterFeedback,
+          },
         }
+      );
+      if (dbResp.type === 'success') {
+        modalText = 'Assignment rejected and db updated successfully!';
+        modalType = 'success';
       } else {
-        modalText = 'Something unexpected happened! See console.';
+        modalText = 'Assignment rejected but could not update db. See console.';
         modalType = 'notification';
+        console.log(dbResp);
       }
       showModal = true;
       await getAssts();

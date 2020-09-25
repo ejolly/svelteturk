@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import { logger } from './logger';
 
 const { ipcRenderer } = require('electron');
 
@@ -9,12 +8,10 @@ export const refreshFrequency = 30000;
 // Delete a document in any database
 // Args: database name, document ._id
 export const deleteDoc = async (dbName, id) => {
-  logger.info(`deletDoc in ${dbName} with id ${id}`);
   let resp;
   try {
     resp = await ipcRenderer.invoke('deleteDoc', dbName, id);
   } catch (err) {
-    logger.error(err);
     resp = { text: err, type: 'error' };
   }
   return resp;
@@ -23,12 +20,10 @@ export const deleteDoc = async (dbName, id) => {
 // Update a document in any database
 // Args: database name, doc query, update operation, options
 export const updateDoc = async (dbName, query, update, options) => {
-  logger.info(`updateDoc in ${dbName} with query ${query} and update ${update}`);
   let resp;
   try {
     resp = await ipcRenderer.invoke('updateDoc', dbName, query, update, options);
   } catch (err) {
-    logger.error(err);
     resp = { text: err, type: 'error' };
   }
   return resp;

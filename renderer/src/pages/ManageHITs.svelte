@@ -13,6 +13,7 @@
     'Title',
     'Status',
     'HITId',
+    'HITTypeId',
     'Created',
     'Expiration',
     'Max Assts',
@@ -454,6 +455,7 @@
           <td type="text">{hit.Title}</td>
           <td type="text">{hit.HITStatus}</td>
           <td type="text">{hit.HITId.slice(0, 6)}</td>
+          <td type="text">{hit.HITTypeId.slice(0, 6)}</td>
           <td type="number">{formatDate(hit.CreationTime)}</td>
           <td type="text">{formatDate(hit.Expiration)}</td>
           <td type="text">{hit.MaxAssignments}</td>
