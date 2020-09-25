@@ -48,6 +48,7 @@
     }
   },
   "dependencies": {
+    "electron-log": "^4.2.4",
     "electron-squirrel-startup": "^1.0.0",
     "nedb-promises": "^4.0.4",
     "papaparse": "^5.3.0",

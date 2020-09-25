@@ -10,6 +10,7 @@
   import Home from './pages/Home.svelte';
   import ManageHITs from './pages/ManageHITs.svelte';
   import ReviewAssts from './pages/ReviewAssts.svelte';
+  import { logger } from './components/logger.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -74,10 +75,10 @@
         secretAccessKey: awsSecret,
       });
       mturkReady = true;
-      console.log(mturk.endpoint.host);
+      logger.info(`Mturk ready with endpoint: ${mturk.endpoint.host}`);
       window.mturk = mturk;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       modalText = err;
       modalType = 'error';
       showModal = true;
@@ -89,7 +90,6 @@
   // triggered on component mount
   const getCredentials = async () => {
     const credentials = await ipcRenderer.invoke('getCredentials');
-    console.log('receiving credentials...');
     awsKey = credentials.accessKeyId;
     awsSecret = credentials.secretAccessKey;
     initMTurk();

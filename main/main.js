@@ -3,6 +3,7 @@ const path = require('path');
 const Datastore = require('nedb-promises');
 const fs = require('fs');
 const Papa = require('papaparse');
+const log = require('electron-log');
 
 
 // Hot reload just the renderer (i.e. svelte changes)
@@ -10,6 +11,40 @@ const Papa = require('papaparse');
 require('electron-reload')(path.join(__dirname, '..', 'renderer'));
 
 nativeTheme.themeSource = 'light';
+
+// Setup logging
+log.transports.file.resolvePath = (() => path.join(app.getPath('home'), '.svelte-turk.log'));
+// Configure the logger to display an electron dialog box with an option to submit an issue on any uncaught errors
+log.catchErrors({
+  showDialog: false,
+  onError(error, versions, submitIssue) {
+    dialog.showMessageBox({
+      title: 'An error occurred',
+      message: error.message,
+      detail: error.stack,
+      type: 'error',
+      buttons: ['Ignore', 'Report', 'Exit'],
+    })
+      .then((result) => {
+        if (result.response === 1) {
+          submitIssue('https://github.com/ejolly/svelte-turk/issues/new', {
+            title: `Error report for ${versions.app}`,
+            body: 'Error:\n```' + error.stack + '\n```\n' + `OS: ${versions.os}`
+          });
+          return;
+        }
+
+        if (result.response === 2) {
+          app.quit();
+        }
+      });
+  }
+});
+// Scope main process logs so that 'main' appears in the log file next to messages
+const mainLog = log.scope('main');
+
+mainLog.info('NEW MAIN STARTUP');
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   // eslint-disable-line global-require
@@ -34,6 +69,7 @@ const createWindow = () => {
     minWidth: 1090,
     webPreferences: {
       nodeIntegration: true,
+      enableRemoteModule: true
     },
   });
 
@@ -59,9 +95,10 @@ const createWindow = () => {
     autoload: true,
   });
 
+  mainLog.info('Databases initialized');
+
   if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
-    console.log('AWS credentials loaded from environment variables!');
-    console.log(awsCredentials);
+    mainLog.info('AWS credentials loaded from environment variables.');
   } else {
     fs.readFile(`${app.getPath('home')}/.awscredentials.json`, (err, data) => {
       if (err) {
@@ -74,6 +111,7 @@ const createWindow = () => {
                 'No environment variables or config file were found for your AWS Credentials! Please configure them and restart the app',
             })
             .then(() => {
+              mainLog.error('No environment variables or config file found for AWS credentials. Exiting...');
               app.exit(0);
               process.abort();
             });
@@ -82,8 +120,7 @@ const createWindow = () => {
         }
       } else {
         awsCredentials = JSON.parse(data);
-        console.log('AWS credentials loaded from file!');
-        console.log(awsCredentials);
+        mainLog.info('AWS credentials loaded from file!');
       }
     });
   }
