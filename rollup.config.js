@@ -1,6 +1,5 @@
 import svelte from 'rollup-plugin-svelte';
 import { terser } from 'rollup-plugin-terser';
-// import postcss from 'rollup-plugin-postcss';
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
@@ -34,6 +33,10 @@ export default {
   },
   plugins: [
     svelte({
+      // setting postcss: true in sveltePreprocess operates in 'auto mode'
+      // this means it assumes postcss-load-config is installed as a dependency
+      // and expects to find a postcss.config.js file to load
+      // otherwise we would need a rollup postcss plugin or to pass in a specific parser
       preprocess: sveltePreprocess({ postcss: true }),
       dev: !production,
       css: (css) => {
