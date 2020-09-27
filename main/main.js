@@ -194,8 +194,8 @@ ipcMain.handle('export', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
       title: 'Export Database',
       defaultPath: `${app.getPath('home')}/Desktop/`,
-      buttonLabel: 'Save',
-      message: 'Where do you want to save the exported databases?',
+      buttonLabel: 'Export',
+      message: "Where do you want to save the exported databases?\n(files will be auto-named with today's date)",
       showsTagField: false,
       properties: ['openDirectory', 'createDirectory'],
     });
@@ -209,6 +209,7 @@ ipcMain.handle('export', async () => {
       for (const dbName in db) {
         const docs = await db[dbName].find({}).sort({ createdAt: -1 });
         const writePath = path.join(result.filePaths[0], `${dbName}_${date}.json`);
+        // TODO: use option to export importable db file or json
         await fs.promises.writeFile(writePath, JSON.stringify(docs));
       }
       text = 'Export succesful!';

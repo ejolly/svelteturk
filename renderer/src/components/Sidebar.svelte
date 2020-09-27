@@ -24,14 +24,17 @@
   const exportData = async () => {
     try {
       const resp = await ipcRenderer.invoke('export');
-      modalText = resp.text;
-      modalType = resp.type;
+      if (resp.type === 'success') {
+        modalText = resp.text;
+        modalType = resp.type;
+        showModal = true;
+      }
     } catch (err) {
       console.error(err);
       modalText = err;
       modalType = 'error';
+      showModal = true;
     }
-    showModal = true;
   };
 </script>
 
