@@ -137,22 +137,21 @@
   };
 
   const endHIT = async (ev) => {
-    try {
-      const resp = await mturk
-        .updateExpirationForHIT({
-          ExpireAt: new Date(0),
-          HITId: selectedHIT.HITId,
-        })
-        .promise();
-      // TODO: LOGS: Use resp.header object to store server time log and action
-      if (resp.$response.httpResponse.statusCode === 200) {
-        // FIXME: We don't want to manually set status, instead we should make another getHIT API
-        // becauese if they end a hit when it's already expired it'll update the local db, but the next refresh from mturk will change the status back to reviewable
+    if (selectedHIT.HITStatus === 'Assignable') {
+      try {
+        await mturk
+          .updateExpirationForHIT({
+            ExpireAt: new Date(0),
+            HITId: selectedHIT.HITId,
+          })
+          .promise();
+        const resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
+        // TODO: LOGS: Use resp.header object to store server time log and action
         const dbResp = await updateDoc(
           'hits',
           { _id: selectedHIT._id },
           {
-            $set: { Expiration: Date().toString() },
+            $set: { Expiration: resp.hit.Expiration.toString() },
           }
         );
         if (dbResp.type === 'success') {
@@ -163,16 +162,17 @@
           modalType = 'notifcation';
           console.log(dbResp);
         }
-      } else {
-        modalText = 'Something unexpected happened! See console.';
-        modalType = 'notification';
+        showModal = true;
+        await getHITs();
+      } catch (err) {
+        console.error(err);
+        modalText = err;
+        modalType = 'error';
+        showModal = true;
       }
-      showModal = true;
-      await getHITs();
-    } catch (err) {
-      console.error(err);
-      modalText = err;
-      modalType = 'error';
+    } else {
+      modalText = 'HIT is no longer active!';
+      modalType = 'notification';
       showModal = true;
     }
     clearSelection();
@@ -189,30 +189,29 @@
   };
 
   const extendHIT = async (ev) => {
-    let update = parseInt(extendTime, 10);
-    if (Number.isInteger(update) && update >= 60) {
-      extendError = false;
-      const now = Date.now();
-      // NOTE: Adding 1 here because minimum time must be 60s and entering 60 submits a request for 59s to aws
-      update = (update + 1) * 1000;
-      const updatedTime = new Date(now + update);
-      console.log(updatedTime);
-      try {
-        const resp = await mturk
-          .updateExpirationForHIT({
-            ExpireAt: updatedTime,
-            HITId: selectedHIT.HITId,
-          })
-          .promise();
-        // TODO: LOGS: Use resp.header object to store server time log and action
-        if (resp.$response.httpResponse.statusCode === 200) {
-          // FIXME: We don't want to manually set status, instead we should make another getHIT API
-          // becauese if they end a hit when it's already expired it'll update the local db, but the next refresh from mturk will change the status back to reviewable
+    if (selectedHIT.HITStatus !== 'Disposed') {
+      let update = parseInt(extendTime, 10);
+      if (Number.isInteger(update) && update >= 60) {
+        extendError = false;
+        const now = Date.now();
+        // NOTE: Adding 1 here because minimum time must be 60s and entering 60 submits a request for 59s to aws
+        update = (update + 1) * 1000;
+        const updatedTime = new Date(now + update);
+        console.log(updatedTime);
+        try {
+          await mturk
+            .updateExpirationForHIT({
+              ExpireAt: updatedTime,
+              HITId: selectedHIT.HITId,
+            })
+            .promise();
+          const resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
+          // TODO: LOGS: Use resp.header object to store server time log and action
           const dbResp = await updateDoc(
             'hits',
             { _id: selectedHIT._id },
             {
-              $set: { Expiration: updatedTime.toString(), Status: 'Assignable' },
+              $set: { Expiration: resp.HIT.Expiration.toString(), HITStatus: resp.hit.HITStatus },
             }
           );
           if (dbResp.type === 'success') {
@@ -223,22 +222,22 @@
             modalType = 'notifcation';
             console.log(dbResp);
           }
-        } else {
-          modalText = 'Something unexpected happened! See console.';
-          modalType = 'notification';
+          showModal = true;
+          await getHITs();
+        } catch (err) {
+          console.error(err);
+          modalText = err;
+          modalType = 'error';
+          showModal = true;
         }
-        showModal = true;
-        await getHITs();
-      } catch (err) {
-        console.error(err);
-        modalText = err;
-        modalType = 'error';
-        showModal = true;
+      } else {
+        extendError = true;
       }
-      clearSelection();
     } else {
-      extendError = true;
+      (modalText = 'HIT has been disposed'), (modalType = 'error');
+      showModal = true;
     }
+    clearSelection();
   };
 
   const filterEntries = () => {
