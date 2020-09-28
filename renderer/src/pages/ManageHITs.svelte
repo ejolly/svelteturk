@@ -318,41 +318,55 @@
     <div class="container">
       <form class="w-full">
         <div class="flex flex-wrap mb-6 -mx-3">
-          <div class="w-1/4 px-3">
+          <div class="w-1/3 px-3">
             <label>Title</label>
             <input readonly type="text" bind:value={selectedHIT.Title} />
           </div>
-          <div class="w-1/4 px-3">
+          <div class="w-1/3 px-3">
             <label>Keywords</label>
             <input type="text" readonly bind:value={selectedHIT.Keywords} />
           </div>
-          <div class="w-1/4 px-3">
+          <div class="w-1/3 px-3">
             <label>Experiment URL</label>
             <input type="text" readonly bind:value={selectedHIT.ExternalURL} />
           </div>
+        </div>
+        <div class="flex flex-wrap mb-6 -mx-3">
           <div class="w-1/4 px-3">
             <label>Hit Id</label>
             <input readonly type="text" bind:value={selectedHIT.HITId} />
           </div>
-        </div>
-        <div class="flex flex-wrap mb-6 -mx-3">
-          <div class="w-3/12 px-3">
+          <div class="w-1/4 px-3">
+            <label>Hit Type Id</label>
+            <input readonly type="text" bind:value={selectedHIT.HITTypeId} />
+          </div>
+          <div class="w-1/4 px-3">
             <label>Created</label>
             <input type="text" readonly bind:value={selectedHIT.CreationTime} />
           </div>
-          <div class="w-3/12 px-3">
+          <div class="w-1/4 px-3">
             <label>Expires</label>
             <input type="text" readonly bind:value={selectedHIT.Expiration} />
           </div>
-          <div class="w-2/12 px-3">
+        </div>
+        <div class="flex flex-wrap mb-6 -mx-3">
+          <div class="w-1/5 px-3">
             <label>Reward</label>
             <input type="text" readonly bind:value={selectedHIT.Reward} />
           </div>
-          <div class="w-2/12 px-3">
-            <label>Approval Delay</label>
+          <div class="w-1/5 px-3">
+            <label>Auto Approval Delay</label>
             <input type="text" readonly bind:value={selectedHIT.AutoApprovalDelayInSeconds} />
           </div>
-          <div class="w-2/12 px-3">
+          <div class="w-1/5 px-3">
+            <label>Duration</label>
+            <input type="text" readonly bind:value={selectedHIT.AssignmentDurationInSeconds} />
+          </div>
+          <div class="w-1/5 px-3">
+            <label>Lifetime</label>
+            <input type="text" readonly bind:value={selectedHIT.LifetimeInSeconds} />
+          </div>
+          <div class="w-1/5 px-3">
             <label>Max Assignments</label>
             <input type="text" readonly bind:value={selectedHIT.MaxAssignments} />
           </div>
@@ -385,7 +399,8 @@
   <div class="flex justify-between mb-2">
     <div class="inline-flex items-center px-4 py-2">
       <p class="px-4 py-2 font-bold tracking-wide text-gray-700 uppercase">
-        Total: {hitsFiltered.length}
+        Total:
+        {hitsFiltered.length}
       </p>
       <p>
         <svg

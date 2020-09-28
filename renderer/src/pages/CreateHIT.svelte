@@ -88,6 +88,7 @@
         MaxAssignments: resp.HIT.MaxAssignments,
         Reward: resp.HIT.Reward,
         AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
+        LifetimeInSeconds: hitParams.lifetime,
         Expiration: resp.HIT.Expiration.toString(),
         AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
         HITReviewStatus: resp.HIT.HITReviewStatus,
@@ -250,7 +251,6 @@
         </button>
       </div>
     </form>
-    <!-- Load-->
   {/if}
 </Dialogue>
 <div class="container" in:fly={{ y: 200, duration: 250 }}>
