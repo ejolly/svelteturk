@@ -537,9 +537,6 @@
   .selected:hover {
     @apply bg-transparent;
   }
-  td {
-    @apply border-t border-gray-300 px-4 py-3 text-gray-700;
-  }
   .hoverable:hover {
     @apply bg-purple-100;
   }
@@ -638,8 +635,11 @@
               HIT selection you have performed.
             </li>
             <li class="mb-2">
-              Open the file and fill out the <em>Bonus</em> and <em>Reason</em> column for each Assignment
-              or leave them blank to skip bonusing a Worker.
+              Open the file and fill out the
+              <em>Bonus</em>
+              and
+              <em>Reason</em>
+              column for each Assignment or leave them blank to skip bonusing a Worker.
             </li>
             <li class="mb-2">Press Import to upload your edited file and validate your changes.</li>
           </ol>
@@ -656,7 +656,10 @@
     </form>
   </div>
 </Dialogue>
-<div class="container h-screen" in:fly={{ y: 200, duration: 250 }} on:click|self={closeHITSelect}>
+<div
+  class="container w-full h-screen"
+  in:fly={{ y: 200, duration: 250 }}
+  on:click|self={closeHITSelect}>
   <div class="flex justify-between mb-2" on:click|self={closeHITSelect}>
     <div class="inline-flex items-center px-4 py-2">
       <!-- Dropdown selector -->
@@ -710,8 +713,9 @@
           </div>
         {/if}
       </div>
-      <p class="px-4 py-2 font-bold tracking-wide text-gray-700 uppercase">
-        Total: {asstsFiltered.length}
+      <p class="py-2 pl-4 pr-2 font-bold tracking-wide text-gray-700 uppercase">
+        Total:
+        {asstsFiltered.length}
       </p>
       <p>
         <svg
@@ -739,7 +743,7 @@
         <button class="button" on:click|preventDefault={showBonusViaFile}>Bonus from File</button>
       {/if}
     </div>
-    <div class="inline-flex items-center h-10 px-4 py-2 bg-gray-200 rounded">
+    <div class="inline-flex items-center h-10 px-4 py-2 mt-1 bg-gray-200 rounded">
       <svg class="w-6 h-6 mr-2 fill-current" viewBox="0 0 20 20">
         <path
           fill-rule="evenodd"
@@ -768,28 +772,30 @@
       </svg>
     </div>
   </div>
-  <table class="w-full table-auto">
-    <thead>
-      <tr>
-        {#each tableHeaders as header}
-          <th class="header">{header}</th>
-        {/each}
-      </tr>
-    </thead>
-    <tbody>
-      {#each asstsFiltered as asst}
-        <tr on:click={(ev) => selectRow(ev, asst)} class="hoverable">
-          <td type="text">{asst.Status}</td>
-          <td type="text">{asst.AsstId.slice(0, 6)}</td>
-          <td type="text">{asst.WorkerId}</td>
-          <td type="text">{asst.HITId.slice(0, 6)}</td>
-          <td type="number">{formatDate(asst.AcceptTime)}</td>
-          <td type="text">{formatDate(asst.SubmitTime)}</td>
-          <td type="text">{asst.ReviewTime ? formatDate(asst.ReviewTime) : ''}</td>
-          <td type="text">{asst.Bonus ? `$${asst.Bonus}` : ''}</td>
-          <td type="text">{asst.BonusTime ? formatDate(asst.BonusTime) : ''}</td>
+  <div class="table-container">
+    <table class="w-full table-auto">
+      <thead>
+        <tr>
+          {#each tableHeaders as header}
+            <th class="header">{header}</th>
+          {/each}
         </tr>
-      {/each}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {#each asstsFiltered as asst}
+          <tr on:click={(ev) => selectRow(ev, asst)} class="hoverable">
+            <td type="text">{asst.Status}</td>
+            <td type="text">{asst.AsstId.slice(0, 6)}</td>
+            <td type="text">{asst.WorkerId}</td>
+            <td type="text">{asst.HITId.slice(0, 6)}</td>
+            <td type="number">{formatDate(asst.AcceptTime)}</td>
+            <td type="text">{formatDate(asst.SubmitTime)}</td>
+            <td type="text">{asst.ReviewTime ? formatDate(asst.ReviewTime) : ''}</td>
+            <td type="text">{asst.Bonus ? `$${asst.Bonus}` : ''}</td>
+            <td type="text">{asst.BonusTime ? formatDate(asst.BonusTime) : ''}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
 </div>

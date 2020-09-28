@@ -59,44 +59,46 @@
 </style>
 
 <Modal bind:showModal bind:modalType bind:modalText />
-<div
-  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 font-quantico"
-  in:fly={{ y: 200, duration: 250 }}>
-  <div class="py-8 text-center">
-    <div class="md:border-r">
-      <div class="label">Account Balance</div>
-      <div class="mb-2 text-grey-darker">
-        <span class="text-xl text-purple-600 align-top">$</span>
-        <span class="text-3xl">
-          {#await accountBalance}Loading...{:then accountBalance}{accountBalance}{/await}
-        </span>
+<div class="container h-screen w-full">
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 font-quantico"
+    in:fly={{ y: 200, duration: 250 }}>
+    <div class="py-8 text-center">
+      <div class="md:border-r">
+        <div class="label">Account Balance</div>
+        <div class="mb-2 text-grey-darker">
+          <span class="text-xl text-purple-600 align-top">$</span>
+          <span class="text-3xl">
+            {#await accountBalance}Loading...{:then accountBalance}{accountBalance}{/await}
+          </span>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="py-8 text-center">
-    <div class="lg:border-r">
-      <div class="label">Number of HITs</div>
-      <div class="mb-2 text-grey-darker">
-        <span class="text-xl text-purple-600 align-top">+</span>
-        <span class="text-3xl">{numHITs}</span>
+    <div class="py-8 text-center">
+      <div class="lg:border-r">
+        <div class="label">Number of HITs</div>
+        <div class="mb-2 text-grey-darker">
+          <span class="text-xl text-purple-600 align-top">+</span>
+          <span class="text-3xl">{numHITs}</span>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="py-8 text-center">
-    <div class="md:border-r">
-      <div class="flex-no-wrap label">Number of Assignments</div>
-      <div class="mb-2 text-grey-darker">
-        <span class="text-xl text-purple-600 align-top">+</span>
-        <span class="text-3xl">{numAssts}</span>
+    <div class="py-8 text-center">
+      <div class="md:border-r">
+        <div class="flex-no-wrap label">Number of Assignments</div>
+        <div class="mb-2 text-grey-darker">
+          <span class="text-xl text-purple-600 align-top">+</span>
+          <span class="text-3xl">{numAssts}</span>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="py-8 text-center">
-    <div>
-      <div class="label">Number of Workers</div>
-      <div class="mb-2 text-grey-darker">
-        <span class="text-xl text-purple-600 align-top">+</span>
-        <span class="text-3xl">{numWorkers}</span>
+    <div class="py-8 text-center">
+      <div>
+        <div class="label">Number of Workers</div>
+        <div class="mb-2 text-grey-darker">
+          <span class="text-xl text-purple-600 align-top">+</span>
+          <span class="text-3xl">{numWorkers}</span>
+        </div>
       </div>
     </div>
   </div>

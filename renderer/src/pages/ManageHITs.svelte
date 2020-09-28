@@ -10,8 +10,8 @@
   // INPUTS
   export let mturk;
   export let tableHeaders = [
-    'Title',
     'Status',
+    'Title',
     'HITId',
     'HITTypeId',
     'Created',
@@ -285,9 +285,6 @@
   .header {
     @apply mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase sticky border-b border-gray-200 px-4 py-3 bg-gray-100;
   }
-  td {
-    @apply border-t border-gray-300 px-4 py-3 text-gray-700;
-  }
   .hoverable:hover {
     @apply bg-purple-100;
   }
@@ -395,10 +392,10 @@
     </div>
   {/if}
 </Dialogue>
-<div class="container" in:fly={{ y: 200, duration: 250 }}>
+<div class="w-full h-screen" in:fly={{ y: 200, duration: 250 }}>
   <div class="flex justify-between mb-2">
-    <div class="inline-flex items-center px-4 py-2">
-      <p class="px-4 py-2 font-bold tracking-wide text-gray-700 uppercase">
+    <div class="inline-flex items-center px-4 py-2 truncate">
+      <p class="py-2 pl-4 pr-2 font-bold tracking-wide text-gray-700 uppercase">
         Total:
         {hitsFiltered.length}
       </p>
@@ -426,7 +423,7 @@
       <button on:click|preventDefault={endHIT} class="button"> End HIT </button>
       <button on:click|preventDefault={deleteHIT} class="button"> Delete from db </button>
     </div>
-    <div class="inline-flex items-center h-10 px-4 py-2 bg-gray-200 rounded">
+    <div class="inline-flex items-center h-10 px-4 py-2 mt-1 bg-gray-200 rounded">
       <svg class="w-6 h-6 mr-2 fill-current" viewBox="0 0 20 20">
         <path
           fill-rule="evenodd"
@@ -455,29 +452,31 @@
       </svg>
     </div>
   </div>
-  <table class="w-full table-auto">
-    <thead>
-      <tr>
-        {#each tableHeaders as header}
-          <th class="header">{header}</th>
-        {/each}
-      </tr>
-    </thead>
-    <tbody>
-      {#each hitsFiltered as hit}
-        <tr on:click={(ev) => selectRow(ev, hit)} class="hoverable">
-          <td type="text">{hit.Title}</td>
-          <td type="text">{hit.HITStatus}</td>
-          <td type="text">{hit.HITId.slice(0, 6)}</td>
-          <td type="text">{hit.HITTypeId.slice(0, 6)}</td>
-          <td type="number">{formatDate(hit.CreationTime)}</td>
-          <td type="text">{formatDate(hit.Expiration)}</td>
-          <td type="text">{hit.MaxAssignments}</td>
-          <td type="text">{hit.NumberOfAssignmentsPending}</td>
-          <td type="text">{hit.NumberOfAssignmentsAvailable}</td>
-          <td type="text">{hit.NumberOfAssignmentsCompleted}</td>
+  <div class="table-container">
+    <table class="w-full table-auto">
+      <thead>
+        <tr>
+          {#each tableHeaders as header}
+            <th class="w-1/12 truncate header">{header}</th>
+          {/each}
         </tr>
-      {/each}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {#each hitsFiltered as hit}
+          <tr on:click={(ev) => selectRow(ev, hit)} class="hoverable">
+            <td type="text">{hit.HITStatus}</td>
+            <td type="text">{hit.Title}</td>
+            <td type="text">{hit.HITId.slice(0, 6)}</td>
+            <td type="text">{hit.HITTypeId.slice(0, 6)}</td>
+            <td type="number">{formatDate(hit.CreationTime)}</td>
+            <td type="text">{formatDate(hit.Expiration)}</td>
+            <td type="text">{hit.MaxAssignments}</td>
+            <td type="text">{hit.NumberOfAssignmentsPending}</td>
+            <td type="text">{hit.NumberOfAssignmentsAvailable}</td>
+            <td type="text">{hit.NumberOfAssignmentsCompleted}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
 </div>

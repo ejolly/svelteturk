@@ -141,6 +141,13 @@
   .error-text {
     @apply text-xs italic text-red-500;
   }
+  .table-container {
+    @apply overflow-auto;
+    height: 60%;
+  }
+  td {
+    @apply border-t border-gray-300 px-4 py-3 text-gray-700 truncate;
+  }
 </style>
 
 <svelte:window bind:online={mturkReady} />
@@ -160,10 +167,10 @@
     <hr class="w-64 border-t-2 border-gray-500" />
   </header>
   <!-- Main page, flex but offset width of sidebar and header -->
-  <div class="flex pr-4 mr-8 overflow-hidden main">
-    <main class="flex-grow">
+  <div class="flex pr-4 mr-8 main">
+    <div class="w-full overflow-auto">
       <svelte:component this={component} {mturk} />
-    </main>
+    </div>
   </div>
   <!-- Footer for contact info -->
   <Footer />

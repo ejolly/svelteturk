@@ -253,7 +253,7 @@
     </form>
   {/if}
 </Dialogue>
-<div class="container" in:fly={{ y: 200, duration: 250 }}>
+<div class="w-full h-screen" in:fly={{ y: 200, duration: 250 }}>
   <form class="w-full" on:submit|preventDefault={createHIT}>
     <div class="flex flex-wrap mb-6 -mx-3">
       <div class="w-1/3 px-3">

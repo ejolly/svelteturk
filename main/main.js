@@ -64,9 +64,10 @@ let awsCredentials = {
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 1024,
-    minWidth: 1090,
+    width: 1400,
+    height: 1000,
+    minWidth: 1210,
+    minHeight: 750,
     show: false,
     webPreferences: {
       nodeIntegration: true,
