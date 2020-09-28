@@ -322,6 +322,11 @@
     showDialogue = true;
   };
 
+  const showBonusAsst = () => {
+    whichDialogue = 'bonus-asst';
+    showDialogue = true;
+  };
+
   const showBonusViaFile = () => {
     whichDialogue = 'bonus-file';
     showDialogue = true;
@@ -387,7 +392,7 @@
     }
   };
 
-  const bonusAll = async () => {
+  const bonusAssts = async (bonusType) => {
     if (validateBonus(bonusAmount)) {
       bonusError = false;
       showDialogue = false;
@@ -395,8 +400,14 @@
       refreshIcon.classList.remove('text-gray-600');
       refreshIcon.classList.add('animate-spin', 'text-purple-700');
       try {
+        let asstsList;
+        if (bonusType === 'all') {
+          asstsList = asstsFiltered;
+        } else {
+          asstsList = [selectedAsst];
+        }
         // for of instead of Promise.all because we don't want single failures to block approval attempts and db writes for the other successfull assignments
-        for (const asst of asstsFiltered) {
+        for (const asst of asstsList) {
           const resp = await mturk
             .sendBonus({
               AssignmentId: asst.AsstId,
@@ -420,7 +431,7 @@
             await wait(1000);
           }
         }
-        modalText = 'All assignments bonused successfully!';
+        modalText = 'Bonus granted successfully!';
         modalType = 'success';
       } catch (err) {
         console.error(err);
@@ -569,25 +580,6 @@
             Submit
           </button>
         </div>
-      {:else if whichDialogue === 'bonus-all'}
-        <div class="flex flex-col items-center px-3">
-          <label class="self-start">Bonus in USD</label>
-          <input type="text" bind:value={bonusAmount} placeholder="enter a number" />
-          <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
-            Must be a valid number greater than 0
-          </p>
-          <label class="self-start">Bonus Reason</label>
-          <input
-            type="text"
-            bind:value={requesterFeedback}
-            placeholder="tell the worker why they're receiving a bonus" />
-          <button
-            on:click|preventDefault={bonusAll}
-            class="button dialogue-button"
-            disabled={bonusAmount === '' || requesterFeedback === ''}>
-            Submit
-          </button>
-        </div>
       {:else if whichDialogue === 'bonus-file-upload-results'}
         <div class="flex flex-col px-3">
           <h2 class="mx-auto mb-2 text-2xl">Please verify import</h2>
@@ -650,6 +642,25 @@
           </button>
           <button on:click|preventDefault={importAsstsForBonus} class="button dialogue-button">
             Import
+          </button>
+        </div>
+      {:else}
+        <div class="flex flex-col items-center px-3">
+          <label class="self-start">Bonus in USD</label>
+          <input type="text" bind:value={bonusAmount} placeholder="enter a number" />
+          <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
+            Must be a valid number greater than 0
+          </p>
+          <label class="self-start">Bonus Reason</label>
+          <input
+            type="text"
+            bind:value={requesterFeedback}
+            placeholder="tell the worker why they're receiving a bonus" />
+          <button
+            on:click|preventDefault={() => (whichDialogue === 'bonus-all' ? bonusAssts('all') : bonusAssts('single'))}
+            class="button dialogue-button"
+            disabled={bonusAmount === '' || requesterFeedback === ''}>
+            Submit
           </button>
         </div>
       {/if}
@@ -735,8 +746,9 @@
     <div class="inline-flex items-center px-4 py-2 space-x-4 font-quantico">
       {#if rowSelected}
         <button class="button" on:click|preventDefault={approveAsst}>Approve</button>
-        <button class="button" on:click|preventDefault={showRejectAsst}> Reject </button>
-        <button class="button" on:click|preventDefault={deleteAsst}> Delete from db </button>
+        <button class="button" on:click|preventDefault={showBonusAsst}>Bonus</button>
+        <button class="button" on:click|preventDefault={showRejectAsst}>Reject</button>
+        <button class="button" on:click|preventDefault={deleteAsst}>Delete</button>
       {:else}
         <button class="button" on:click|preventDefault={approveAll}>Approve All</button>
         <button class="button" on:click|preventDefault={showBonusAll}>Bonus All</button>

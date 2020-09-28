@@ -147,6 +147,7 @@
   }
   td {
     @apply border-t border-gray-300 px-4 py-3 text-gray-700 truncate;
+    max-width: 11rem;
   }
 </style>
 

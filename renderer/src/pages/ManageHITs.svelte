@@ -32,7 +32,8 @@
   let modalType;
   let showDialogue = false;
   let whichDialogue = '';
-  let extendTime = '';
+  let extendTime = 60;
+  let additionalAssts = 1;
   let extendError = false;
   let refreshFromAWS;
   // The row DOM element
@@ -188,6 +189,16 @@
     showDialogue = true;
   };
 
+  const showAddAssts = () => {
+    whichDialogue = 'add';
+    showDialogue = true;
+  };
+
+  const addAsstsToHIT = async () => {
+    // TODO: Add logic
+    console.log('add assignments');
+  };
+
   const extendHIT = async (ev) => {
     if (selectedHIT.HITStatus !== 'Disposed') {
       let update = parseInt(extendTime, 10);
@@ -294,6 +305,12 @@
   input {
     @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
   }
+  .tooltip .tooltip-text {
+    @apply invisible p-1 absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -ml-48 -mt-16 max-w-md;
+  }
+  .tooltip:hover .tooltip-text {
+    @apply visible;
+  }
 </style>
 
 <Modal bind:showModal bind:modalType bind:modalText />
@@ -302,11 +319,28 @@
     <form class="w-full">
       <div class="flex flex-col items-center px-3">
         <label class="self-start">Additional Duration</label>
-        <input type="text" bind:value={extendTime} placeholder="time in seconds" />
+        <input type="number" bind:value={extendTime} placeholder="time in seconds" min="60" />
         <p class="self-start error-text" class:visible={extendError} class:invisible={!extendError}>
           Must be a valid time in seconds (minimum 60)
         </p>
-        <button on:click|preventDefault={extendHIT} class="button" disabled={extendTime === ''}>
+        <button on:click|preventDefault={extendHIT} class="button" disabled={!extendTime}>
+          Submit
+        </button>
+      </div>
+    </form>
+  {:else if whichDialogue === 'add'}
+    <form class="w-full">
+      <div class="flex flex-col items-center px-3">
+        <label class="self-start">Additional Workers</label>
+        <input
+          type="number"
+          bind:value={additionalAssts}
+          placeholder="number of assignments"
+          min="1" />
+        <p class="self-start error-text" class:visible={extendError} class:invisible={!extendError}>
+          Must be a valid number (minimum 1)
+        </p>
+        <button on:click|preventDefault={addAsstsToHIT} class="button" disabled={!additionalAssts}>
           Submit
         </button>
       </div>
@@ -418,10 +452,16 @@
       class="inline-flex items-center px-4 py-2 space-x-4"
       class:invisible={!rowSelected}
       class:visible={rowSelected}>
-      <button on:click|preventDefault={showHITInfo} class="button"> HIT Details </button>
-      <button on:click|preventDefault={showHITExtend} class="button"> Extend HIT </button>
-      <button on:click|preventDefault={endHIT} class="button"> End HIT </button>
-      <button on:click|preventDefault={deleteHIT} class="button"> Delete from db </button>
+      <button on:click|preventDefault={showHITInfo} class="button">Details</button>
+      <div class="tooltip">
+        <button on:click|preventDefault={showAddAssts} class="button">Recruit</button>
+        <!-- disabled={rowSelected && selectedHIT.MaxAssignments <= 9}>Recruit</button> -->
+        <span class="tooltip-text">This HIT was originally created with Max Assts of 9 or less. You
+          can only create a new HIT which will be available to repeat Workers.</span>
+      </div>
+      <button on:click|preventDefault={showHITExtend} class="button">Extend</button>
+      <button on:click|preventDefault={endHIT} class="button">End</button>
+      <button on:click|preventDefault={deleteHIT} class="button">Delete</button>
     </div>
     <div class="inline-flex items-center h-10 px-4 py-2 mt-1 bg-gray-200 rounded">
       <svg class="w-6 h-6 mr-2 fill-current" viewBox="0 0 20 20">
