@@ -24,6 +24,7 @@
   let loadTemplates;
   let loadName;
   let errors = {};
+  const qualifications = ['--Unselect All--', '> 95% Approval', 'Adult only', 'US Only', 'Masters'];
   let hitParams = {
     assignmentDuration: 3600,
     description: '',
@@ -36,23 +37,34 @@
     externalURL: '',
     selectedQuals: ['--Unselect All--'],
   };
-  const qualifications = ['--Unselect All--', '> 95% Approval', 'Adult only', 'US Only', 'Masters'];
+  let hitParamsInfo = {
+    assignmentDuration: 'Time (s) Worker has to complete a HIT',
+    description: 'Details about HIT',
+    lifetime: 'Total time (s) HIT is available to be completed',
+    reward: 'Payment to Worker in USD after completion',
+    title: 'Title of HIT',
+    autoApprovalDelay: 'Delay (s) before Worker is auto-paid',
+    keywords: 'Comma separated (no-spaces) list of HIT keywords',
+    maxAssignments: '',
+    externalURL: 'URL of your experiment/survey/task',
+    selectedQuals: 'Qualifications a Worker must have to complete your HIT',
+  };
   $: {
     if (hitParams.selectedQuals.includes('--Unselect All--')) {
       hitParams['selectedQuals'] = [];
     }
   }
-  $: maxAsstsInfo = hitParams.maxAssignments
-    ? hitParams.maxAssignments > 9
-      ? 'Additional assts limit: none Mturk fee: 40%'
-      : `Additional assts limit: ${9 - hitParams.maxAssignments} Mturk fee: 20%`
-    : '';
-
-  // $: maxAsstsInfo = !errors.maxAssignments
-  //   ? hitParams.maxAssignments > 9
-  //     ? 'Additional assts limit: none Mturk fee: 40%'
-  //     : `Additional assts limit: ${9 - hitParams.maxAssignments} Mturk fee: 20%`
-  //   : '';
+  $: {
+    if (hitParams.maxAssignments) {
+      if (hitParams.maxAssignments > 9) {
+        hitParamsInfo['maxAssignments'] = 'Additional assts limit: none Mturk fee: 40%';
+      } else {
+        hitParamsInfo['maxAssignments'] = `Additional assts limit: ${
+          9 - hitParams.maxAssignments
+        } Mturk fee: 20%`;
+      }
+    }
+  }
 
   $: externalQuestion = `
   <ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">
@@ -273,6 +285,8 @@
           type="text"
           error={errors.title}
           displayError={!!errors.title}
+          displayInfo={!!!errors.title}
+          info={hitParamsInfo.title}
           bind:value={hitParams.title} />
       </div>
       <div class="w-1/3 px-3">
@@ -281,6 +295,8 @@
           type="text"
           error={errors.keywords}
           displayError={!!errors.keywords}
+          displayInfo={!!!errors.keywords}
+          info={hitParamsInfo.keywords}
           bind:value={hitParams.keywords} />
       </div>
       <div class="w-1/3 px-3">
@@ -289,6 +305,8 @@
           type="text"
           error={errors.externalURL}
           displayError={!!errors.externalURL}
+          displayInfo={!!!errors.externalUrl}
+          info={hitParamsInfo.externalURL}
           bind:value={hitParams.externalURL} />
       </div>
     </div>
@@ -299,6 +317,8 @@
           type="text"
           error={errors.reward}
           displayError={!!errors.reward}
+          displayInfo={!!!errors.reward}
+          info={hitParamsInfo.reward}
           bind:value={hitParams.reward} />
       </div>
       <div class="w-1/5 px-3">
@@ -307,6 +327,8 @@
           type="number"
           error={errors.autoApprovalDelay}
           displayError={!!errors.autoApprovalDelay}
+          displayInfo={!!!errors.autoApprovalDelay}
+          info={hitParamsInfo.autoApprovalDelay}
           bind:value={hitParams.autoApprovalDelay} />
       </div>
       <div class="w-1/5 px-3">
@@ -315,6 +337,8 @@
           type="number"
           error={errors.assignmentDuration}
           displayError={!!errors.assignmentDuration}
+          displayInfo={!!!errors.assignmentDuration}
+          info={hitParamsInfo.assignmentDuration}
           bind:value={hitParams.assignmentDuration} />
       </div>
       <div class="w-1/5 px-3">
@@ -323,6 +347,8 @@
           type="number"
           error={errors.lifetime}
           displayError={!!errors.lifetime}
+          displayInfo={!!!errors.lifetime}
+          info={hitParamsInfo.lifetime}
           bind:value={hitParams.lifetime} />
       </div>
       <div class="w-1/5 px-3">
@@ -332,11 +358,11 @@
           error={errors.maxAssignments}
           displayError={!!errors.maxAssignments}
           displayInfo={!!!errors.maxAssignments}
-          info={maxAsstsInfo}
+          info={hitParamsInfo.maxAssignments}
           bind:value={hitParams.maxAssignments} />
       </div>
     </div>
-    <div class="flex flex-wrap mb-6 -mx-3">
+    <div class="flex flex-wrap mb-4 -mx-3">
       <div class="w-1/3 px-3">
         <label>Qualifications</label>
         <select
@@ -347,6 +373,7 @@
             <option value={qual}>{qual}</option>
           {/each}
         </select>
+        <p class="info-text">{hitParamsInfo.selectedQuals}</p>
       </div>
       <div class="w-2/3 px-3">
         <Input
@@ -354,8 +381,13 @@
           type="textarea"
           error={errors.description}
           displayError={!!errors.description}
+          displayInfo={!!!errors.description}
+          info={hitParamsInfo.description}
           bind:value={hitParams.description} />
       </div>
+    </div>
+    <div class="w-full px-3 text-center font-quantico">
+      <p>This is some info</p>
     </div>
     <hr class="block w-full mt-2 mb-4 border-gray-500" />
     <div class="flex flex-wrap items-center justify-center mb-6 -mx-3 space-x-4">
