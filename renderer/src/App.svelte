@@ -74,6 +74,7 @@
         // eslint-disable-next-line no-undef
         secretAccessKey: awsSecret,
       });
+      mturk.live = live;
       mturkReady = true;
       logger.info(`Mturk ready with endpoint: ${mturk.endpoint.host}`);
       window.mturk = mturk;

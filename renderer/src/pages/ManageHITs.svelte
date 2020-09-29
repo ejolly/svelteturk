@@ -539,7 +539,7 @@
         bind:value={search}
         on:keyup={() => filterEntries()} />
       <svg
-        class="w-4 h-4 fill-current"
+        class="w-4 h-4 cursor-pointer fill-current"
         class:invisible={!search}
         class:visible={search}
         viewBox="0 0 20 20"

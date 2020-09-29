@@ -73,3 +73,56 @@ export const HITSchema = yup.object().shape({
 
 // Extract yup errors into an object
 export const extractErrors = ({ inner }) => inner.reduce((acc, err) => ({ ...acc, [err.path]: err.message }), {});
+
+// Format qualifications as desired by mturk
+export const formatQuals = (qualArray, live) => {
+  const out = [];
+  const mastersQualId = live ? '2F1QJWKUDD8XADTFD2Q0G6UTO95ALH' : '2ARFPLSP75KLA8M8DH1HTEQVJT3SY6';
+  qualArray.forEach((qual) => {
+    switch (qual) {
+      case '> 95% Approval':
+        out.push(
+          {
+            QualificationTypeId: '000000000000000000L0',
+            Comparator: 'GreaterThanOrEqualTo',
+            IntegerValues: [95],
+            ActionsGuarded: 'DiscoverPreviewAndAccept'
+          }
+        );
+        break;
+      case 'Adult only':
+        out.push(
+          {
+            QualificationTypeId: '00000000000000000060',
+            Comparator: 'EqualTo',
+            IntegerValues: [1],
+            ActionsGuarded: 'DiscoverPreviewAndAccept'
+          }
+        );
+        break;
+      case 'US Only':
+        out.push(
+          {
+            QualificationTypeId: '00000000000000000071',
+            Comparator: 'EqualTo',
+            LocaleValues: [{ Country: 'US' }],
+            ActionsGuarded: 'DiscoverPreviewAndAccept'
+          }
+        );
+        break;
+      case 'Masters':
+        out.push(
+          {
+            QualificationTypeId: mastersQualId,
+            Comparator: 'Exists',
+            ActionsGuarded: 'DiscoverPreviewAndAccept'
+          }
+        );
+        break;
+      default:
+        // eslint-disable-next-line no-throw-literal
+        throw `Unrecognized qualification: ${qual}`;
+    }
+  });
+  return out;
+};

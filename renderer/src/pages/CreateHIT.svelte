@@ -3,7 +3,7 @@
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
   import Input from '../components/Input.svelte';
-  import { HITSchema, extractErrors } from '../components/utils.js';
+  import { HITSchema, extractErrors, formatQuals } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -84,6 +84,8 @@
     try {
       await HITSchema.validate(hitParams, { abortEarly: false });
       errors = {};
+      const qualArray = formatQuals(hitParams.selectedQuals, mturk.live);
+      console.log(qualArray);
       const resp = await mturk
         .createHIT({
           AssignmentDurationInSeconds: hitParams.assignmentDuration,
@@ -95,8 +97,10 @@
           Keywords: hitParams.keywords,
           MaxAssignments: hitParams.maxAssignments,
           Question: externalQuestion,
+          QualificationRequirements: qualArray,
         })
         .promise();
+      console.log(resp.HIT);
       // TODO: LOGS use resp.header to get server time
       const dbResp = await ipcRenderer.invoke('insertHIT', {
         HITId: resp.HIT.HITId,
