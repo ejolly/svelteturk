@@ -152,9 +152,6 @@ app.on('activate', () => {
 // Send aws credentials
 ipcMain.handle('getCredentials', async (ev) => awsCredentials);
 
-// Send db object for debugging via console
-ipcMain.handle('giveMeDB', async (ev) => db);
-
 // Count records in each db
 ipcMain.handle('countDocs', async (ev) => {
   const out = {};
@@ -349,27 +346,13 @@ ipcMain.handle('findHits', async (ev) => {
   return docs;
 });
 
-// Search for hit with same exact params
-ipcMain.handle('findDuplicateHIT', async (ev, hitParams) => {
+// Search for hit with same exact params; useful because Mturk will assign HITs with matching params
+// the same HITTypeId
+ipcMain.handle('findDuplicateHIT', async (ev, HITTypeId) => {
   let text;
   let type;
   try {
-    const docs = await db.hits.findOne({
-      $and: [
-        {
-          AssignmentDurationInSeconds: hitParams.assignmentDuration,
-          Description: hitParams.description,
-          LifetimeInSeconds: hitParams.lifetime,
-          Reward: hitParams.reward,
-          Title: hitParams.title,
-          AutoApprovalDelayInSeconds: hitParams.autoApprovalDelay,
-          Keywords: hitParams.keywords,
-        },
-        {
-          $where() { return JSON.stringify(this.Qualifications) === JSON.stringify(hitParams.selectedQuals); }
-        }
-      ]
-    });
+    const docs = await db.hits.findOne({ HITTypeId: HITTypeId });
     return docs;
   } catch (err) {
     console.error(err);
@@ -378,6 +361,7 @@ ipcMain.handle('findDuplicateHIT', async (ev, hitParams) => {
     return { text, type };
   }
 });
+
 // Return all assts
 ipcMain.handle('findAssts', async (ev) => {
   const docs = await db.assts.find({}).sort({ createdAt: -1 });
@@ -440,3 +424,33 @@ ipcMain.handle('deleteHITTemplate', async (ev, name) => {
   }
   return { text, type };
 });
+
+// Keeping this for posterity as it was written before matching on HITTypeID
+// It matches based on document content in nedb, in this case the parameters of a HIT
+// ipcMain.handle('findDuplicateHIT', async (ev, hitParams) => {
+//   let text;
+//   let type;
+//   try {
+//     const docs = await db.hits.findOne({
+//       $and: [
+//         {
+//           AssignmentDurationInSeconds: hitParams.assignmentDuration,
+//           Description: hitParams.description,
+//           Reward: hitParams.reward,
+//           Title: hitParams.title,
+//           AutoApprovalDelayInSeconds: hitParams.autoApprovalDelay,
+//           Keywords: hitParams.keywords,
+//         },
+//         {
+//           $where() { return JSON.stringify(this.Qualifications) === JSON.stringify(hitParams.selectedQuals); }
+//         }
+//       ]
+//     });
+//     return docs;
+//   } catch (err) {
+//     console.error(err);
+//     text = err;
+//     type = 'error';
+//     return { text, type };
+//   }
+// });

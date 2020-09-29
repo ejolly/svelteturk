@@ -564,7 +564,7 @@
 
 <Modal bind:showModal bind:modalType bind:modalText />
 <Dialogue bind:showDialogue on:close={clearSelection}>
-  <div class="h-full overflow-y-auto w-ful">
+  <div class="w-full h-full overflow-y-auto">
     <form class="max-w-xl">
       {#if whichDialogue === 'reject-single'}
         <div class="flex flex-col items-center px-3">

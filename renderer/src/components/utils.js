@@ -35,6 +35,15 @@ export const wait = async (ms) => new Promise((resolve) => {
   setTimeout(resolve, ms);
 });
 
+// Async iterable generator when we need to iterate N times, rather than over an object with a predefined length (in which case we'd use for of)
+export function* asyncGenerator(N) {
+  let i = 0;
+  while (i < N) {
+    // eslint-disable-next-line no-plusplus
+    yield i++;
+  }
+}
+
 // Format a data to Month/Data/Year - Hours:Minutesam/pm
 // Args: date object
 export const formatDate = (date) => {
@@ -68,6 +77,7 @@ export const HITSchema = yup.object().shape({
   autoApprovalDelay: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer'),
   keywords: yup.string('Must be a comma separated list of words without spaces').required('Keywords are required'),
   maxAssignments: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('Maximum Assignments is required'),
+  numHITs: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('Repeat participation is required'),
   externalURL: yup.string().url('Must be a valid URL').required('External URL is required'),
 });
 
@@ -128,10 +138,10 @@ export const formatQuals = (qualArray, live) => {
 };
 
 // Check for duplicate hits
-export const checkForDuplicateHIT = async (hitParams) => {
+export const checkForDuplicateHIT = async (HITTypeId) => {
   let resp;
   try {
-    resp = await ipcRenderer.invoke('findDuplicateHIT', hitParams);
+    resp = await ipcRenderer.invoke('findDuplicateHIT', HITTypeId);
   } catch (err) {
     resp = { text: err, type: 'error' };
   }

@@ -8,6 +8,8 @@
     extractErrors,
     formatQuals,
     checkForDuplicateHIT,
+    asyncGenerator,
+    wait,
   } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
@@ -30,6 +32,8 @@
   let loadName;
   let errors = {};
   const qualifications = ['--Unselect All--', '> 95% Approval', 'Adult only', 'US Only', 'Masters'];
+  let generatedHITTypeId;
+  let creatingHITs = false;
   let hitParams = {
     assignmentDuration: 3600,
     description: '',
@@ -39,18 +43,20 @@
     autoApprovalDelay: 10,
     keywords: 'research,experiment',
     maxAssignments: 2,
+    numHITs: 1,
     externalURL: '',
     selectedQuals: ['--Unselect All--'],
   };
   let hitParamsInfo = {
     assignmentDuration: 'Time (s) Worker has to complete a HIT',
     description: 'Details about HIT',
-    lifetime: 'Total time (s) HIT is available to be completed',
-    reward: 'Payment to Worker in USD after completion',
+    lifetime: 'Total time (s) HIT is available on Mturk',
+    reward: 'Worker payment in USD',
     title: 'Title of HIT',
     autoApprovalDelay: 'Delay (s) before Worker is auto-paid',
     keywords: 'Comma separated (no-spaces) list of HIT keywords',
     maxAssignments: '',
+    numHITs: 'Number of times each Worker can complete your HIT',
     externalURL: 'URL of your experiment/survey/task',
     selectedQuals: 'Qualifications a Worker must have to complete your HIT',
   };
@@ -62,11 +68,9 @@
   $: {
     if (hitParams.maxAssignments) {
       if (hitParams.maxAssignments > 9) {
-        hitParamsInfo['maxAssignments'] = 'Additional assts limit: none Mturk fee: 40%';
+        hitParamsInfo['maxAssignments'] = 'Max Limit: None | Mturk fee: 40%';
       } else {
-        hitParamsInfo['maxAssignments'] = `Additional assts limit: ${
-          9 - hitParams.maxAssignments
-        } Mturk fee: 20%`;
+        hitParamsInfo['maxAssignments'] = `Max Limit: 9 | Mturk fee: 20%`;
       }
     }
   }
@@ -84,60 +88,43 @@
     loadNames = loadTemplates.map((elem) => elem['name']);
     loadName = undefined;
   };
-  // Create a HIT, validate hit params, and save it to db
-  const createHIT = async () => {
+
+  const makeHIT = async () => {
     try {
       await HITSchema.validate(hitParams, { abortEarly: false });
       errors = {};
-      const matchingDoc = await checkForDuplicateHIT(hitParams);
-      if (matchingDoc) {
-        console.log(matchingDoc);
-      } else {
-        console.log('No matching HIT found');
-      }
       const qualArray = formatQuals(hitParams.selectedQuals, mturk.live);
       const resp = await mturk
-        .createHIT({
+        .createHITType({
           AssignmentDurationInSeconds: hitParams.assignmentDuration,
           Description: hitParams.description,
-          LifetimeInSeconds: hitParams.lifetime,
           Reward: hitParams.reward,
           Title: hitParams.title,
           AutoApprovalDelayInSeconds: hitParams.autoApprovalDelay,
           Keywords: hitParams.keywords,
-          MaxAssignments: hitParams.maxAssignments,
-          Question: externalQuestion,
           QualificationRequirements: qualArray,
         })
         .promise();
-      console.log(resp.HIT);
-      // TODO: LOGS use resp.header to get server time
-      const dbResp = await ipcRenderer.invoke('insertHIT', {
-        HITId: resp.HIT.HITId,
-        HITTypeId: resp.HIT.HITTypeId,
-        HITGroupId: resp.HIT.HITGroupId,
-        HITLayoutId: resp.HIT.HITLayoutId,
-        CreationTime: resp.HIT.CreationTime.toString(),
-        Title: resp.HIT.Title,
-        Description: resp.HIT.Description,
-        Keywords: resp.HIT.Keywords,
-        HITStatus: resp.HIT.HITStatus,
-        MaxAssignments: resp.HIT.MaxAssignments,
-        Reward: resp.HIT.Reward,
-        AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
-        LifetimeInSeconds: hitParams.lifetime,
-        Expiration: resp.HIT.Expiration.toString(),
-        AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
-        HITReviewStatus: resp.HIT.HITReviewStatus,
-        NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
-        NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
-        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
-        ExternalURL: hitParams.externalURL,
-        Qualifications: hitParams.selectedQuals,
-      });
-      modalText = dbResp.text;
-      modalType = dbResp.type;
-      showModal = true;
+      generatedHITTypeId = resp.HITTypeId;
+      if (hitParams.numHITs === 1) {
+        const matchingHITs = await checkForDuplicateHIT(generatedHITTypeId);
+        if (matchingHITs) {
+          whichDialogue = 'confirm';
+          showDialogue = true;
+        } else {
+          await createHIT('single');
+        }
+      } else {
+        creatingHITs = true;
+        for (let i of asyncGenerator(hitParams.numHITs)) {
+          await createHIT('multiple');
+          await wait(1000);
+        }
+        creatingHITs = false;
+        modalText = `${hitParams.numHITs} HITs created successfully!`;
+        modalType = 'success';
+        showModal = true;
+      }
     } catch (err) {
       if (err.name === 'ValidationError') {
         errors = extractErrors(err);
@@ -147,6 +134,47 @@
         modalType = 'error';
         showModal = true;
       }
+    }
+  };
+  // Create a HIT, validate hit params, and save it to db
+  const createHIT = async (type) => {
+    showDialogue = false;
+    const resp = await mturk
+      .createHITWithHITType({
+        HITTypeId: generatedHITTypeId,
+        MaxAssignments: hitParams.maxAssignments,
+        LifetimeInSeconds: hitParams.lifetime,
+        Question: externalQuestion,
+      })
+      .promise();
+    // TODO: LOGS use resp.header to get server time
+    const dbResp = await ipcRenderer.invoke('insertHIT', {
+      HITId: resp.HIT.HITId,
+      HITTypeId: resp.HIT.HITTypeId,
+      HITGroupId: resp.HIT.HITGroupId,
+      HITLayoutId: resp.HIT.HITLayoutId,
+      CreationTime: resp.HIT.CreationTime.toString(),
+      Title: resp.HIT.Title,
+      Description: resp.HIT.Description,
+      Keywords: resp.HIT.Keywords,
+      HITStatus: resp.HIT.HITStatus,
+      MaxAssignments: resp.HIT.MaxAssignments,
+      Reward: resp.HIT.Reward,
+      AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
+      LifetimeInSeconds: hitParams.lifetime,
+      Expiration: resp.HIT.Expiration.toString(),
+      AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
+      HITReviewStatus: resp.HIT.HITReviewStatus,
+      NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
+      NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
+      NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
+      ExternalURL: hitParams.externalURL,
+      Qualifications: hitParams.selectedQuals,
+    });
+    if (type === 'single') {
+      modalText = dbResp.text;
+      modalType = dbResp.type;
+      showModal = true;
     }
   };
 
@@ -288,10 +316,33 @@
         </button>
       </div>
     </form>
+  {:else if whichDialogue === 'confirm'}
+    <div class="container">
+      <form class="w-full">
+        <div class="flex flex-col items-center w-full px-3 space-y-2">
+          <h2 class="mx-auto mb-2 text-2xl">Duplicate HIT Found!</h2>
+          <p class="max-w-md">
+            You set Repeat Partipation to 1 but in the past you've made a HIT with the same
+            parameters. If you proceed with creating this HIT
+            <span class="font-semibold">previous Workers will be able to participate again</span>.
+          </p>
+          <p class="max-w-md">
+            Click confirm to proceed otherwise close this window and use the
+            <span class="font-semibold">Recruit button</span>
+            on the
+            <span class="font-semibold"> Manage HITs page </span>
+            to recruit more unique Workers.
+          </p>
+          <button on:click|preventDefault={() => createHIT('single')} class="button">
+            Confirm
+          </button>
+        </div>
+      </form>
+    </div>
   {/if}
 </Dialogue>
 <div class="w-full h-screen" in:fly={{ y: 200, duration: 250 }}>
-  <form class="w-full" on:submit|preventDefault={createHIT}>
+  <form class="w-full" on:submit|preventDefault={makeHIT}>
     <div class="flex flex-wrap mb-6 -mx-3">
       <div class="w-1/3 px-3">
         <Input
@@ -325,7 +376,7 @@
       </div>
     </div>
     <div class="flex flex-wrap mb-6 -mx-3">
-      <div class="w-1/5 px-3">
+      <div class="w-1/6 px-3">
         <Input
           label="Reward"
           type="text"
@@ -335,9 +386,9 @@
           info={hitParamsInfo.reward}
           bind:value={hitParams.reward} />
       </div>
-      <div class="w-1/5 px-3">
+      <div class="w-1/6 px-3">
         <Input
-          label="Approval Delay"
+          label="Auto Approval Delay"
           type="number"
           error={errors.autoApprovalDelay}
           displayError={!!errors.autoApprovalDelay}
@@ -345,7 +396,7 @@
           info={hitParamsInfo.autoApprovalDelay}
           bind:value={hitParams.autoApprovalDelay} />
       </div>
-      <div class="w-1/5 px-3">
+      <div class="w-1/6 px-3">
         <Input
           label="Duration"
           type="number"
@@ -355,7 +406,7 @@
           info={hitParamsInfo.assignmentDuration}
           bind:value={hitParams.assignmentDuration} />
       </div>
-      <div class="w-1/5 px-3">
+      <div class="w-1/6 px-3">
         <Input
           label="Lifetime"
           type="number"
@@ -365,15 +416,25 @@
           info={hitParamsInfo.lifetime}
           bind:value={hitParams.lifetime} />
       </div>
-      <div class="w-1/5 px-3">
+      <div class="w-1/6 px-3">
         <Input
-          label="Max Assignments"
+          label="Unique Workers"
           type="number"
           error={errors.maxAssignments}
           displayError={!!errors.maxAssignments}
           displayInfo={!!!errors.maxAssignments}
           info={hitParamsInfo.maxAssignments}
           bind:value={hitParams.maxAssignments} />
+      </div>
+      <div class="w-1/6 px-3">
+        <Input
+          label="Repeat Participation"
+          type="number"
+          error={errors.numHITs}
+          displayError={!!errors.numHITs}
+          displayInfo={!!!errors.numHITs}
+          info={hitParamsInfo.numHITs}
+          bind:value={hitParams.numHITs} />
       </div>
     </div>
     <div class="flex flex-wrap mb-4 -mx-3">
@@ -400,12 +461,23 @@
           bind:value={hitParams.description} />
       </div>
     </div>
-    <div class="w-full px-3 text-center font-quantico">
-      <p>This is some info</p>
-    </div>
     <hr class="block w-full mt-2 mb-4 border-gray-500" />
     <div class="flex flex-wrap items-center justify-center mb-6 -mx-3 space-x-4">
-      <button class="button" type="submit"> Create HIT </button>
+      <button class="button" type="submit">
+        {#if creatingHITs}
+          <svg
+            id="refresh-icon"
+            class="w-6 h-6 text-purple-700 rounded cursor-pointer stroke-current animate-spin"
+            viewBox="0 0 24 24"
+            stroke-width="2.25"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
+          </svg>
+        {:else}Create HIT{/if}
+      </button>
       <button class="button" on:click|preventDefault={openLoad}> Load Template </button>
       <button class="button" on:click|preventDefault={openSave}> Save Template </button>
       <button class="button" type="reset" on:click|preventDefault={() => (errors = {})}>

@@ -153,7 +153,7 @@
     @apply text-xs italic text-red-500;
   }
   .info-text {
-    @apply text-xs italic text-purple-500;
+    @apply text-xs text-purple-500;
   }
   .table-container {
     @apply overflow-auto;
