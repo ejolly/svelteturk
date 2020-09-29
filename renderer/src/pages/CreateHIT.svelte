@@ -3,7 +3,12 @@
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
   import Input from '../components/Input.svelte';
-  import { HITSchema, extractErrors, formatQuals } from '../components/utils.js';
+  import {
+    HITSchema,
+    extractErrors,
+    formatQuals,
+    checkForDuplicateHIT,
+  } from '../components/utils.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -29,7 +34,7 @@
     assignmentDuration: 3600,
     description: '',
     lifetime: 86400,
-    reward: '1',
+    reward: '1.00',
     title: '',
     autoApprovalDelay: 10,
     keywords: 'research,experiment',
@@ -84,8 +89,13 @@
     try {
       await HITSchema.validate(hitParams, { abortEarly: false });
       errors = {};
+      const matchingDoc = await checkForDuplicateHIT(hitParams);
+      if (matchingDoc) {
+        console.log(matchingDoc);
+      } else {
+        console.log('No matching HIT found');
+      }
       const qualArray = formatQuals(hitParams.selectedQuals, mturk.live);
-      console.log(qualArray);
       const resp = await mturk
         .createHIT({
           AssignmentDurationInSeconds: hitParams.assignmentDuration,

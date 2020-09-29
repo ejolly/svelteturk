@@ -63,7 +63,7 @@ export const HITSchema = yup.object().shape({
   assignmentDuration: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('Assignment Duration is required'),
   description: yup.string().required('HIT Description is required'),
   lifetime: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('HIT Lifetime is required'),
-  reward: yup.string().matches(/^\d{0,3}(\.\d{1,2})?$/, 'Must be a valid USD value').required('HIT Reward is required'),
+  reward: yup.string().matches(/^\d{0,3}(\.\d{1,2})$/, 'Must be valid current format with dollars and cents').required('HIT Reward is required'),
   title: yup.string().required('HIT Title is required'),
   autoApprovalDelay: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer'),
   keywords: yup.string('Must be a comma separated list of words without spaces').required('Keywords are required'),
@@ -125,4 +125,15 @@ export const formatQuals = (qualArray, live) => {
     }
   });
   return out;
+};
+
+// Check for duplicate hits
+export const checkForDuplicateHIT = async (hitParams) => {
+  let resp;
+  try {
+    resp = await ipcRenderer.invoke('findDuplicateHIT', hitParams);
+  } catch (err) {
+    resp = { text: err, type: 'error' };
+  }
+  return resp;
 };

@@ -148,12 +148,12 @@ app.on('activate', () => {
   }
 });
 
-// define the database "API" here using ipc listeners
+// API DEFINITION START
 // Send aws credentials
 ipcMain.handle('getCredentials', async (ev) => awsCredentials);
-// ipcMain.on('getCredentials', () => {
-//   mainWindow.webContents.send('credentials', awsCredentials);
-// });
+
+// Send db object for debugging via console
+ipcMain.handle('giveMeDB', async (ev) => db);
 
 // Count records in each db
 ipcMain.handle('countDocs', async (ev) => {
@@ -342,12 +342,42 @@ ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
   }
   return { text, type };
 });
+
 // Return all hits
 ipcMain.handle('findHits', async (ev) => {
   const docs = await db.hits.find({}).sort({ createdAt: -1 });
   return docs;
 });
 
+// Search for hit with same exact params
+ipcMain.handle('findDuplicateHIT', async (ev, hitParams) => {
+  let text;
+  let type;
+  try {
+    const docs = await db.hits.findOne({
+      $and: [
+        {
+          AssignmentDurationInSeconds: hitParams.assignmentDuration,
+          Description: hitParams.description,
+          LifetimeInSeconds: hitParams.lifetime,
+          Reward: hitParams.reward,
+          Title: hitParams.title,
+          AutoApprovalDelayInSeconds: hitParams.autoApprovalDelay,
+          Keywords: hitParams.keywords,
+        },
+        {
+          $where() { return JSON.stringify(this.Qualifications) === JSON.stringify(hitParams.selectedQuals); }
+        }
+      ]
+    });
+    return docs;
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+    return { text, type };
+  }
+});
 // Return all assts
 ipcMain.handle('findAssts', async (ev) => {
   const docs = await db.assts.find({}).sort({ createdAt: -1 });

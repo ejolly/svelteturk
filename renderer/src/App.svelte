@@ -86,6 +86,15 @@
     }
   };
 
+  // Allow accessing 'backend' API via a global call() function
+  const bindAPI = () => {
+    window.callResult = undefined;
+    window.call = async function (args) {
+      const resp = await ipcRenderer.invoke(...arguments);
+      window.callResult = resp;
+    };
+  };
+
   // Handle getting credentials from ipcMain "backend" and
   // immediately initializing the Mturk API
   // triggered on component mount
@@ -111,6 +120,7 @@
   // Get credentials on component load
   onMount(async () => {
     await getCredentials();
+    bindAPI();
   });
 </script>
 
