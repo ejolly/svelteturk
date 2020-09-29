@@ -42,6 +42,17 @@
       hitParams['selectedQuals'] = [];
     }
   }
+  $: maxAsstsInfo = hitParams.maxAssignments
+    ? hitParams.maxAssignments > 9
+      ? 'Additional assts limit: none Mturk fee: 40%'
+      : `Additional assts limit: ${9 - hitParams.maxAssignments} Mturk fee: 20%`
+    : '';
+
+  // $: maxAsstsInfo = !errors.maxAssignments
+  //   ? hitParams.maxAssignments > 9
+  //     ? 'Additional assts limit: none Mturk fee: 40%'
+  //     : `Additional assts limit: ${9 - hitParams.maxAssignments} Mturk fee: 20%`
+  //   : '';
 
   $: externalQuestion = `
   <ExternalQuestion xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd">
@@ -257,13 +268,19 @@
   <form class="w-full" on:submit|preventDefault={createHIT}>
     <div class="flex flex-wrap mb-6 -mx-3">
       <div class="w-1/3 px-3">
-        <Input label="Title" type="text" error={errors.title} bind:value={hitParams.title} />
+        <Input
+          label="Title"
+          type="text"
+          error={errors.title}
+          displayError={!!errors.title}
+          bind:value={hitParams.title} />
       </div>
       <div class="w-1/3 px-3">
         <Input
           label="Keywords"
           type="text"
           error={errors.keywords}
+          displayError={!!errors.keywords}
           bind:value={hitParams.keywords} />
       </div>
       <div class="w-1/3 px-3">
@@ -271,18 +288,25 @@
           label="Experiment URL"
           type="text"
           error={errors.externalURL}
+          displayError={!!errors.externalURL}
           bind:value={hitParams.externalURL} />
       </div>
     </div>
     <div class="flex flex-wrap mb-6 -mx-3">
       <div class="w-1/5 px-3">
-        <Input label="Reward" type="text" error={errors.reward} bind:value={hitParams.reward} />
+        <Input
+          label="Reward"
+          type="text"
+          error={errors.reward}
+          displayError={!!errors.reward}
+          bind:value={hitParams.reward} />
       </div>
       <div class="w-1/5 px-3">
         <Input
           label="Approval Delay"
           type="number"
           error={errors.autoApprovalDelay}
+          displayError={!!errors.autoApprovalDelay}
           bind:value={hitParams.autoApprovalDelay} />
       </div>
       <div class="w-1/5 px-3">
@@ -290,6 +314,7 @@
           label="Duration"
           type="number"
           error={errors.assignmentDuration}
+          displayError={!!errors.assignmentDuration}
           bind:value={hitParams.assignmentDuration} />
       </div>
       <div class="w-1/5 px-3">
@@ -297,6 +322,7 @@
           label="Lifetime"
           type="number"
           error={errors.lifetime}
+          displayError={!!errors.lifetime}
           bind:value={hitParams.lifetime} />
       </div>
       <div class="w-1/5 px-3">
@@ -304,6 +330,9 @@
           label="Max Assignments"
           type="number"
           error={errors.maxAssignments}
+          displayError={!!errors.maxAssignments}
+          displayInfo={!!!errors.maxAssignments}
+          info={maxAsstsInfo}
           bind:value={hitParams.maxAssignments} />
       </div>
     </div>
@@ -324,6 +353,7 @@
           label="Description"
           type="textarea"
           error={errors.description}
+          displayError={!!errors.description}
           bind:value={hitParams.description} />
       </div>
     </div>
@@ -332,7 +362,9 @@
       <button class="button" type="submit"> Create HIT </button>
       <button class="button" on:click|preventDefault={openLoad}> Load Template </button>
       <button class="button" on:click|preventDefault={openSave}> Save Template </button>
-      <button class="button" type="reset"> Clear </button>
+      <button class="button" type="reset" on:click|preventDefault={() => (errors = {})}>
+        Clear
+      </button>
     </div>
   </form>
 </div>

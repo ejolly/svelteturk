@@ -19,7 +19,7 @@
   let awsKey;
   let awsSecret;
   // current app view ("state")
-  let currentState = 'home';
+  let currentState = 'createHIT';
   // main Mturk object on which API methods are called
   let mturk;
   // Mturk object availability status (e.g. no internet connection)
@@ -140,6 +140,9 @@
   }
   .error-text {
     @apply text-xs italic text-red-500;
+  }
+  .info-text {
+    @apply text-xs italic text-purple-500;
   }
   .table-container {
     @apply overflow-auto;
