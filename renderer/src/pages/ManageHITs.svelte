@@ -33,8 +33,10 @@
   let showDialogue = false;
   let whichDialogue = '';
   let extendTime = 60;
-  let additionalAssts = 1;
   let extendError = false;
+  let additionalAssts = 1;
+  let addAsstsError = false;
+  let addAsstsErrorReason = 'Placeholder error message';
   let refreshFromAWS;
   // The row DOM element
   let rowDOM;
@@ -42,6 +44,8 @@
   let selectedHIT;
   // Reactive boolean for styling
   $: rowSelected = !!selectedHIT;
+  $: addable =
+    rowSelected && selectedHIT.MaxAssignments !== 9 && selectedHIT.HITStatus !== 'Reviewable';
 
   // FUNCTIONS
   // Get all hits from db
@@ -104,7 +108,10 @@
     rowDOM.classList.add('hoverable');
     rowDOM = undefined;
     showDialogue = false;
-    extendTime = '';
+    extendTime = 60;
+    additionalAssts = 1;
+    addAsstsErrorReason = 'Placeholder error message';
+    addAsstsError = false;
   };
 
   const selectRow = (ev, hit) => {
@@ -152,7 +159,7 @@
           'hits',
           { _id: selectedHIT._id },
           {
-            $set: { Expiration: resp.hit.Expiration.toString() },
+            $set: { Expiration: resp.HIT.Expiration.toString(), HITStatus: resp.HIT.HITStatus },
           }
         );
         if (dbResp.type === 'success') {
@@ -196,7 +203,50 @@
 
   const addAsstsToHIT = async () => {
     // TODO: Add logic
-    console.log('add assignments');
+    if (Number.isInteger(additionalAssts) && additionalAssts >= 1) {
+      if (selectedHIT.MaxAssignments < 10 && selectedHIT.MaxAssignments + additionalAssts >= 10) {
+        addAsstsError = true;
+        addAsstsErrorReason = 'This HIT is limited to a total of 9 assignments';
+      } else {
+        addAsstsError = false;
+        try {
+          // const newMax = selectedHIT.MaxAssignments + additionalAssts;
+          await mturk
+            .createAdditionalAssignmentsForHIT({
+              HITId: selectedHIT.HITId,
+              NumberOfAdditionalAssignments: additionalAssts,
+            })
+            .promise();
+          const resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
+          const dbResp = await updateDoc(
+            'hits',
+            { _id: selectedHIT._id },
+            {
+              $set: { MaxAssignments: resp.HIT.MaxAssignments },
+            }
+          );
+          if (dbResp.type === 'success') {
+            modalText = 'New assignments added successfully!';
+            modalType = 'success';
+          } else {
+            modalText = 'New assignments added, but could not update db. See console!';
+            modalType = 'notifcation';
+            console.log(dbResp);
+          }
+          showModal = true;
+          await getHITs();
+        } catch (err) {
+          console.error(err);
+          modalText = err;
+          modalType = 'error';
+          showModal = true;
+        }
+        clearSelection();
+      }
+    } else {
+      addAsstsError = true;
+      addAsstsErrorReason = 'Must be a valid number (minimum 1)';
+    }
   };
 
   const extendHIT = async (ev) => {
@@ -208,7 +258,6 @@
         // NOTE: Adding 1 here because minimum time must be 60s and entering 60 submits a request for 59s to aws
         update = (update + 1) * 1000;
         const updatedTime = new Date(now + update);
-        console.log(updatedTime);
         try {
           await mturk
             .updateExpirationForHIT({
@@ -222,7 +271,7 @@
             'hits',
             { _id: selectedHIT._id },
             {
-              $set: { Expiration: resp.HIT.Expiration.toString(), HITStatus: resp.hit.HITStatus },
+              $set: { Expiration: resp.HIT.Expiration.toString(), HITStatus: resp.HIT.HITStatus },
             }
           );
           if (dbResp.type === 'success') {
@@ -337,8 +386,11 @@
           bind:value={additionalAssts}
           placeholder="number of assignments"
           min="1" />
-        <p class="self-start error-text" class:visible={extendError} class:invisible={!extendError}>
-          Must be a valid number (minimum 1)
+        <p
+          class="self-start error-text"
+          class:visible={addAsstsError}
+          class:invisible={!addAsstsError}>
+          {addAsstsErrorReason}
         </p>
         <button on:click|preventDefault={addAsstsToHIT} class="button" disabled={!additionalAssts}>
           Submit
@@ -454,10 +506,19 @@
       class:visible={rowSelected}>
       <button on:click|preventDefault={showHITInfo} class="button">Details</button>
       <div class="tooltip">
-        <button on:click|preventDefault={showAddAssts} class="button">Recruit</button>
-        <!-- disabled={rowSelected && selectedHIT.MaxAssignments <= 9}>Recruit</button> -->
-        <span class="tooltip-text">This HIT was originally created with Max Assts of 9 or less. You
-          can only create a new HIT which will be available to repeat Workers.</span>
+        <button
+          on:click|preventDefault={showAddAssts}
+          class="button"
+          disabled={!addable}>Recruit</button>
+        {#if !addable}
+          {#if selectedHIT && selectedHIT.HITStatus === 'Reviewable'}
+            <span class="tooltip-text">This HIT has expired. Extend the HIT first in order to
+              recruit more Workers.</span>
+          {:else}
+            <span class="tooltip-text">This HIT was originally created with 9 or fewer max
+              assignments. You can only create a new HIT which will be available to repeat Workers.</span>
+          {/if}
+        {/if}
       </div>
       <button on:click|preventDefault={showHITExtend} class="button">Extend</button>
       <button on:click|preventDefault={endHIT} class="button">End</button>

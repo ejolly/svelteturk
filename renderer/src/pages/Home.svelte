@@ -59,7 +59,7 @@
 </style>
 
 <Modal bind:showModal bind:modalType bind:modalText />
-<div class="container h-screen w-full">
+<div class="container w-full h-screen">
   <div
     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 font-quantico"
     in:fly={{ y: 200, duration: 250 }}>
@@ -85,7 +85,7 @@
     </div>
     <div class="py-8 text-center">
       <div class="md:border-r">
-        <div class="flex-no-wrap label">Number of Assignments</div>
+        <div class="flex-no-wrap label">Submitted Assignments</div>
         <div class="mb-2 text-grey-darker">
           <span class="text-xl text-purple-600 align-top">+</span>
           <span class="text-3xl">{numAssts}</span>
