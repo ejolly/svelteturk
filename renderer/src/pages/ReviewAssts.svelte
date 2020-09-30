@@ -27,6 +27,7 @@
   let bonusAmount = '';
   let bonusError = false;
   let uploadedBonuses = [];
+  let uploadBonusTotal = 0;
   let refreshFromAWS;
   let rowDOM;
   let selectedAsst;
@@ -43,6 +44,8 @@
     'Bonus Time',
   ];
   $: rowSelected = !!selectedAsst;
+  $: bonusAllTotal =
+    bonusAmount && validateBonus(bonusAmount) ? parseFloat(bonusAmount) * asstsFiltered.length : 0;
 
   // FUNCTIONS
   const getAssts = async () => {
@@ -362,6 +365,7 @@
       modalType = resp.type;
       if (resp.data) {
         // reset incase they reimport
+        uploadBonusTotal = 0;
         uploadedBonuses = [];
         bonusError = false;
         for (const asst of resp.data) {
@@ -371,10 +375,12 @@
               bonusError = true;
             } else {
               asst['bonusError'] = false;
+              uploadBonusTotal += parseFloat(asst.Bonus);
             }
           }
           uploadedBonuses = [...uploadedBonuses, asst];
         }
+
         whichDialogue = 'bonus-file-upload-results';
       }
     } catch (err) {
@@ -583,6 +589,7 @@
       {:else if whichDialogue === 'bonus-file-upload-results'}
         <div class="flex flex-col px-3">
           <h2 class="mx-auto mb-2 text-2xl">Please verify import</h2>
+          <h3 class="mx-auto mb-2 text-xl">Total: ${uploadBonusTotal}</h3>
           <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
             Some errors were detected. Make sure each bonus is a valid number greater than 0 and the
             reason for that bonus is not blank. Leave both fiels blank to skip bonusing a worker.
@@ -646,6 +653,9 @@
         </div>
       {:else}
         <div class="flex flex-col items-center px-3">
+          {#if whichDialogue === 'bonus-all'}
+            <h3 class="mx-auto mb-2 text-xl">Total: ${bonusAllTotal}</h3>
+          {/if}
           <label class="self-start">Bonus in USD</label>
           <input type="text" bind:value={bonusAmount} placeholder="enter a number" />
           <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
