@@ -24,8 +24,7 @@
   }
 </style>
 
-<footer
-  class="fixed bottom-0 flex flex-col items-center w-full p-0 bg-white border-t-2 border-gray-500">
+<footer class="fixed bottom-0 flex flex-col items-center w-full p-0 border-t-2 border-gray-500">
   <ul>
     <li class="tooltip">
       <a href="mailto:eshin.jolly@gmail.com">

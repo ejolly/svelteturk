@@ -5,6 +5,7 @@
   import SidebarHeader from './components/SidebarHeader.svelte';
   import Sidebar from './components/Sidebar.svelte';
   import Footer from './components/Footer.svelte';
+  import Splash from './components/Splash.svelte';
   import Modal from './components/Modal.svelte';
   import CreateHIT from './pages/CreateHIT.svelte';
   import Home from './pages/Home.svelte';
@@ -12,15 +13,17 @@
   import ReviewAssts from './pages/ReviewAssts.svelte';
   import { stLog, userLog } from './components/logger.js';
   import { userSettings } from './components/store.js';
+  import { wait } from './components/utils';
 
   const { ipcRenderer } = require('electron');
 
   // VARIABLES
+  let ready = false;
   // credentials passed from ipcMain "backend"
   let awsKey;
   let awsSecret;
   // current app view ("state")
-  let currentState = 'createHIT';
+  let currentState = 'home';
   // main Mturk object on which API methods are called
   let mturk;
   // Mturk object availability status (e.g. no internet connection)
@@ -106,6 +109,9 @@
     awsSecret = resp.awsCredentials.secretAccessKey;
     userSettings.set(resp.userSettings);
     initMTurk();
+    bindAPI();
+    await wait(5000);
+    ready = true;
   };
 
   // Change the app view ("state"); triggered by Sidebar
@@ -123,7 +129,6 @@
   // Get credentials on component load
   onMount(async () => {
     await initialize();
-    bindAPI();
     console.log($userSettings);
   });
 </script>
@@ -174,23 +179,27 @@
 <Modal bind:showModal bind:modalType bind:modalText />
 <!-- Main app container full window size not responsive-->
 <div class="w-screen h-screen">
-  <!-- Sidebar, fixed position and width-->
-  <nav class="fixed top-0 left-0 w-64 p-4 ml-1 bg-white">
-    <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
-    <Sidebar {currentState} on:changeState={updateState} />
-  </nav>
-  <!-- Page Title fixed to prevent scrolling with content-->
-  <header
-    class="fixed top-0 left-0 w-full text-5xl text-gray-900 bg-transparent header font-quantico">
-    {title}
-    <hr class="w-64 border-t-2 border-gray-500" />
-  </header>
-  <!-- Main page, flex but offset width of sidebar and header -->
-  <div class="flex pr-4 mr-8 main">
-    <div class="w-full overflow-auto">
-      <svelte:component this={component} {mturk} />
+  {#if !ready}
+    <Splash/>
+  {:else}
+    <!-- Sidebar, fixed position and width-->
+    <nav class="fixed top-0 left-0 w-64 p-4 ml-1">
+      <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
+      <Sidebar {currentState} on:changeState={updateState} />
+    </nav>
+    <!-- Page Title fixed to prevent scrolling with content-->
+    <header
+      class="fixed top-0 left-0 w-full text-5xl text-gray-900 bg-transparent header font-quantico">
+      {title}
+      <hr class="w-64 border-t-2 border-gray-500" />
+    </header>
+    <!-- Main page, flex but offset width of sidebar and header -->
+    <div class="flex pr-4 mr-8 main">
+      <div class="w-full overflow-auto">
+        <svelte:component this={component} {mturk} />
+      </div>
     </div>
-  </div>
-  <!-- Footer for contact info -->
-  <Footer />
+    <!-- Footer for contact info -->
+    <Footer />
+  {/if}
 </div>
