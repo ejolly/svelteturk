@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
+  import { stLog } from '../components/logger';
 
   const { ipcRenderer } = require('electron');
 
@@ -21,10 +22,12 @@
   // this ensures that "Loading..." is rendered while waiting
   const getAccountBalance = async () => {
     try {
+      stLog.info('REQ Mturk: getAccountBalance');
       const resp = await mturk.getAccountBalance().promise();
       accountBalance = `${resp.AvailableBalance}`;
-    } catch (error) {
-      console.error(error);
+      stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+    } catch (err) {
+      stLog.error(err);
       showModal = true;
       modalType = 'error';
       modalText = `Error getting account balance! ${error}`;
@@ -40,6 +43,7 @@
 
   // Get number of docs in each db
   const countDocs = async () => {
+    stLog.info('REQ: countDocs');
     const docs = await ipcRenderer.invoke('countDocs');
     numHITs = docs.hits || '0';
     numAssts = docs.assts || '0';
