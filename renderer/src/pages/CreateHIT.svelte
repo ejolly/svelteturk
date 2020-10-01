@@ -11,6 +11,7 @@
     asyncGenerator,
     wait,
   } from '../components/utils.js';
+  import { userSettings } from '../components/store';
 
   const { ipcRenderer } = require('electron');
 
@@ -350,7 +351,7 @@
           type="text"
           error={errors.title}
           displayError={!!errors.title}
-          displayInfo={!!!errors.title}
+          displayInfo={!!!errors.title && $userSettings.createHITHelpers}
           info={hitParamsInfo.title}
           bind:value={hitParams.title} />
       </div>
@@ -360,7 +361,7 @@
           type="text"
           error={errors.keywords}
           displayError={!!errors.keywords}
-          displayInfo={!!!errors.keywords}
+          displayInfo={!!!errors.keywords && $userSettings.createHITHelpers}
           info={hitParamsInfo.keywords}
           bind:value={hitParams.keywords} />
       </div>
@@ -370,7 +371,7 @@
           type="text"
           error={errors.externalURL}
           displayError={!!errors.externalURL}
-          displayInfo={!!!errors.externalUrl}
+          displayInfo={!!!errors.externalUrl && $userSettings.createHITHelpers}
           info={hitParamsInfo.externalURL}
           bind:value={hitParams.externalURL} />
       </div>
@@ -382,7 +383,7 @@
           type="text"
           error={errors.reward}
           displayError={!!errors.reward}
-          displayInfo={!!!errors.reward}
+          displayInfo={!!!errors.reward && $userSettings.createHITHelpers}
           info={hitParamsInfo.reward}
           bind:value={hitParams.reward} />
       </div>
@@ -392,7 +393,7 @@
           type="number"
           error={errors.autoApprovalDelay}
           displayError={!!errors.autoApprovalDelay}
-          displayInfo={!!!errors.autoApprovalDelay}
+          displayInfo={!!!errors.autoApprovalDelay && $userSettings.createHITHelpers}
           info={hitParamsInfo.autoApprovalDelay}
           bind:value={hitParams.autoApprovalDelay} />
       </div>
@@ -402,7 +403,7 @@
           type="number"
           error={errors.assignmentDuration}
           displayError={!!errors.assignmentDuration}
-          displayInfo={!!!errors.assignmentDuration}
+          displayInfo={!!!errors.assignmentDuration && $userSettings.createHITHelpers}
           info={hitParamsInfo.assignmentDuration}
           bind:value={hitParams.assignmentDuration} />
       </div>
@@ -412,7 +413,7 @@
           type="number"
           error={errors.lifetime}
           displayError={!!errors.lifetime}
-          displayInfo={!!!errors.lifetime}
+          displayInfo={!!!errors.lifetime && $userSettings.createHITHelpers}
           info={hitParamsInfo.lifetime}
           bind:value={hitParams.lifetime} />
       </div>
@@ -422,7 +423,7 @@
           type="number"
           error={errors.maxAssignments}
           displayError={!!errors.maxAssignments}
-          displayInfo={!!!errors.maxAssignments}
+          displayInfo={!!!errors.maxAssignments && $userSettings.createHITHelpers}
           info={hitParamsInfo.maxAssignments}
           bind:value={hitParams.maxAssignments} />
       </div>
@@ -432,7 +433,7 @@
           type="number"
           error={errors.numHITs}
           displayError={!!errors.numHITs}
-          displayInfo={!!!errors.numHITs}
+          displayInfo={!!!errors.numHITs && $userSettings.createHITHelpers}
           info={hitParamsInfo.numHITs}
           bind:value={hitParams.numHITs} />
       </div>
@@ -448,7 +449,9 @@
             <option value={qual}>{qual}</option>
           {/each}
         </select>
-        <p class="info-text">{hitParamsInfo.selectedQuals}</p>
+        {#if $userSettings.createHITHelpers}
+          <p class="info-text">{hitParamsInfo.selectedQuals}</p>
+        {/if}
       </div>
       <div class="w-2/3 px-3">
         <Input
@@ -456,7 +459,7 @@
           type="textarea"
           error={errors.description}
           displayError={!!errors.description}
-          displayInfo={!!!errors.description}
+          displayInfo={!!!errors.description && $userSettings.createHITHelpers}
           info={hitParamsInfo.description}
           bind:value={hitParams.description} />
       </div>

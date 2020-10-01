@@ -63,7 +63,8 @@ let awsCredentials = {
 // Default settings only applied if settings file doesn't exist
 let userSettings = {
   refreshFrequency: 30,
-  repeatBonuses: false
+  repeatBonuses: false,
+  createHITHelpers: true,
 };
 // Settings file location
 const settingsFile = `${app.getPath('home')}/.svelteturkrc`;

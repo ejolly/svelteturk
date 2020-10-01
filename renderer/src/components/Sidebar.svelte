@@ -92,6 +92,11 @@
             <input type="checkbox" class="mx-4" bind:checked={$userSettings.repeatBonuses} />
           </label>
         </div>
+        <div class="inline-flex px-3 space-x-4">
+          <label>Display help text in Create HIT
+            <input type="checkbox" class="mx-4" bind:checked={$userSettings.createHITHelpers} />
+          </label>
+        </div>
         <hr class="block w-full mt-2 mb-4 border-gray-500" />
         <button class="button" type="submit">Save</button>
       </div>
