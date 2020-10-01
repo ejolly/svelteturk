@@ -10,7 +10,8 @@
   import Home from './pages/Home.svelte';
   import ManageHITs from './pages/ManageHITs.svelte';
   import ReviewAssts from './pages/ReviewAssts.svelte';
-  import { logger } from './components/logger.js';
+  import { stLog, userLog } from './components/logger.js';
+  import { userSettings } from './components/store.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -76,10 +77,10 @@
       });
       mturk.live = live;
       mturkReady = true;
-      logger.info(`Mturk ready with endpoint: ${mturk.endpoint.host}`);
+      stLog.info(`Mturk ready with endpoint: ${mturk.endpoint.host}`);
       window.mturk = mturk;
     } catch (err) {
-      logger.error(err);
+      stLog.error(err);
       modalText = err;
       modalType = 'error';
       showModal = true;
@@ -95,13 +96,15 @@
     };
   };
 
-  // Handle getting credentials from ipcMain "backend" and
-  // immediately initializing the Mturk API
-  // triggered on component mount
-  const getCredentials = async () => {
-    const credentials = await ipcRenderer.invoke('getCredentials');
-    awsKey = credentials.accessKeyId;
-    awsSecret = credentials.secretAccessKey;
+  // Startup app by:
+  // 1. Getting aws credentials
+  // 2. Reading user settings from db and saving to a svelte store
+  // 3. Initializing mturk object
+  const initialize = async () => {
+    const resp = await ipcRenderer.invoke('initialize');
+    awsKey = resp.awsCredentials.accessKeyId;
+    awsSecret = resp.awsCredentials.secretAccessKey;
+    userSettings.set(resp.userSettings);
     initMTurk();
   };
 
@@ -119,8 +122,9 @@
 
   // Get credentials on component load
   onMount(async () => {
-    await getCredentials();
+    await initialize();
     bindAPI();
+    console.log($userSettings);
   });
 </script>
 

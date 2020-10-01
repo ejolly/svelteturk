@@ -5,6 +5,11 @@ const fs = require('fs');
 const Papa = require('papaparse');
 const log = require('electron-log');
 
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (require('electron-squirrel-startup')) {
+  // eslint-disable-line global-require
+  app.quit();
+}
 
 // Hot reload just the renderer (i.e. svelte changes)
 // Changes to this file require restarting the electron process
@@ -12,8 +17,8 @@ require('electron-reload')(path.join(__dirname, '..', 'renderer'));
 
 nativeTheme.themeSource = 'light';
 
-// Setup logging
-log.transports.file.resolvePath = (() => path.join(app.getPath('home'), '.svelte-turk.log'));
+// SETUP LOGGING
+log.transports.file.resolvePath = (() => path.join(app.getPath('home'), '.svelteturk.log'));
 // Configure the logger to display an electron dialog box with an option to submit an issue on any uncaught errors
 log.catchErrors({
   showDialog: false,
@@ -45,12 +50,7 @@ const mainLog = log.scope('main');
 
 mainLog.info('NEW MAIN STARTUP');
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-  // eslint-disable-line global-require
-  app.quit();
-}
-
+// INIT VARIABLES
 // create a global reference to the window object
 let mainWindow;
 // Create a object to hold all the dbs for easier referencing
@@ -60,6 +60,13 @@ let awsCredentials = {
   accessKeyId: process.env.AWS_SECRET_ACCESS_KEY,
   secretAccessKey: process.env.AWS_ACCESS_KEY_ID,
 };
+// Default settings only applied if settings file doesn't exist
+let userSettings = {
+  refreshFrequency: 30,
+  repeatBonuses: false
+};
+// Settings file location
+const settingsFile = `${app.getPath('home')}/.svelteturkrc`;
 
 const createWindow = () => {
   // Create the browser window.
@@ -99,6 +106,7 @@ const createWindow = () => {
 
   mainLog.info('Databases initialized');
 
+  // LOAD AWS CREDENTIALS
   if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
     mainLog.info('AWS credentials loaded from environment variables.');
   } else {
@@ -126,6 +134,24 @@ const createWindow = () => {
       }
     });
   }
+
+  // LOAD OR MAKE SETTINGS FILE
+  fs.readFile(settingsFile, (err, data) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        fs.writeFile(settingsFile, JSON.stringify(userSettings), (writeErr, writeData) => {
+          if (writeErr) throw writeErr;
+          mainLog.info('User settings file not found...created default');
+        });
+      } else {
+        throw err;
+      }
+    } else {
+      userSettings = JSON.parse(data);
+      mainLog.info('User settings loaded from file');
+    }
+  });
+
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
@@ -150,7 +176,33 @@ app.on('activate', () => {
 
 // API DEFINITION START
 // Send aws credentials
-ipcMain.handle('getCredentials', async (ev) => awsCredentials);
+ipcMain.handle('initialize', async (ev) => {
+  try {
+    const data = await fs.promises.readFile(settingsFile);
+    userSettings = JSON.parse(data);
+  } catch (err) {
+    mainLog.error(`Failed to read .svelteturkrc: ${err}`);
+  }
+  return {
+    userSettings,
+    awsCredentials
+  };
+});
+
+ipcMain.handle('updateSettings', async (ev, settingsStore) => {
+  let text;
+  let type;
+  try {
+    await fs.promises.writeFile(settingsFile, JSON.stringify(settingsStore));
+    text = 'Settings updated successfully!';
+    type = 'success';
+  } catch (err) {
+    console.error(err);
+    text = err;
+    type = 'error';
+  }
+  return { text, type };
+});
 
 // Count records in each db
 ipcMain.handle('countDocs', async (ev) => {

@@ -202,7 +202,6 @@
   };
 
   const addAsstsToHIT = async () => {
-    // TODO: Add logic
     if (Number.isInteger(additionalAssts) && additionalAssts >= 1) {
       if (selectedHIT.MaxAssignments < 10 && selectedHIT.MaxAssignments + additionalAssts >= 10) {
         addAsstsError = true;

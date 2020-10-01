@@ -3,7 +3,8 @@ const homedir = require('os').homedir();
 const log = require('electron-log');
 
 // Configure log file location
-log.transports.file.resolvePath = (() => path.join(homedir, '.svelte-turk.log'));
+log.transports.file.resolvePath = (() => path.join(homedir, '.svelteturk.log'));
 
-// Scope renderer process logs so that 'renderer' appear in the log file next to messages
-export const logger = log.scope('renderer');
+// Scope 2 loggers one for "system" calls where 'renderer' will appear in the log file and the other for "user actions" where 'user' will appear in the log file
+export const stLog = log.scope('renderer');
+export const userLog = log.scope('user');

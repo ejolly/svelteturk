@@ -4,7 +4,8 @@
   import { cubicInOut } from 'svelte/easing';
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
-  import { deleteDoc, updateDoc, wait, formatDate, refreshFrequency } from '../components/utils.js';
+  import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
+  import { userSettings } from '../components/store.js';
 
   const { ipcRenderer } = require('electron');
 
@@ -28,6 +29,7 @@
   let bonusError = false;
   let uploadedBonuses = [];
   let uploadBonusTotal = 0;
+  let bonusAllTotal = 0;
   let refreshFromAWS;
   let rowDOM;
   let selectedAsst;
@@ -44,8 +46,16 @@
     'Bonus Time',
   ];
   $: rowSelected = !!selectedAsst;
-  $: bonusAllTotal =
-    bonusAmount && validateBonus(bonusAmount) ? parseFloat(bonusAmount) * asstsFiltered.length : 0;
+  $: if (bonusAmount && validateBonus(bonusAmount)) {
+    if (!$userSettings.repeatBonuses) {
+      bonusAllTotal = parseFloat(bonusAmount) * asstsFiltered.filter((e) => !e.Bonus);
+    } else {
+      bonusAllTotal = parseFloat(bonusAmount) * asstsFiltered.length;
+    }
+  }
+  $: bonusAllDisabled =
+    asstsFiltered && asstsFiltered.every((e) => e.Bonus) && !$userSettings.repeatBonuses;
+  $: bonusAsstDisabled = selectedAsst && selectedAsst.Bonus && !$userSettings.repeatBonuses;
 
   // FUNCTIONS
   const getAssts = async () => {
@@ -370,7 +380,11 @@
         bonusError = false;
         for (const asst of resp.data) {
           if (asst.Bonus) {
-            if (!validateBonus(asst.Bonus) || asst.BonusReason === '') {
+            if (
+              !validateBonus(asst.Bonus) ||
+              asst.BonusReason === '' ||
+              (asst.Bonus && !$userSettings.repeatBonuses)
+            ) {
               asst['bonusError'] = true;
               bonusError = true;
             } else {
@@ -412,32 +426,37 @@
         } else {
           asstsList = [selectedAsst];
         }
-        // for of instead of Promise.all because we don't want single failures to block approval attempts and db writes for the other successfull assignments
+        // NOTE: for of instead of Promise.all because we don't want single failures to block approval attempts and db writes for the other successfull assignments
         for (const asst of asstsList) {
-          const resp = await mturk
-            .sendBonus({
-              AssignmentId: asst.AsstId,
-              BonusAmount: bonusAmount,
-              Reason: requesterFeedback,
-              WorkerId: asst.WorkerId,
-            })
-            .promise();
-          if (resp.$response.httpResponse.statusCode === 200) {
-            const dbResp = await updateDoc(
-              'assts',
-              { AsstId: asst.AsstId },
-              {
-                $set: {
-                  Bonus: bonusAmount,
-                  BonusReason: requesterFeedback,
-                  BonusTime: new Date().toString(),
-                },
-              }
-            );
-            await wait(1000);
+          if (asst.Bonus && !$userSettings.repeatBonuses) {
+            modalText =
+              'Bonuses granted successfully! Previously bonused Assts were skipped because you have prevent repeat bonuses enabled.';
+          } else {
+            const resp = await mturk
+              .sendBonus({
+                AssignmentId: asst.AsstId,
+                BonusAmount: bonusAmount,
+                Reason: requesterFeedback,
+                WorkerId: asst.WorkerId,
+              })
+              .promise();
+            if (resp.$response.httpResponse.statusCode === 200) {
+              const dbResp = await updateDoc(
+                'assts',
+                { AsstId: asst.AsstId },
+                {
+                  $set: {
+                    Bonus: bonusAmount,
+                    BonusReason: requesterFeedback,
+                    BonusTime: new Date().toString(),
+                  },
+                }
+              );
+              await wait(1000);
+            }
+            modalText = 'All bonus granted successfully!';
           }
         }
-        modalText = 'Bonus granted successfully!';
         modalType = 'success';
       } catch (err) {
         console.error(err);
@@ -534,7 +553,7 @@
     // Get their latest statuses
     // await refreshAssts();
     // Start auto-refreshing
-    refreshFromAWS = setInterval(refreshAssts, refreshFrequency);
+    refreshFromAWS = setInterval(refreshAssts, $userSettings.refreshFrequency * 1000);
     console.log(`Auto Assignments rereshing started on: ${new Date().toString()}`);
   });
 
@@ -566,6 +585,12 @@
   .dialogue-button {
     @apply mt-2;
   }
+  .tooltip .tooltip-text {
+    @apply invisible p-1 absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -ml-48 -mt-16 max-w-md;
+  }
+  .tooltip:hover .tooltip-text {
+    @apply visible;
+  }
 </style>
 
 <Modal bind:showModal bind:modalType bind:modalText />
@@ -591,8 +616,9 @@
           <h2 class="mx-auto mb-2 text-2xl">Please verify import</h2>
           <h3 class="mx-auto mb-2 text-xl">Total: ${uploadBonusTotal}</h3>
           <p class="error-text" class:visible={bonusError} class:invisible={!bonusError}>
-            Some errors were detected. Make sure each bonus is a valid number greater than 0 and the
-            reason for that bonus is not blank. Leave both fiels blank to skip bonusing a worker.
+            Some errors were detected. Ensure each bonus is a valid number greater than 0 and the
+            bonus reason is not blank. Leave both fields blank to skip bonusing a worker. Make sure
+            you have not added bonuses for previously bonused workers if repeat bonuses is disabled.
           </p>
           <table class="w-full table-auto">
             <thead>
@@ -756,12 +782,26 @@
     <div class="inline-flex items-center px-4 py-2 space-x-4 font-quantico">
       {#if rowSelected}
         <button class="button" on:click|preventDefault={approveAsst}>Approve</button>
-        <button class="button" on:click|preventDefault={showBonusAsst}>Bonus</button>
+        <div class="tooltip">
+          <button
+            class="button"
+            on:click|preventDefault={showBonusAsst}
+            disabled={bonusAsstDisabled}>Bonus</button>
+          <span class="tooltip-text">This assignment has a bonus and repeat bonuses is disabled. You
+            can change this in settings</span>
+        </div>
         <button class="button" on:click|preventDefault={showRejectAsst}>Reject</button>
         <button class="button" on:click|preventDefault={deleteAsst}>Delete</button>
       {:else}
         <button class="button" on:click|preventDefault={approveAll}>Approve All</button>
-        <button class="button" on:click|preventDefault={showBonusAll}>Bonus All</button>
+        <div class="tooltip">
+          <button
+            class="button"
+            on:click|preventDefault={showBonusAll}
+            disabled={bonusAllDisabled}>Bonus All</button>
+          <span class="tooltip-text">All assignments have bonuses and repeat bonuses is disabled.You
+            can change this in settings.</span>
+        </div>
         <button class="button" on:click|preventDefault={showBonusViaFile}>Bonus from File</button>
       {/if}
     </div>
