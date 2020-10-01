@@ -1,6 +1,7 @@
 <script>
   import { fade } from 'svelte/transition';
   import { createEventDispatcher } from 'svelte';
+  import { userLog } from './logger';
 
   // DESCRIPTION
   // Simple dialogue component that pops up in the center of the screen and blurs everything behind it. Can close itself by clicking the close icon. Unlike Modal.svelte, Dialogue also emits an 'close' event to its parent component in case the parent wants to perform some additional logic when Dialogue closes
@@ -12,6 +13,7 @@
   const dispatch = createEventDispatcher();
   const closeAndNotify = () => {
     showDialogue = false;
+    userLog.info('Dialogue closed');
     dispatch('close');
   };
 </script>

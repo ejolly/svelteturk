@@ -3,6 +3,7 @@
   import Modal from './Modal.svelte';
   import Dialogue from './Dialogue.svelte';
   import { userSettings } from './store';
+  import { stLog, userLog } from './logger';
 
   const { ipcRenderer } = require('electron');
 
@@ -26,34 +27,45 @@
     });
   };
 
+  const showSettings = () => {
+    userLog.info('Show settings');
+    showDialogue = true;
+  };
+
   const saveUserSettings = async () => {
+    stLog.info('<--REQ: updateSettings');
     try {
       const resp = await ipcRenderer.invoke('updateSettings', $userSettings);
       modalText = resp.text;
       modalType = resp.type;
       showDialogue = false;
+      stLog.info(`User settings are now ${JSON.stringify($userSettings)}`);
     } catch (err) {
-      console.error(err);
+      stLog.error(err);
       modalText = err;
       modalType = 'error';
     }
     showModal = true;
+    stLog.info('REQ: updateSettings-->');
   };
   // Export all nedb files to json
   const exportData = async () => {
+    stLog.info('<--REQ: export');
     try {
       const resp = await ipcRenderer.invoke('export');
       if (resp.type === 'success') {
         modalText = resp.text;
         modalType = resp.type;
         showModal = true;
+        stLog.info(resp.text);
       }
     } catch (err) {
-      console.error(err);
+      stLog.error(err);
       modalText = err;
       modalType = 'error';
       showModal = true;
     }
+    stLog.info('REQ: export-->');
   };
 </script>
 
@@ -158,7 +170,7 @@
   </ul>
   <hr class="w-56 mt-2 mb-2 border-t-2 border-gray-500" />
   <ul>
-    <li on:click={() => (showDialogue = true)}>
+    <li on:click={showSettings}>
       <svg
         fill="none"
         stroke="currentColor"

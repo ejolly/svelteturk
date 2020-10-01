@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Modal from './Modal.svelte';
+  import { stLog } from './logger';
 
   // INPUTS
   export let mturkReady;
@@ -31,6 +32,7 @@
       modalText = 'No internet connectivity!';
       modalType = 'error';
       showModal = true;
+      stLog.error(modalText);
     }
   };
 </script>
