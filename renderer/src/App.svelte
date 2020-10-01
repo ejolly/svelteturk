@@ -97,6 +97,7 @@
       const resp = await ipcRenderer.invoke(...arguments);
       window.callResult = resp;
     };
+    stLog.info('API now available in window');
   };
 
   // Startup app by:
@@ -104,6 +105,7 @@
   // 2. Reading user settings from db and saving to a svelte store
   // 3. Initializing mturk object
   const initialize = async () => {
+    stLog.info('<--REQ: initialize');
     const resp = await ipcRenderer.invoke('initialize');
     awsKey = resp.awsCredentials.accessKeyId;
     awsSecret = resp.awsCredentials.secretAccessKey;
@@ -114,11 +116,14 @@
       await wait(4000);
     }
     ready = true;
+    stLog.info('app ready');
+    stLog.info('REQ: initialize-->');
   };
 
   // Change the app view ("state"); triggered by Sidebar
   const updateState = (ev) => {
     currentState = ev.detail.state;
+    userLog.info(`Page changed to ${currentState}`);
   };
 
   // Switch Mturk modes; triggered by SidebarHeader
@@ -126,12 +131,12 @@
     mturkReady = false;
     live = ev.detail.live;
     initMTurk();
+    userLog.info(`Mturk live changed to ${live}`);
   };
 
   // Get credentials on component load
   onMount(async () => {
     await initialize();
-    console.log($userSettings);
   });
 </script>
 
