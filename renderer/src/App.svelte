@@ -110,7 +110,9 @@
     userSettings.set(resp.userSettings);
     initMTurk();
     bindAPI();
-    await wait(5000);
+    if (!$userSettings.hideSplash) {
+      await wait(4000);
+    }
     ready = true;
   };
 
@@ -178,10 +180,10 @@
 <Tailwindcss />
 <Modal bind:showModal bind:modalType bind:modalText />
 <!-- Main app container full window size not responsive-->
+{#if !ready && !$userSettings.hideSplash}
+<Splash/>
+{:else}
 <div class="w-screen h-screen">
-  {#if !ready}
-    <Splash/>
-  {:else}
     <!-- Sidebar, fixed position and width-->
     <nav class="fixed top-0 left-0 w-64 p-4 ml-1">
       <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
@@ -201,5 +203,5 @@
     </div>
     <!-- Footer for contact info -->
     <Footer />
+  </div>
   {/if}
-</div>

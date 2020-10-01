@@ -97,6 +97,11 @@
             <input type="checkbox" class="mx-4" bind:checked={$userSettings.createHITHelpers} />
           </label>
         </div>
+        <div class="inline-flex px-3 space-x-4">
+          <label>Hide splash screen on startup
+            <input type="checkbox" class="mx-4" bind:checked={$userSettings.hideSplash} />
+          </label>
+        </div>
         <hr class="block w-full mt-2 mb-4 border-gray-500" />
         <button class="button" type="submit">Save</button>
       </div>

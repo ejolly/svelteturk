@@ -65,6 +65,7 @@ let userSettings = {
   refreshFrequency: 30,
   repeatBonuses: false,
   createHITHelpers: true,
+  hideSplash: false,
 };
 // Settings file location
 const settingsFile = `${app.getPath('home')}/.svelteturkrc`;
