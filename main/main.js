@@ -230,6 +230,7 @@ ipcMain.handle('countDocs', async (ev) => {
 // Add HIT to db after it's created in mturk
 ipcMain.handle('insertHIT', async (ev, hit) => {
   mainLog.info('<--API: insertHIT');
+  mainLog.info(`HITId: ${hit.HITId}`);
   let text;
   let type;
   try {
@@ -482,6 +483,7 @@ ipcMain.handle('findHITTemplates', async (ev) => {
 
 ipcMain.handle('saveHITTemplate', async (ev, template) => {
   mainLog.info('<--API: saveHITTemplate');
+  mainLog.info(`Name: ${template.name}`);
   let text;
   let type;
   try {
@@ -503,6 +505,7 @@ ipcMain.handle('saveHITTemplate', async (ev, template) => {
 
 ipcMain.handle('deleteHITTemplate', async (ev, name) => {
   mainLog.info('<--API: deleteHITTemplate');
+  mainLog.info(`Name: ${name}`);
   let text;
   let type;
   try {

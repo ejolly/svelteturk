@@ -33,7 +33,7 @@
   };
 
   const saveUserSettings = async () => {
-    stLog.info('<--REQ: updateSettings');
+    stLog.info('REQ: updateSettings');
     try {
       const resp = await ipcRenderer.invoke('updateSettings', $userSettings);
       modalText = resp.text;
@@ -46,11 +46,10 @@
       modalType = 'error';
     }
     showModal = true;
-    stLog.info('REQ: updateSettings-->');
   };
   // Export all nedb files to json
   const exportData = async () => {
-    stLog.info('<--REQ: export');
+    stLog.info('REQ: export');
     try {
       const resp = await ipcRenderer.invoke('export');
       if (resp.type === 'success') {
@@ -65,7 +64,6 @@
       modalType = 'error';
       showModal = true;
     }
-    stLog.info('REQ: export-->');
   };
 </script>
 

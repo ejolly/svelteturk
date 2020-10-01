@@ -105,7 +105,7 @@
   // 2. Reading user settings from db and saving to a svelte store
   // 3. Initializing mturk object
   const initialize = async () => {
-    stLog.info('<--REQ: initialize');
+    stLog.info('REQ: initialize');
     const resp = await ipcRenderer.invoke('initialize');
     awsKey = resp.awsCredentials.accessKeyId;
     awsSecret = resp.awsCredentials.secretAccessKey;
@@ -117,7 +117,6 @@
     }
     ready = true;
     stLog.info('app ready');
-    stLog.info('REQ: initialize-->');
   };
 
   // Change the app view ("state"); triggered by Sidebar

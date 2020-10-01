@@ -1,5 +1,5 @@
 <script>
-  import { fly, fade } from 'svelte/transition';
+  import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
   import Input from '../components/Input.svelte';
@@ -12,6 +12,7 @@
     wait,
   } from '../components/utils.js';
   import { userSettings } from '../components/store';
+  import { stLog, userLog } from '../components/logger';
 
   const { ipcRenderer } = require('electron');
 
@@ -85,16 +86,19 @@
   // FUNCTIONS
   // Load previously saved HITs from db and refresh reactive vars
   const loadSavedHITs = async () => {
+    stLog.info('REQ: findHITTemplates');
     loadTemplates = await ipcRenderer.invoke('findHITTemplates');
     loadNames = loadTemplates.map((elem) => elem['name']);
     loadName = undefined;
   };
 
   const makeHIT = async () => {
+    userLog.info('Create HIT');
     try {
       await HITSchema.validate(hitParams, { abortEarly: false });
       errors = {};
       const qualArray = formatQuals(hitParams.selectedQuals, mturk.live);
+      stLog.info('REQ Mturk: createHITType');
       const resp = await mturk
         .createHITType({
           AssignmentDurationInSeconds: hitParams.assignmentDuration,
@@ -106,17 +110,23 @@
           QualificationRequirements: qualArray,
         })
         .promise();
+      stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
       generatedHITTypeId = resp.HITTypeId;
+      stLog.info(`Generated HITTypeId: ${generatedHITTypeId}`);
       if (hitParams.numHITs === 1) {
+        stLog.info('Repeat Workers = 1');
         const matchingHITs = await checkForDuplicateHIT(generatedHITTypeId);
         if (matchingHITs) {
+          stLog.info('Existing HITs found');
           whichDialogue = 'confirm';
           showDialogue = true;
+          userLog.info('Show confirmation');
         } else {
           await createHIT('single');
         }
       } else {
         creatingHITs = true;
+        stLog.info(`Repeat Workers = ${hitParams.numHITs}`);
         for (let i of asyncGenerator(hitParams.numHITs)) {
           await createHIT('multiple');
           await wait(1000);
@@ -125,12 +135,14 @@
         modalText = `${hitParams.numHITs} HITs created successfully!`;
         modalType = 'success';
         showModal = true;
+        stLog.info(modalText);
       }
     } catch (err) {
       if (err.name === 'ValidationError') {
         errors = extractErrors(err);
+        userLog.error(`Validation Errors: ${JSON.stringify(errors)}`);
       } else {
-        console.error(err);
+        stLog.error(err);
         modalText = err;
         modalType = 'error';
         showModal = true;
@@ -140,6 +152,7 @@
   // Create a HIT, validate hit params, and save it to db
   const createHIT = async (type) => {
     showDialogue = false;
+    stLog.info('REQ Mturk: createHITWithHITType');
     const resp = await mturk
       .createHITWithHITType({
         HITTypeId: generatedHITTypeId,
@@ -148,7 +161,7 @@
         Question: externalQuestion,
       })
       .promise();
-    // TODO: LOGS use resp.header to get server time
+    stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
     const dbResp = await ipcRenderer.invoke('insertHIT', {
       HITId: resp.HIT.HITId,
       HITTypeId: resp.HIT.HITTypeId,
@@ -176,11 +189,13 @@
       modalText = dbResp.text;
       modalType = dbResp.type;
       showModal = true;
+      stLog.info(modalText);
     }
   };
 
   // Open save dialogue and validate hit params
   const openSave = async () => {
+    userLog.info('Open save HIT Template');
     try {
       await HITSchema.validate(hitParams, { abortEarly: false });
       await loadSavedHITs();
@@ -189,18 +204,22 @@
       showDialogue = true;
     } catch (err) {
       errors = extractErrors(err);
+      userLog.error(`Validation Errors: ${JSON.stringify(errors)}`);
     }
   };
 
   // Save hit template and validate hit params
   const saveTemplate = async () => {
+    userLog.info('Save HIT Template');
     saveError = !!!saveName;
     if (!saveError) {
       if (loadNames.includes(saveName)) {
         saveErrorText = 'This name already exists';
         saveError = true;
+        userLog.error(saveErrorText);
       } else {
         try {
+          stLog.info('REQ: saveHITTemplate');
           const dbResp = await ipcRenderer.invoke('saveHITTemplate', {
             name: saveName,
             assignmentDuration: hitParams.assignmentDuration,
@@ -218,8 +237,9 @@
           modalType = dbResp.type;
           showDialogue = false;
           showModal = true;
+          stLog.info(modalText);
         } catch (err) {
-          console.error(err);
+          stLog.error(err);
           modalText = err;
           modalType = 'error';
         }
@@ -232,6 +252,7 @@
 
   // Open load dialogue
   const openLoad = async () => {
+    userLog.info('Open load HIT Template');
     whichDialogue = 'load';
     await loadSavedHITs();
     showDialogue = true;
@@ -239,6 +260,7 @@
 
   // Load hit template
   const loadTemplate = async () => {
+    userLog.info('Load HIT Template');
     loadError = !!!loadName;
     if (!loadError) {
       hitParams = loadTemplates.filter((elem) => elem['name'] === loadName)[0];
@@ -248,14 +270,22 @@
 
   // Delete a hit template
   const deleteTemplate = async () => {
+    userLog.info('Delete HIT Template');
     loadError = !!!loadName;
     if (!loadError) {
+      stLog.info('REQ: deleteHITTemplate');
       const resp = await ipcRenderer.invoke('deleteHITTemplate', loadName);
       modalText = resp.text;
       modalType = resp.type;
       showModal = true;
       showDialogue = false;
+      stLog.info(modalText);
     }
+  };
+
+  const clearForm = () => {
+    userLog.info('Clear createHIT form');
+    errors = {};
   };
 </script>
 
@@ -483,9 +513,7 @@
       </button>
       <button class="button" on:click|preventDefault={openLoad}> Load Template </button>
       <button class="button" on:click|preventDefault={openSave}> Save Template </button>
-      <button class="button" type="reset" on:click|preventDefault={() => (errors = {})}>
-        Clear
-      </button>
+      <button class="button" type="reset" on:click|preventDefault={clearForm}> Clear </button>
     </div>
   </form>
 </div>
