@@ -48,7 +48,7 @@ log.catchErrors({
 // Scope main process logs so that 'main' appears in the log file next to messages
 const mainLog = log.scope('main');
 
-mainLog.info('NEW MAIN STARTUP');
+mainLog.info('---SVELTE TURK STARTUP---');
 
 // INIT VARIABLES
 // create a global reference to the window object
@@ -123,7 +123,7 @@ const createWindow = () => {
                 'No environment variables or config file were found for your AWS Credentials! Please configure them and restart the app',
             })
             .then(() => {
-              mainLog.error('No environment variables or config file found for AWS credentials. Exiting...');
+              mainLog.error('No AWS environment variables or config file found. Exiting...');
               app.exit(0);
               process.abort();
             });
@@ -132,7 +132,7 @@ const createWindow = () => {
         }
       } else {
         awsCredentials = JSON.parse(data);
-        mainLog.info('AWS credentials loaded from file!');
+        mainLog.info('AWS credentials loaded from file');
       }
     });
   }
@@ -179,12 +179,15 @@ app.on('activate', () => {
 // API DEFINITION START
 // Send aws credentials
 ipcMain.handle('initialize', async (ev) => {
+  mainLog.info('<--API: intialize');
   try {
     const data = await fs.promises.readFile(settingsFile);
     userSettings = JSON.parse(data);
+    mainLog.info('Read user settings from file');
   } catch (err) {
     mainLog.error(`Failed to read .svelteturkrc: ${err}`);
   }
+  mainLog.info('API: intialize-->');
   return {
     userSettings,
     awsCredentials
@@ -192,46 +195,54 @@ ipcMain.handle('initialize', async (ev) => {
 });
 
 ipcMain.handle('updateSettings', async (ev, settingsStore) => {
+  mainLog.info('<--API: updateSettings');
   let text;
   let type;
   try {
     await fs.promises.writeFile(settingsFile, JSON.stringify(settingsStore));
-    text = 'Settings updated successfully!';
+    text = 'Settings updated successfully';
     type = 'success';
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(text);
     type = 'error';
   }
+  mainLog.info('API: updateSettings-->');
   return { text, type };
 });
 
 // Count records in each db
 ipcMain.handle('countDocs', async (ev) => {
+  mainLog.info('<--API: countDocs');
   const out = {};
   for (const dbName in db) {
     try {
       out[dbName] = await db[dbName].count({});
     } catch (err) {
-      console.error(err);
+      mainLog.error(err);
     }
   }
+  mainLog.info('API: countDocs-->');
   return out;
 });
 
 // Add HIT to db after it's created in mturk
 ipcMain.handle('insertHIT', async (ev, hit) => {
+  mainLog.info('<--API: insertHIT');
   let text;
   let type;
   try {
     await db.hits.insert(hit);
     text = 'HIT added successfully';
     type = 'success';
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(text);
     type = 'error';
   }
+  mainLog.info('API: insertHIT-->');
   return {
     text,
     type,
@@ -240,6 +251,7 @@ ipcMain.handle('insertHIT', async (ev, hit) => {
 
 // Export all dbs to JSON
 ipcMain.handle('export', async () => {
+  mainLog.info('<--API: export');
   let text;
   let type;
   try {
@@ -264,17 +276,19 @@ ipcMain.handle('export', async () => {
         // TODO: use option to export importable db file or json
         await fs.promises.writeFile(writePath, JSON.stringify(docs));
       }
-      text = 'Export succesful!';
+      text = 'Export succesful';
       type = 'success';
     } else {
       text = 'Export cancelled';
       type = 'notification';
     }
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(err);
     type = 'error';
   }
+  mainLog.info('API: export-->');
   return {
     text,
     type,
@@ -283,6 +297,7 @@ ipcMain.handle('export', async () => {
 
 // Export selected Assignements to JSON for bonusing
 ipcMain.handle('exportAsstsForBonus', async (ev, assts) => {
+  mainLog.info('<--API: exportAsstsForBonus');
   let text;
   let type;
   try {
@@ -304,11 +319,13 @@ ipcMain.handle('exportAsstsForBonus', async (ev, assts) => {
       text = 'Export cancelled';
       type = 'notification';
     }
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(err);
     type = 'error';
   }
+  mainLog.info('API: exportAsstsForBonus-->');
   return {
     text,
     type,
@@ -317,6 +334,7 @@ ipcMain.handle('exportAsstsForBonus', async (ev, assts) => {
 
 // Import Assignemts for bonusing
 ipcMain.handle('importAsstsForBonus', async () => {
+  mainLog.info('<--API: importAsstsForBonus');
   let text;
   let type;
   let data;
@@ -340,11 +358,13 @@ ipcMain.handle('importAsstsForBonus', async () => {
       text = 'Import cancelled';
       type = 'notification';
     }
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(err);
     type = 'error';
   }
+  mainLog.info('API: importAsstsForBonus');
   return {
     text,
     type,
@@ -354,6 +374,7 @@ ipcMain.handle('importAsstsForBonus', async () => {
 
 // Delete a doc in any db
 ipcMain.handle('deleteDoc', async (ev, dbName, id) => {
+  mainLog.info('<--API: deleteDoc');
   let text;
   let type;
   try {
@@ -365,16 +386,19 @@ ipcMain.handle('deleteDoc', async (ev, dbName, id) => {
       text = 'Document not found';
       type = 'erorr';
     }
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(err);
     type = 'error';
   }
+  mainLog.info('API: deleteDoc-->');
   return { text, type };
 });
 
 // Update a doc in any db
 ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
+  mainLog.info('<--API: updateDoc');
   let text;
   let type;
   try {
@@ -386,73 +410,91 @@ ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
       text = 'Document not found';
       type = 'erorr';
     }
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(err);
     type = 'error';
   }
+  mainLog.info('API: updateDoc-->');
   return { text, type };
 });
 
 // Return all hits
 ipcMain.handle('findHits', async (ev) => {
+  mainLog.info('<--API: findHITs');
   const docs = await db.hits.find({}).sort({ createdAt: -1 });
+  mainLog.info('API: findHITs-->');
   return docs;
 });
 
 // Search for hit with same exact params; useful because Mturk will assign HITs with matching params
 // the same HITTypeId
 ipcMain.handle('findDuplicateHIT', async (ev, HITTypeId) => {
+  mainLog.info('<--API: findDuplicateHIT');
   let text;
   let type;
   try {
-    const docs = await db.hits.findOne({ HITTypeId: HITTypeId });
+    const docs = await db.hits.findOne({ HITTypeId });
+    mainLog.info('API: findDuplicateHIT-->');
     return docs;
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(err);
     type = 'error';
+    mainLog.info('API: findDuplicateHIT-->');
     return { text, type };
   }
 });
 
 // Return all assts
 ipcMain.handle('findAssts', async (ev) => {
+  mainLog.info('<--API: findAssts');
   const docs = await db.assts.find({}).sort({ createdAt: -1 });
+  mainLog.info('API: findHITs-->');
   return docs;
 });
 
 // Return assts for a specific HIT
 ipcMain.handle('findAsstsForHIT', async (ev, HITId) => {
+  mainLog.info('<--API: findAsstsForHIT');
   const docs = await db.assts.find({ HITId }).sort({ createdAt: -1 });
+  mainLog.info('API: findAsstsForHIT-->');
   return docs;
 });
 
 // Return all workers
 ipcMain.handle('findWorkers', async (ev) => {
+  mainLog.info('<--API: findWorkers');
   const docs = await db.workers.find({}).sort({ createdAt: -1 });
+  mainLog.info('API: findWorkers-->');
   return docs;
 });
 
 // Manage hit templates
 // TODO: refactor
 ipcMain.handle('findHITTemplates', async (ev) => {
+  mainLog.info('<--API: findHITTemplates');
   const docs = await db.hitTemplates.find({}).sort({ name: 1 });
+  mainLog.info('API: findHITTemplates-->');
   return docs;
 });
 
 ipcMain.handle('saveHITTemplate', async (ev, template) => {
+  mainLog.info('<--API: saveHITTemplate');
   let text;
   let type;
   try {
     await db.hitTemplates.insert(template);
     text = 'Template saved successfully';
     type = 'success';
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(err);
     type = 'error';
   }
+  mainLog.info('API: saveHITTemplate-->');
   return {
     text,
     type
@@ -460,6 +502,7 @@ ipcMain.handle('saveHITTemplate', async (ev, template) => {
 });
 
 ipcMain.handle('deleteHITTemplate', async (ev, name) => {
+  mainLog.info('<--API: deleteHITTemplate');
   let text;
   let type;
   try {
@@ -471,11 +514,13 @@ ipcMain.handle('deleteHITTemplate', async (ev, name) => {
       text = 'Document not found';
       type = 'erorr';
     }
+    mainLog.info(text);
   } catch (err) {
-    console.error(err);
     text = err;
+    mainLog.error(err);
     type = 'error';
   }
+  mainLog.info('API: deleteHITTemplate-->');
   return { text, type };
 });
 
