@@ -17,7 +17,7 @@ if (require('electron-squirrel-startup')) {
 nativeTheme.themeSource = 'light';
 
 // BASE APP DATA PATH: Set the base app data path to a hidden folder in the user's home
-const svelteturkPath = path.join(app.getPath('home'), '.svelteturk');
+const svelteturkPath = path.join(app.getPath('home'), 'svelteturk');
 if (!fs.existsSync(svelteturkPath)) {
   fs.mkdirSync(svelteturkPath);
 }
