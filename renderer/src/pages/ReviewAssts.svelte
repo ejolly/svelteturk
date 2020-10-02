@@ -79,12 +79,12 @@
     selectedHIT = 'all';
   };
 
-  const updateAsstsInDB = async (asstList) => {
+  const updateAsstsInDB = (asstList) => {
     if (!Array.isArray(asstList)) {
       asstList = [asstList];
     }
     // Promise.all because execution order doesn't matter and if any db write fails we want them all to fail
-    await Promise.all(
+    return Promise.all(
       asstList.map(async (asst) => {
         await updateDoc(
           'assts',
@@ -108,6 +108,7 @@
   };
 
   const refreshAssts = async () => {
+    stLog.info('REFRESH Assignments');
     const refreshIcon = document.getElementById('refresh-icon');
     refreshIcon.classList.remove('text-gray-600');
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
@@ -125,8 +126,7 @@
       } else {
         stLog.info(`REQ Mturk: listAssignmentsForHIT ${selectedHIT.HITId}`);
         const resp = await mturk.listAssignmentsForHIT({ HITId: selectedHIT.HITId }).promise();
-        const Assignments = await resp.Assignments;
-        await updateAsstsInDB(Assignments);
+        await updateAsstsInDB(resp.Assignments);
       }
       await getAssts();
       refreshIcon.classList.remove('animate-spin', 'text-purple-700');

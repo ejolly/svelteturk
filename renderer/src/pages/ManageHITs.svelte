@@ -59,12 +59,12 @@
   };
 
   const refreshHITs = async () => {
-    stLog.info('REQ Mturk: getHIT');
-    console.log(`Refreshing HITs from AWS at: ${new Date().toString()}`);
+    stLog.info('REFRESH HITs');
     const refreshIcon = document.getElementById('refresh-icon');
     refreshIcon.classList.remove('text-gray-600');
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
     try {
+      stLog.info('REQ Mturk: getHIT ALL');
       // NOTE: Promise.all because order doesn't matter and we don't want error blocking
       await Promise.all(
         hits.map(async (hit) => {

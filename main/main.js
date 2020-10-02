@@ -420,6 +420,9 @@ ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
       type = 'erorr';
     }
     mainLog.info(text);
+    if (dbName === 'assts') {
+      await upsertWorker(query, update);
+    }
   } catch (err) {
     text = err;
     mainLog.error(err);
@@ -428,6 +431,72 @@ ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
   mainLog.info('API: updateDoc-->');
   return { text, type };
 });
+
+// Insert or modify worker
+// FIXME: at somepoint rewrite this logic because it assums that updateDoc('asst') on the client only every contains a WorkerId field when being called from withing ReviewAssts > updateAsstsinDB()
+// If that ever changes in the future the logic could break
+const upsertWorker = async (query, update) => {
+  mainLog.info('<--API: upsertWorker');
+  let numAffected;
+  try {
+    // If an assignment has a workerId it also has a HITid because the client-side operation is refreshing data from Mturk
+    const asstData = update.$set;
+    const asstId = query.AsstId;
+    if ('WorkerId' in asstData) {
+      mainLog.info('Adding or refreshing Worker data');
+      const HIT = db.hits.findOne({ HITId: asstData.HITId });
+      const HITReward = parseFloat(HIT.Reward);
+
+      numAffected = db.workers.update(
+        {
+          WorkerId: asstData.WorkerId
+        },
+        {
+          $set: {
+            WorkerId: asstData.WorkerId,
+            recentHIT: asstData.HITId,
+            recentAsst: asstId,
+
+          },
+          $addToSet: {
+            Assigments: asstId,
+            HITs: asstData.HITId,
+          },
+          $inc: {
+            totalPayments: HITReward
+          }
+        },
+        {
+          upsert: true
+        }
+      );
+      if (numAffected) {
+        mainLog.info('Operation successful');
+      } else {
+        mainLog.info('No document found');
+      }
+    } else if ('Bonus' in asstData) {
+      mainLog.info('Updating Bonus for worker');
+      numAffected = db.workers.update(
+        {
+          Assignments: asstId
+        },
+        {
+          $inc: {
+            totalBonuses: parseFloat(asstData.Bonus)
+          }
+        }
+      );
+      if (numAffected) {
+        mainLog.info('Operation successful');
+      } else {
+        mainLog.info('No document found');
+      }
+    }
+  } catch (err) {
+    mainLog.error(err);
+  }
+};
 
 // Return all hits
 ipcMain.handle('findHits', async (ev) => {
