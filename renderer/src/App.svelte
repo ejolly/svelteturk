@@ -10,6 +10,7 @@
   import CreateHIT from './pages/CreateHIT.svelte';
   import Home from './pages/Home.svelte';
   import ManageHITs from './pages/ManageHITs.svelte';
+  import ManageWorkers from './pages/ManageWorkers.svelte';
   import ReviewAssts from './pages/ReviewAssts.svelte';
   import { stLog, userLog } from './components/logger.js';
   import { userSettings } from './components/store.js';
@@ -49,6 +50,11 @@
       state: 'manageHITs',
       title: 'Manage HITs',
       component: ManageHITs,
+    },
+    {
+      state: 'manageWorkers',
+      title: 'Manage Workers',
+      component: ManageWorkers,
     },
     {
       state: 'reviewAssts',

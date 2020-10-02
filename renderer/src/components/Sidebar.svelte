@@ -118,11 +118,11 @@
     </form>
   </div>
 </Dialogue>
-<div class="w-40">
+<div class="w-48">
   <p class="mb-4 text-xl tracking-wide text-gray-600 uppercase font-quantico">Menu</p>
   <ul>
     <li class:active={currentState == 'home'} on:click={() => changeState('home')}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 20">
         <path
           d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0
           001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0
@@ -141,23 +141,36 @@
       <span>Create HIT</span>
     </li>
     <li class:active={currentState == 'manageHITs'} on:click={() => changeState('manageHITs')}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
-        <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
-        <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
-      </svg>
+      <svg
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
       <span>Manage HITs</span>
     </li>
     <li class:active={currentState == 'reviewAssts'} on:click={() => changeState('reviewAssts')}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 20" fill="currentColor">
         <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
         <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
         <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
       </svg>
       <span>Review Assts</span>
     </li>
+    <li
+      class:active={currentState == 'manageWorkers'}
+      on:click={() => changeState('manageWorkers')}>
+      <svg fill="currentColor" viewBox="0 0 26 24" xmlns="http://www.w3.org/2000/svg"><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+      <span>Manage Workers</span>
+    </li>
     <li on:click={exportData}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 20">
         <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
       </svg>
       <span>Export Data</span>

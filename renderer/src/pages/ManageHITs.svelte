@@ -110,9 +110,11 @@
 
   const clearSelection = () => {
     selectedHIT = undefined;
-    rowDOM.classList.remove('bg-purple-200');
-    rowDOM.classList.add('hoverable');
-    rowDOM = undefined;
+    if (rowDOM) {
+      rowDOM.classList.remove('bg-purple-200');
+      rowDOM.classList.add('hoverable');
+      rowDOM = undefined;
+    }
     showDialogue = false;
     extendTime = 60;
     additionalAssts = 1;
@@ -150,6 +152,7 @@
     modalText = resp.text;
     modalType = resp.type;
     showModal = true;
+    stLog.info(resp.text);
     clearSelection();
     await getHITs();
   };
@@ -549,7 +552,7 @@
       <button on:click|preventDefault={showHITExtend} class="button">Extend</button>
       <div class="tooltip">
         <button on:click|preventDefault={endHIT} class="button" disabled={!endAble}>End</button>
-        <span class="tooltip-text"> This HIT has already ended </span>
+        {#if !endAble}<span class="tooltip-text"> This HIT has already ended </span>{/if}
       </div>
       <button on:click|preventDefault={deleteHIT} class="button">Delete</button>
     </div>

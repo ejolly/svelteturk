@@ -257,6 +257,85 @@ ipcMain.handle('insertHIT', async (ev, hit) => {
   };
 });
 
+// Insert or modify worker
+// FIXME: at somepoint rewrite this logic because it assums that updateDoc('asst') on the client only every contains a WorkerId field when being called from withing ReviewAssts > updateAsstsinDB()
+// If that ever changes in the future the logic could break
+const upsertWorker = async (query, update) => {
+  mainLog.info('<--API: upsertWorker');
+  let numAffected;
+  try {
+    // If an assignment has a workerId it also has a HITid because the client-side operation is refreshing data from Mturk
+    const asstData = update.$set;
+    const asstId = query.AsstId;
+    if ('WorkerId' in asstData) {
+      const HIT = await db.hits.findOne({ HITId: asstData.HITId });
+      const HITReward = parseFloat(HIT.Reward);
+      const worker = await db.workers.findOne({ WorkerId: asstData.WorkerId });
+      console.log(worker);
+      if (worker) {
+        if (!worker.Assignments.includes(asstId)) {
+          // Worker hasn't done this assignment before; update their record
+          numAffected = await db.workers.update(
+            {
+              WorkerId: asstData.WorkerId
+            },
+            {
+              $set: {
+                WorkerId: asstData.WorkerId,
+                recentHIT: asstData.HITId,
+                recentAsst: asstId,
+              },
+              $addToSet: {
+                Assignments: asstId,
+                HITs: asstData.HITId,
+              },
+              $inc: {
+                totalPayments: HITReward
+              }
+            },
+          );
+          mainLog.info(`Added new assignment for existing worker ${asstData.WorkerId}`);
+        } else {
+          mainLog.info(`Worker already has assignment skipping ${asstData.WorkerId}`);
+        }
+      } else {
+        // Create a new worker record
+        numAffected = await db.workers.insert(
+          {
+            WorkerId: asstData.WorkerId,
+            Assignments: [asstId],
+            HITs: [asstData.HITId],
+            totalPayments: HITReward,
+            totalBonuses: 0,
+            recentHIT: asstData.HITId,
+            recentAsst: asstId
+          }
+        );
+        mainLog.info(`New worker added ${asstData.WorkerId}`);
+      }
+    } else if ('Bonus' in asstData) {
+      mainLog.info('Updating Bonus for worker');
+      numAffected = await db.workers.update(
+        {
+          Assignments: asstId
+        },
+        {
+          $inc: {
+            totalBonuses: parseFloat(asstData.Bonus)
+          }
+        }
+      );
+      if (numAffected) {
+        mainLog.info('Added new bonus for existing worker');
+      } else {
+        mainLog.info('No document found');
+      }
+    }
+  } catch (err) {
+    mainLog.error(err);
+  }
+};
+
 // Export all dbs to JSON
 ipcMain.handle('export', async () => {
   mainLog.info('<--API: export');
@@ -431,72 +510,6 @@ ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
   mainLog.info('API: updateDoc-->');
   return { text, type };
 });
-
-// Insert or modify worker
-// FIXME: at somepoint rewrite this logic because it assums that updateDoc('asst') on the client only every contains a WorkerId field when being called from withing ReviewAssts > updateAsstsinDB()
-// If that ever changes in the future the logic could break
-const upsertWorker = async (query, update) => {
-  mainLog.info('<--API: upsertWorker');
-  let numAffected;
-  try {
-    // If an assignment has a workerId it also has a HITid because the client-side operation is refreshing data from Mturk
-    const asstData = update.$set;
-    const asstId = query.AsstId;
-    if ('WorkerId' in asstData) {
-      mainLog.info('Adding or refreshing Worker data');
-      const HIT = db.hits.findOne({ HITId: asstData.HITId });
-      const HITReward = parseFloat(HIT.Reward);
-
-      numAffected = db.workers.update(
-        {
-          WorkerId: asstData.WorkerId
-        },
-        {
-          $set: {
-            WorkerId: asstData.WorkerId,
-            recentHIT: asstData.HITId,
-            recentAsst: asstId,
-
-          },
-          $addToSet: {
-            Assigments: asstId,
-            HITs: asstData.HITId,
-          },
-          $inc: {
-            totalPayments: HITReward
-          }
-        },
-        {
-          upsert: true
-        }
-      );
-      if (numAffected) {
-        mainLog.info('Operation successful');
-      } else {
-        mainLog.info('No document found');
-      }
-    } else if ('Bonus' in asstData) {
-      mainLog.info('Updating Bonus for worker');
-      numAffected = db.workers.update(
-        {
-          Assignments: asstId
-        },
-        {
-          $inc: {
-            totalBonuses: parseFloat(asstData.Bonus)
-          }
-        }
-      );
-      if (numAffected) {
-        mainLog.info('Operation successful');
-      } else {
-        mainLog.info('No document found');
-      }
-    }
-  } catch (err) {
-    mainLog.error(err);
-  }
-};
 
 // Return all hits
 ipcMain.handle('findHits', async (ev) => {

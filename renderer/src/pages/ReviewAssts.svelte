@@ -58,7 +58,7 @@
     asstsFiltered && asstsFiltered.every((e) => e.Bonus) && !$userSettings.repeatBonuses;
   $: bonusAsstDisabled = selectedAsst && selectedAsst.Bonus && !$userSettings.repeatBonuses;
   $: approveAllDisabled =
-    asstsFiltered && asstsFiltered.every((e) => ['Approved', 'Submitted'].includes(e.Status));
+    asstsFiltered && asstsFiltered.every((e) => ['Approved', 'Rejected'].includes(e.Status));
   $: approveAsstDisabled = selectedAsst && ['Approved', 'Rejected'].includes(selectedAsst.Status);
 
   // FUNCTIONS
@@ -811,8 +811,10 @@
             class="button"
             on:click|preventDefault={showBonusAsst}
             disabled={bonusAsstDisabled}>Bonus</button>
-          <span class="tooltip-text">This assignment has a bonus and repeat bonuses are disabled.
-            You can change this in settings</span>
+          {#if bonusAsstDisabled}
+            <span class="tooltip-text">This assignment has a bonus and repeat bonuses are disabled.
+              You can change this in settings</span>
+          {/if}
         </div>
         <div class="tooltip">
           <button
@@ -835,16 +837,20 @@
             class="button"
             on:click|preventDefault={showBonusAll}
             disabled={bonusAllDisabled}>Bonus All</button>
-          <span class="tooltip-text">All assignments have bonuses and repeat bonuses are
-            disabled.You can change this in settings.</span>
+          {#if bonusAllDisabled}
+            <span class="tooltip-text">All assignments have bonuses and repeat bonuses are
+              disabled.You can change this in settings.</span>
+          {/if}
         </div>
         <div class="tooltip">
           <button
             class="button"
             on:click|preventDefault={showBonusViaFile}
             disabled={bonusAllDisabled}>Bonus from File</button>
-          <span class="tooltip-text">All assignments have bonuses and repeat bonuses are
-            disabled.You can change this in settings.</span>
+          {#if bonusAllDisabled}
+            <span class="tooltip-text">All assignments have bonuses and repeat bonuses are
+              disabled.You can change this in settings.</span>
+          {/if}
         </div>
       {/if}
     </div>
