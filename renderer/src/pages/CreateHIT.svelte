@@ -127,7 +127,7 @@
       } else {
         creatingHITs = true;
         stLog.info(`Repeat Workers = ${hitParams.numHITs}`);
-        for (let i of asyncGenerator(hitParams.numHITs)) {
+        for (let _i of asyncGenerator(hitParams.numHITs)) {
           await createHIT('multiple');
           await wait(1000);
         }

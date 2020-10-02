@@ -3,7 +3,7 @@
   import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
-  import { deleteDoc, updateDoc, wait, formatDate, refreshFrequency } from '../components/utils.js';
+  import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
   import { userSettings } from '../components/store';
   import { stLog, userLog } from '../components/logger';
 
@@ -144,7 +144,7 @@
     }
   };
 
-  const deleteHIT = async (ev) => {
+  const deleteHIT = async () => {
     userLog.info(`Delete assignment ${selectedHIT._id}`);
     const resp = await deleteDoc('hits', selectedHIT._id);
     modalText = resp.text;
@@ -154,7 +154,7 @@
     await getHITs();
   };
 
-  const endHIT = async (ev) => {
+  const endHIT = async () => {
     userLog.info('End HIT');
     try {
       stLog.info(`REQ Mturk: updateExpirationForHIT (end) ${selectedHIT.HITId}`);
@@ -266,7 +266,7 @@
     }
   };
 
-  const extendHIT = async (ev) => {
+  const extendHIT = async () => {
     userLog.info(`Extend HIT expiration ${selectedHIT.HITId}`);
     if (selectedHIT.HITStatus !== 'Disposed') {
       let update = parseInt(extendTime, 10);
