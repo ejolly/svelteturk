@@ -49,6 +49,12 @@ If you are unsure if you have set these credentials properly, simply start the a
 
 Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](https://tablericons.com/)  
 
+## Packaging
+
+1. Comment out the noted line in `main/main.js` to prevent electron-reloader from getting bundled with the app
+2. `npm run package`
+3. Application will be generated in `out/`
+
 ### Note on hot-reloading
 
 `electron-reload` is configured to just watch the renderer directory (i.e. Svelte) and will auto-refresh to any changes made to the svelte code. `entr` is used to restart the entire electron server on any changes to the `main.js` file which is the main electron process ("server").  

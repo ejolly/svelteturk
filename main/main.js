@@ -6,7 +6,7 @@ const Papa = require('papaparse');
 const log = require('electron-log');
 
 // FIXME: COMMENT OUT THIS LINE WHEN PACKAGING THE APP SO ELECTRON RELOAD DOESNT GET BUNDLED
-// require('electron-reload')(path.join(__dirname, '..', 'renderer'));
+require('electron-reload')(path.join(__dirname, '..', 'renderer'));
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
