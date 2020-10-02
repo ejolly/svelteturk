@@ -114,7 +114,7 @@
     try {
       if (selectedHIT === 'all') {
         stLog.info(`REQ Mturk: listAssignmentsForHIT ALL`);
-        // Promise.all because execution order doesn't matter and if reasing from mturk fails for 1 HIT we want it to fail for all
+        // NOTE: Promise.all because execution order doesn't matter and if reasing from mturk fails for 1 HIT we want it to fail for all
         await Promise.all(
           hits.map(async (hit) => {
             const resp = await mturk.listAssignmentsForHIT({ HITId: hit.HITId }).promise();
@@ -577,7 +577,7 @@
 
   onDestroy(() => {
     clearInterval(refreshFromAWS);
-    stLog.info(`Auto Assignments refreshing ended`);
+    stLog.info(`Auto Assignments refreshing stopped`);
   });
 </script>
 

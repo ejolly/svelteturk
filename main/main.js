@@ -34,7 +34,7 @@ log.catchErrors({
         if (result.response === 1) {
           submitIssue('https://github.com/ejolly/svelte-turk/issues/new', {
             title: `Error report for ${versions.app}`,
-            body: 'Error:\n```' + error.stack + '\n```\n' + `OS: ${versions.os}`
+            body: `Error:\n\`\`\`${error.stack}\n\`\`\`\n OS: ${versions.os}`
           });
           return;
         }

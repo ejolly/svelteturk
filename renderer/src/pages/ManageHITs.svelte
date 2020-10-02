@@ -4,6 +4,8 @@
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
   import { deleteDoc, updateDoc, wait, formatDate, refreshFrequency } from '../components/utils.js';
+  import { userSettings } from '../components/store';
+  import { stLog, userLog } from '../components/logger';
 
   const { ipcRenderer } = require('electron');
 
@@ -44,22 +46,26 @@
   let selectedHIT;
   // Reactive boolean for styling
   $: rowSelected = !!selectedHIT;
-  $: addable =
+  $: recruitable =
     rowSelected && selectedHIT.MaxAssignments !== 9 && selectedHIT.HITStatus !== 'Reviewable';
+  $: endAble = rowSelected && selectedHIT.HITStatus === 'Assignable';
 
   // FUNCTIONS
   // Get all hits from db
   const getHITs = async () => {
+    stLog.info('REQ findHITs');
     hits = await ipcRenderer.invoke('findHits');
     hitsFiltered = hits;
   };
 
   const refreshHITs = async () => {
+    stLog.info('REQ Mturk: getHIT');
     console.log(`Refreshing HITs from AWS at: ${new Date().toString()}`);
     const refreshIcon = document.getElementById('refresh-icon');
     refreshIcon.classList.remove('text-gray-600');
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
     try {
+      // NOTE: Promise.all because order doesn't matter and we don't want error blocking
       await Promise.all(
         hits.map(async (hit) => {
           const resp = await mturk.getHIT({ HITId: hit.HITId }).promise();
@@ -95,7 +101,7 @@
       refreshIcon.classList.remove('animate-spin', 'text-purple-700');
       refreshIcon.classList.add('text-gray-600');
     } catch (err) {
-      console.error(err);
+      stLog.error(err);
       modalText = err;
       modalType = 'error';
       showModal = true;
@@ -118,8 +124,10 @@
     // Save clicked row
     if (rowDOM) {
       if (rowDOM === ev.target.parentNode) {
+        userLog.info('Unselect row');
         clearSelection();
       } else {
+        userLog.info('Select different row');
         rowDOM.classList.remove('bg-purple-200');
         rowDOM.classList.add('hoverable');
         rowDOM = ev.target.parentNode;
@@ -128,6 +136,7 @@
         selectedHIT = hit;
       }
     } else {
+      userLog.info('Select row');
       rowDOM = ev.target.parentNode;
       rowDOM.classList.add('bg-purple-200');
       rowDOM.classList.remove('hoverable');
@@ -136,6 +145,7 @@
   };
 
   const deleteHIT = async (ev) => {
+    userLog.info(`Delete assignment ${selectedHIT._id}`);
     const resp = await deleteDoc('hits', selectedHIT._id);
     modalText = resp.text;
     modalType = resp.type;
@@ -145,78 +155,85 @@
   };
 
   const endHIT = async (ev) => {
-    if (selectedHIT.HITStatus === 'Assignable') {
-      try {
-        await mturk
-          .updateExpirationForHIT({
-            ExpireAt: new Date(0),
-            HITId: selectedHIT.HITId,
-          })
-          .promise();
-        const resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
-        // TODO: LOGS: Use resp.header object to store server time log and action
-        const dbResp = await updateDoc(
-          'hits',
-          { _id: selectedHIT._id },
-          {
-            $set: { Expiration: resp.HIT.Expiration.toString(), HITStatus: resp.HIT.HITStatus },
-          }
-        );
-        if (dbResp.type === 'success') {
-          modalText = 'HIT ended and db updated successfully!';
-          modalType = 'success';
-        } else {
-          modalText = 'HIT ended successfully but could not update db. See console.';
-          modalType = 'notifcation';
-          console.log(dbResp);
+    userLog.info('End HIT');
+    try {
+      stLog.info(`REQ Mturk: updateExpirationForHIT (end) ${selectedHIT.HITId}`);
+      let resp = await mturk
+        .updateExpirationForHIT({
+          ExpireAt: new Date(0),
+          HITId: selectedHIT.HITId,
+        })
+        .promise();
+      stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+      stLog.info(`REQ Mturk: getHIT ${selectedHIT.HITId}`);
+      resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
+      stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+      // TODO: LOGS: Use resp.header object to store server time log and action
+      const dbResp = await updateDoc(
+        'hits',
+        { _id: selectedHIT._id },
+        {
+          $set: { Expiration: resp.HIT.Expiration.toString(), HITStatus: resp.HIT.HITStatus },
         }
-        showModal = true;
-        await getHITs();
-      } catch (err) {
-        console.error(err);
-        modalText = err;
-        modalType = 'error';
-        showModal = true;
+      );
+      if (dbResp.type === 'success') {
+        modalText = 'HIT ended and db updated successfully!';
+        modalType = 'success';
+      } else {
+        modalText = 'HIT ended successfully but could not update db. See console.';
+        modalType = 'notifcation';
+        stLog.info(dbResp);
       }
-    } else {
-      modalText = 'HIT is no longer active!';
-      modalType = 'notification';
+      showModal = true;
+      await getHITs();
+    } catch (err) {
+      stLog.error(err);
+      modalText = err;
+      modalType = 'error';
       showModal = true;
     }
     clearSelection();
   };
 
   const showHITInfo = () => {
+    userLog.info('Show HIT details');
     whichDialogue = 'info';
     showDialogue = true;
   };
 
   const showHITExtend = () => {
+    userLog.info('Show HIT extend');
     whichDialogue = 'extend';
     showDialogue = true;
   };
 
   const showAddAssts = () => {
+    userLog.info('Show add assignments');
     whichDialogue = 'add';
     showDialogue = true;
   };
 
   const addAsstsToHIT = async () => {
+    userLog.info(`Add assignments to HIT ${selectedHIT.HITId}`);
     if (Number.isInteger(additionalAssts) && additionalAssts >= 1) {
       if (selectedHIT.MaxAssignments < 10 && selectedHIT.MaxAssignments + additionalAssts >= 10) {
         addAsstsError = true;
         addAsstsErrorReason = 'This HIT is limited to a total of 9 assignments';
+        userLog.error(addAsstsError);
       } else {
         addAsstsError = false;
         try {
-          // const newMax = selectedHIT.MaxAssignments + additionalAssts;
-          await mturk
+          stLog.info(`REQ Mturk: createAdditionalAssignmentsForHIT ${selectedHIT.HITId}`);
+          let resp = await mturk
             .createAdditionalAssignmentsForHIT({
               HITId: selectedHIT.HITId,
               NumberOfAdditionalAssignments: additionalAssts,
             })
             .promise();
-          const resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
+          stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+          stLog.info(`REQ Mturk: getHIT ${selectedHIT.HITId}`);
+          resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
+          stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
           const dbResp = await updateDoc(
             'hits',
             { _id: selectedHIT._id },
@@ -230,12 +247,12 @@
           } else {
             modalText = 'New assignments added, but could not update db. See console!';
             modalType = 'notifcation';
-            console.log(dbResp);
           }
+          stLog.info(dbResp);
           showModal = true;
           await getHITs();
         } catch (err) {
-          console.error(err);
+          stLog.error(err);
           modalText = err;
           modalType = 'error';
           showModal = true;
@@ -245,10 +262,12 @@
     } else {
       addAsstsError = true;
       addAsstsErrorReason = 'Must be a valid number (minimum 1)';
+      userLog.error(addAsstsErrorReason);
     }
   };
 
   const extendHIT = async (ev) => {
+    userLog.info(`Extend HIT expiration ${selectedHIT.HITId}`);
     if (selectedHIT.HITStatus !== 'Disposed') {
       let update = parseInt(extendTime, 10);
       if (Number.isInteger(update) && update >= 60) {
@@ -258,14 +277,17 @@
         update = (update + 1) * 1000;
         const updatedTime = new Date(now + update);
         try {
-          await mturk
+          stLog.info(`REQ Mturk: updateExpirationForHIT ${selectedHIT.HITId}`);
+          let resp = await mturk
             .updateExpirationForHIT({
               ExpireAt: updatedTime,
               HITId: selectedHIT.HITId,
             })
             .promise();
-          const resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
-          // TODO: LOGS: Use resp.header object to store server time log and action
+          stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+          stLog.info(`REQ Mturk: getHIT ${selectedHIT.HITId}`);
+          resp = await mturk.getHIT({ HITId: selectedHIT.HITId }).promise();
+          stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
           const dbResp = await updateDoc(
             'hits',
             { _id: selectedHIT._id },
@@ -279,22 +301,25 @@
           } else {
             modalText = 'HIT extended successfully but could not update db. See console.';
             modalType = 'notifcation';
-            console.log(dbResp);
           }
+          stLog.info(dbResp);
           showModal = true;
           await getHITs();
         } catch (err) {
-          console.error(err);
+          stLog.error(err);
           modalText = err;
           modalType = 'error';
           showModal = true;
         }
       } else {
         extendError = true;
+        userLog.error('Form validation error');
       }
     } else {
-      (modalText = 'HIT has been disposed'), (modalType = 'error');
+      modalText = 'HIT has been disposed';
+      modalType = 'error';
       showModal = true;
+      userLog.error(modalText);
     }
     clearSelection();
   };
@@ -315,10 +340,12 @@
         });
         return filteredVals.length !== 0;
       });
+      userLog.info(`Search for ${search}`);
     }, 400);
   };
 
   const clearSearch = () => {
+    userLog.info('Clear search');
     search = '';
     filterEntries();
   };
@@ -330,13 +357,13 @@
     // Get their latest statuses
     // await refreshHITs();
     // Start an auto-refreshing API call every refreshFrequency seconds
-    refreshFromAWS = setInterval(refreshHITs, refreshFrequency);
-    console.log(`Auto HIT refreshing started on: ${new Date().toString()}`);
+    refreshFromAWS = setInterval(refreshHITs, $userSettings.refreshFrequency * 1000);
+    stLog.info('Auto HIT refreshing started');
   });
 
   onDestroy(() => {
     clearInterval(refreshFromAWS);
-    console.log(`Auto HIT refreshing ended on: ${new Date().toString()}`);
+    console.log('Auto HIT refreshing stopped');
   });
 </script>
 
@@ -508,8 +535,8 @@
         <button
           on:click|preventDefault={showAddAssts}
           class="button"
-          disabled={!addable}>Recruit</button>
-        {#if !addable}
+          disabled={!recruitable}>Recruit</button>
+        {#if !recruitable}
           {#if selectedHIT && selectedHIT.HITStatus === 'Reviewable'}
             <span class="tooltip-text">This HIT has expired. Extend the HIT first in order to
               recruit more Workers.</span>
@@ -520,7 +547,10 @@
         {/if}
       </div>
       <button on:click|preventDefault={showHITExtend} class="button">Extend</button>
-      <button on:click|preventDefault={endHIT} class="button">End</button>
+      <div class="tooltip">
+        <button on:click|preventDefault={endHIT} class="button" disabled={!endAble}>End</button>
+        <span class="tooltip-text"> This HIT has already ended </span>
+      </div>
       <button on:click|preventDefault={deleteHIT} class="button">Delete</button>
     </div>
     <div class="inline-flex items-center h-10 px-4 py-2 mt-1 bg-gray-200 rounded">
