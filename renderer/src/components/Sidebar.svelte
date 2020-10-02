@@ -78,7 +78,7 @@
     @apply bg-purple-200 w-full;
   }
   li:hover {
-    @apply bg-purple-100 w-full;
+    @apply bg-purple-200 w-full;
   }
   label {
     @apply block text-xs font-bold tracking-wide text-gray-700 uppercase;
@@ -121,10 +121,7 @@
 <div class="w-40">
   <p class="mb-4 text-xl tracking-wide text-gray-600 uppercase font-quantico">Menu</p>
   <ul>
-    <li
-      class:active={currentState == 'home'}
-      class:hover={true}
-      on:click={() => changeState('home')}>
+    <li class:active={currentState == 'home'} on:click={() => changeState('home')}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
         <path
           d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0

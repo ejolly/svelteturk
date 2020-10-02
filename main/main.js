@@ -5,20 +5,25 @@ const fs = require('fs');
 const Papa = require('papaparse');
 const log = require('electron-log');
 
+// FIXME: COMMENT OUT THIS LINE WHEN PACKAGING THE APP SO ELECTRON RELOAD DOESNT GET BUNDLED
+// require('electron-reload')(path.join(__dirname, '..', 'renderer'));
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   // eslint-disable-line global-require
   app.quit();
 }
 
-// Hot reload just the renderer (i.e. svelte changes)
-// Changes to this file require restarting the electron process
-require('electron-reload')(path.join(__dirname, '..', 'renderer'));
-
 nativeTheme.themeSource = 'light';
 
+// BASE APP DATA PATH: Set the base app data path to a hidden folder in the user's home
+const svelteturkPath = path.join(app.getPath('home'), '.svelteturk');
+if (!fs.existsSync(svelteturkPath)) {
+  fs.mkdirSync(svelteturkPath);
+}
+
 // SETUP LOGGING
-log.transports.file.resolvePath = (() => path.join(app.getPath('home'), '.svelteturk.log'));
+log.transports.file.resolvePath = (() => path.join(svelteturkPath, '.svelteturk.log'));
 // Configure the logger to display an electron dialog box with an option to submit an issue on any uncaught errors
 log.catchErrors({
   showDialog: false,
@@ -53,13 +58,15 @@ mainLog.info('---SVELTE TURK STARTUP---');
 // INIT VARIABLES
 // create a global reference to the window object
 let mainWindow;
-// Create a object to hold all the dbs for easier referencing
-const db = {};
+
 // try to load aws credentials
 let awsCredentials = {
   accessKeyId: process.env.AWS_SECRET_ACCESS_KEY,
   secretAccessKey: process.env.AWS_ACCESS_KEY_ID,
 };
+
+// Settings file location
+const settingsFile = path.join(svelteturkPath, '.svelteturkrc');
 // Default settings only applied if settings file doesn't exist
 let userSettings = {
   refreshFrequency: 30,
@@ -67,11 +74,81 @@ let userSettings = {
   createHITHelpers: true,
   hideSplash: false,
 };
-// Settings file location
-const settingsFile = `${app.getPath('home')}/.svelteturkrc`;
+if (fs.existsSync(settingsFile)) {
+  fs.readFile(settingsFile, (err, data) => {
+    userSettings = JSON.parse(data);
+    mainLog.info('User settings loaded from file');
+    if (err) throw err;
+  });
+} else {
+  fs.writeFile(settingsFile, JSON.stringify(userSettings), (writeErr, writeData) => {
+    if (writeErr) throw writeErr;
+    mainLog.info('User settings file not found...created default');
+  });
+}
 
+// Databases
+// Create a object to hold all the dbs for easier referencing
+const db = {};
+const dbPath = path.join(svelteturkPath, 'db');
+if (!fs.existsSync(dbPath)) {
+  mainLog.info('No databases found...performing one time setup');
+  fs.mkdirSync(dbPath);
+}
+// Load databases into memory
+db.hits = Datastore.create({
+  filename: path.join(dbPath, 'hits.db'),
+  timestampData: true,
+  autoload: true,
+});
+db.assts = Datastore.create({
+  filename: path.join(dbPath, 'assts.db'),
+  timestampData: true,
+  autoload: true,
+});
+db.workers = Datastore.create({
+  filename: path.join(dbPath, 'workers.db'),
+  timestampData: true,
+  autoload: true,
+});
+db.hitTemplates = Datastore.create({
+  filename: path.join(dbPath, 'hitTemplates.db'),
+  timestampData: true,
+  autoload: true,
+});
+
+mainLog.info('Databases initialized');
+
+// LOAD AWS CREDENTIALS
+if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
+  mainLog.info('AWS credentials loaded from environment variables.');
+} else {
+  fs.readFile(`${app.getPath('home')}/.awscredentials.json`, (err, data) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        dialog
+          .showMessageBox({
+            type: 'error',
+            title: 'File not found',
+            message:
+              'No environment variables or config file were found for your AWS Credentials! Please configure them and restart the app',
+          })
+          .then(() => {
+            mainLog.error('No AWS environment variables or config file found. Exiting...');
+            app.exit(0);
+            process.abort();
+          });
+      } else {
+        throw err;
+      }
+    } else {
+      awsCredentials = JSON.parse(data);
+      mainLog.info('AWS credentials loaded from file');
+    }
+  });
+}
+// Create the browser window.
 const createWindow = () => {
-  // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 1000,
@@ -84,92 +161,22 @@ const createWindow = () => {
     },
   });
 
-  // create or load existing databases
-  db.hits = Datastore.create({
-    filename: path.join(__dirname, 'db', 'hits.db'),
-    timestampData: true,
-    autoload: true,
-  });
-  db.assts = Datastore.create({
-    filename: path.join(__dirname, 'db', 'assts.db'),
-    timestampData: true,
-    autoload: true,
-  });
-  db.workers = Datastore.create({
-    filename: path.join(__dirname, 'db', 'workers.db'),
-    timestampData: true,
-    autoload: true,
-  });
-  db.hitTemplates = Datastore.create({
-    filename: path.join(__dirname, 'db', 'hitTemplates.db'),
-    timestampData: true,
-    autoload: true,
-  });
-
-  mainLog.info('Databases initialized');
-
-  // LOAD AWS CREDENTIALS
-  if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
-    mainLog.info('AWS credentials loaded from environment variables.');
-  } else {
-    fs.readFile(`${app.getPath('home')}/.awscredentials.json`, (err, data) => {
-      if (err) {
-        if (err.code === 'ENOENT') {
-          dialog
-            .showMessageBox({
-              type: 'error',
-              title: 'File not found',
-              message:
-                'No environment variables or config file were found for your AWS Credentials! Please configure them and restart the app',
-            })
-            .then(() => {
-              mainLog.error('No AWS environment variables or config file found. Exiting...');
-              app.exit(0);
-              process.abort();
-            });
-        } else {
-          throw err;
-        }
-      } else {
-        awsCredentials = JSON.parse(data);
-        mainLog.info('AWS credentials loaded from file');
-      }
-    });
-  }
-
-  // LOAD OR MAKE SETTINGS FILE
-  fs.readFile(settingsFile, (err, data) => {
-    if (err) {
-      if (err.code === 'ENOENT') {
-        fs.writeFile(settingsFile, JSON.stringify(userSettings), (writeErr, writeData) => {
-          if (writeErr) throw writeErr;
-          mainLog.info('User settings file not found...created default');
-        });
-      } else {
-        throw err;
-      }
-    } else {
-      userSettings = JSON.parse(data);
-      mainLog.info('User settings loaded from file');
-    }
-  });
-
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 
   // Only show the window once it's ready
   mainWindow.once('ready-to-show', () => mainWindow.show());
 };
 
+// When the app is ready create a new window
 app.on('ready', createWindow);
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
+
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
@@ -177,7 +184,7 @@ app.on('activate', () => {
 });
 
 // API DEFINITION START
-// Send aws credentials
+// Send aws credentials and user settings
 ipcMain.handle('initialize', async (ev) => {
   mainLog.info('<--API: intialize');
   try {

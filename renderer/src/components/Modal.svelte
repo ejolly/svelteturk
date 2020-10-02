@@ -12,11 +12,11 @@
 
 <style>
   .modal {
-    @apply fixed inset-y-0 z-50 flex overflow-y-hidden;
+    @apply fixed inset-y-0 z-50 flex overflow-y-hidden bg-gray-100;
     left: 37%;
     min-width: 25%;
     max-width: 25%;
-    max-height: 15%;
+    max-height: 12%;
   }
   .notification {
     @apply border-blue-400 text-blue-400;
@@ -41,7 +41,7 @@
 {#if showModal}
   <div class="modal" transition:fly={{ y: -200, duration: 500 }}>
     <div
-      class="relative flex flex-col items-center justify-center w-full p-4 bg-gray-100 border rounded shadow-md font-quantico"
+      class="relative flex flex-col items-center justify-center w-full p-4 bg-gray-100 border-2 rounded shadow-md font-quantico"
       class:notification={modalType === 'notification'}
       class:error={modalType === 'error'}
       class:success={modalType === 'success'}>
