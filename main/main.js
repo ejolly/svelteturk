@@ -403,6 +403,7 @@ ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
   let text;
   let type;
   try {
+    mainLog.info(`DB: ${dbName} Query: ${JSON.stringify(query)}`);
     const numAffected = await db[dbName].update(query, update, options);
     if (numAffected) {
       text = 'Updated successfully';
@@ -452,7 +453,7 @@ ipcMain.handle('findDuplicateHIT', async (ev, HITTypeId) => {
 ipcMain.handle('findAssts', async (ev) => {
   mainLog.info('<--API: findAssts');
   const docs = await db.assts.find({}).sort({ createdAt: -1 });
-  mainLog.info('API: findHITs-->');
+  mainLog.info('API: findAssts-->');
   return docs;
 });
 

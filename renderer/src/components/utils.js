@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { stLog } from './logger';
 
 const { ipcRenderer } = require('electron');
 
@@ -22,6 +23,7 @@ export const deleteDoc = async (dbName, id) => {
 export const updateDoc = async (dbName, query, update, options) => {
   let resp;
   try {
+    stLog.info('REQ: updateDoc');
     resp = await ipcRenderer.invoke('updateDoc', dbName, query, update, options);
   } catch (err) {
     resp = { text: err, type: 'error' };

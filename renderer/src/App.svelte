@@ -127,10 +127,10 @@
 
   // Switch Mturk modes; triggered by SidebarHeader
   const switchMode = (ev) => {
-    mturkReady = false;
     live = ev.detail.live;
-    initMTurk();
     userLog.info(`Mturk live changed to ${live}`);
+    mturkReady = false;
+    initMTurk();
   };
 
   // Get credentials on component load

@@ -6,6 +6,7 @@
   import Dialogue from '../components/Dialogue.svelte';
   import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
   import { userSettings } from '../components/store.js';
+  import { stLog, userLog } from '../components/logger';
 
   const { ipcRenderer } = require('electron');
 
@@ -56,18 +57,24 @@
   $: bonusAllDisabled =
     asstsFiltered && asstsFiltered.every((e) => e.Bonus) && !$userSettings.repeatBonuses;
   $: bonusAsstDisabled = selectedAsst && selectedAsst.Bonus && !$userSettings.repeatBonuses;
+  $: approveAllDisabled =
+    asstsFiltered && asstsFiltered.every((e) => ['Approved', 'Submitted'].includes(e.Status));
+  $: approveAsstDisabled = selectedAsst && ['Approved', 'Rejected'].includes(selectedAsst.Status);
 
   // FUNCTIONS
   const getAssts = async () => {
     if (selectedHIT === 'all') {
+      stLog.info('REQ findAssts');
       assts = await ipcRenderer.invoke('findAssts');
     } else {
+      stLog.info('REQ findAsstsForHIT');
       assts = await ipcRenderer.invoke('findAsstsForHIT', selectedHIT.HITId);
     }
     asstsFiltered = assts;
   };
 
   const getHITs = async () => {
+    stLog.info('REQ findHITs');
     hits = await ipcRenderer.invoke('findHits');
     selectedHIT = 'all';
   };
@@ -106,7 +113,7 @@
     refreshIcon.classList.add('animate-spin', 'text-purple-700');
     try {
       if (selectedHIT === 'all') {
-        console.log(`Refreshing Assts for ALL HITs from AWS at: ${new Date().toString()}`);
+        stLog.info(`REQ Mturk: listAssignmentsForHIT ALL`);
         // Promise.all because execution order doesn't matter and if reasing from mturk fails for 1 HIT we want it to fail for all
         await Promise.all(
           hits.map(async (hit) => {
@@ -116,9 +123,7 @@
           })
         );
       } else {
-        console.log(
-          `Refreshing Assts for HIT ${selectedHIT.HITId} from AWS at: ${new Date().toString()}`
-        );
+        stLog.info(`REQ Mturk: listAssignmentsForHIT ${selectedHIT.HITId}`);
         const resp = await mturk.listAssignmentsForHIT({ HITId: selectedHIT.HITId }).promise();
         const Assignments = await resp.Assignments;
         await updateAsstsInDB(Assignments);
@@ -138,8 +143,10 @@
     // Save clicked row
     if (rowDOM) {
       if (rowDOM === ev.target.parentNode) {
+        userLog.info('Unselect row');
         clearSelection();
       } else {
+        userLog.info('Select different row');
         rowDOM.classList.remove('bg-purple-200');
         rowDOM.classList.add('hoverable');
         rowDOM = ev.target.parentNode;
@@ -148,6 +155,7 @@
         selectedAsst = asst;
       }
     } else {
+      userLog.info('Select row');
       rowDOM = ev.target.parentNode;
       rowDOM.classList.add('bg-purple-200');
       rowDOM.classList.remove('hoverable');
@@ -156,6 +164,7 @@
   };
 
   const clearSearch = () => {
+    userLog.info('Clear search');
     search = '';
     filterEntries();
   };
@@ -189,117 +198,108 @@
         });
         return filteredVals.length !== 0;
       });
+      userLog.info(`Search for ${search}`);
     }, 400);
   };
 
   const approveAsst = async () => {
-    if (selectedAsst.Status === 'Submitted') {
-      try {
-        await mturk.approveAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
-        const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
-        const dbResp = await updateDoc(
-          'assts',
-          { AsstId: asst.AsstId },
-          {
-            $set: {
-              Status: resp.Assignment.AssignmentStatus,
-              ReviewTime: resp.Assignment.ApprovalTime,
-            },
-          }
-        );
-        if (dbResp.type === 'success') {
-          modalText = 'Asst approved and db updated successfully!';
-          modalType = 'success';
-        } else {
-          modalText = 'Asst approved but could not update db. See console.';
-          modalType = 'notification';
-          console.log(dbResp);
+    userLog.info(`Approve assignment: ${selectedAsst.AsstId}`);
+    try {
+      await mturk.approveAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
+      const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
+      const dbResp = await updateDoc(
+        'assts',
+        { AsstId: asst.AsstId },
+        {
+          $set: {
+            Status: resp.Assignment.AssignmentStatus,
+            ReviewTime: resp.Assignment.ApprovalTime,
+          },
         }
-        showModal = true;
-        await getAssts();
-      } catch (err) {
-        console.error(err);
-        modalText = err;
-        modalType = 'error';
-        showModal = true;
+      );
+      if (dbResp.type === 'success') {
+        modalText = 'Asst approved and db updated successfully!';
+        modalType = 'success';
+      } else {
+        modalText = 'Asst approved but could not update db. See console.';
+        modalType = 'notification';
+        stLog.info(dbResp);
       }
-    } else {
-      modalText = 'Assignment has already been reviewed!';
-      modalType = 'notification';
+      showModal = true;
+      await getAssts();
+    } catch (err) {
+      stLog.error(err);
+      modalText = err;
+      modalType = 'error';
       showModal = true;
     }
     clearSelection();
   };
 
   const approveAll = async () => {
-    const statuses = asstsFiltered.map((e) => e['Status']);
-    if (statuses.every((e) => ['Approved', 'Rejected'].includes(e))) {
-      modalText = 'All assignments already reviewed!';
-      modalType = 'notification';
-      showModal = true;
-    } else {
-      const refreshIcon = document.getElementById('refresh-icon');
-      refreshIcon.classList.remove('text-gray-600');
-      refreshIcon.classList.add('animate-spin', 'text-purple-700');
-      try {
-        // for of instead of Promise.all because we don't want single failures to block approval attempts and db writes for the other successfull assignments
-        for (const asst of asstsFiltered) {
-          if (asst.Status === 'Submitted') {
-            console.log(`Approval request for: ${asst.AsstId}`);
-            await mturk.approveAssignment({ AssignmentId: asst.AsstId }).promise();
-            const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
-            await updateDoc(
-              'assts',
-              { AsstId: asst.AsstId },
-              {
-                $set: {
-                  Status: resp.Assignment.AssignmentStatus,
-                  ReviewTime: resp.Assignment.ApprovalTime,
-                },
-              }
-            );
-            await wait(1000);
-          } else {
-            console.log(`Already reviewd: ${asst.AsstId}`);
-          }
+    userLog.info('Approve all assignments');
+    const refreshIcon = document.getElementById('refresh-icon');
+    refreshIcon.classList.remove('text-gray-600');
+    refreshIcon.classList.add('animate-spin', 'text-purple-700');
+    try {
+      // for of instead of Promise.all because we don't want single failures to block approval attempts and db writes for the other successfull assignments
+      for (const asst of asstsFiltered) {
+        if (asst.Status === 'Submitted') {
+          stLog.info(`REQ Mturk: approveAssignment ${asst.AsstId}`);
+          await mturk.approveAssignment({ AssignmentId: asst.AsstId }).promise();
+          const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
+          stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+          await updateDoc(
+            'assts',
+            { AsstId: asst.AsstId },
+            {
+              $set: {
+                Status: resp.Assignment.AssignmentStatus,
+                ReviewTime: resp.Assignment.ApprovalTime,
+              },
+            }
+          );
+          await wait(1000);
+        } else {
+          stLog.info(`Already reviewed: ${asst.AsstId}`);
         }
-        await getAssts();
-        modalText = 'All assignments approved successfully!';
-        modalType = 'success';
-      } catch (err) {
-        console.error(err);
-        modalText = err;
-        modalType = 'error';
       }
-      showModal = true;
-      clearSelection();
       await getAssts();
-      refreshIcon.classList.remove('animate-spin', 'text-purple-700');
-      refreshIcon.classList.add('text-gray-600');
+      modalText = 'All assignments approved successfully!';
+      modalType = 'success';
+      stLog.info(modalText);
+    } catch (err) {
+      stLog.error(err);
+      modalText = err;
+      modalType = 'error';
     }
+    showModal = true;
+    clearSelection();
+    await getAssts();
+    refreshIcon.classList.remove('animate-spin', 'text-purple-700');
+    refreshIcon.classList.add('text-gray-600');
   };
 
   const showRejectAsst = () => {
-    if (selectedAsst.Status === 'Submitted') {
-      whichDialogue = 'reject-single';
-      showDialogue = true;
-    } else {
-      modalText = 'Assignment has already been reviewed!';
-      modalType = 'notification';
-      showModal = true;
-      clearSelection();
-    }
+    userLog.info('Show reject assignment');
+    whichDialogue = 'reject-single';
+    showDialogue = true;
   };
 
   const rejectAsst = async () => {
+    userLog.info('Reject assignment');
     try {
+      stLog.info(`REQ Mturk: rejectAssignment ${selectedAsst.AsstId}`);
       await mturk
         .rejectAssignment({
           AssignmentId: selectedAsst.AsstId,
           RequesterFeedback: requesterFeedback,
         })
         .promise();
-      const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
+      stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+      stLog.info(`REQ Mturk: getAssignment ${selectedAsst.AsstId}`);
+      const resp = await mturk.getAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
+      stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
       const dbResp = await updateDoc(
         'assts',
         { AsstId: selectedAsst.AsstId },
@@ -317,12 +317,12 @@
       } else {
         modalText = 'Assignment rejected but could not update db. See console.';
         modalType = 'notification';
-        console.log(dbResp);
       }
       showModal = true;
+      stLog.info(modalText);
       await getAssts();
     } catch (err) {
-      console.error(err);
+      stLog.error(err);
       modalText = err;
       modalType = 'error';
       showModal = true;
@@ -331,21 +331,25 @@
   };
 
   const showBonusAll = () => {
+    userLog.info('Show bonus all assignments');
     whichDialogue = 'bonus-all';
     showDialogue = true;
   };
 
   const showBonusAsst = () => {
+    userLog.info('Show bonus assignment');
     whichDialogue = 'bonus-asst';
     showDialogue = true;
   };
 
   const showBonusViaFile = () => {
+    userLog.info('Show bonus via file');
     whichDialogue = 'bonus-file';
     showDialogue = true;
   };
 
   const exportAsstsForBonus = async () => {
+    userLog.info('Export assignments for bonusing');
     let exportedAssts = [];
     for (const asst of asstsFiltered) {
       exportedAssts.push({
@@ -356,11 +360,13 @@
       });
     }
     try {
+      stLog.info('REQ exportAsstsForBonus');
       const resp = await ipcRenderer.invoke('exportAsstsForBonus', exportedAssts);
       modalText = resp.text;
       modalType = resp.type;
+      stLog.info(modalText);
     } catch (err) {
-      console.error(err);
+      stLog.error(err);
       modalText = err;
       modalType = 'error';
     }
@@ -369,7 +375,9 @@
   };
 
   const importAsstsForBonus = async () => {
+    userLog.info('Import assignments for bonusing');
     try {
+      stLog.info('REQ importAsstsForBonus');
       const resp = await ipcRenderer.invoke('importAsstsForBonus');
       modalText = resp.text;
       modalType = resp.type;
@@ -394,11 +402,11 @@
           }
           uploadedBonuses = [...uploadedBonuses, asst];
         }
-
+        stLog.info('Import successful');
         whichDialogue = 'bonus-file-upload-results';
       }
     } catch (err) {
-      console.error(err);
+      stLog.error(err);
       modalText = err;
       modalType = 'error';
       showModal = true;
@@ -413,6 +421,7 @@
   };
 
   const bonusAssts = async (bonusType) => {
+    userLog.info(`Bonus ${bonusType} assignment(s)`);
     if (validateBonus(bonusAmount)) {
       bonusError = false;
       showDialogue = false;
@@ -426,12 +435,16 @@
         } else {
           asstsList = [selectedAsst];
         }
+        // NOTE: set the default info message here so it can be overwritten by any assignments getting looped over below that have a bonus while repeatBonuses is false
+        modalText = 'All bonus granted successfully!';
         // NOTE: for of instead of Promise.all because we don't want single failures to block approval attempts and db writes for the other successfull assignments
         for (const asst of asstsList) {
           if (asst.Bonus && !$userSettings.repeatBonuses) {
             modalText =
               'Bonuses granted successfully! Previously bonused Assts were skipped because you have prevent repeat bonuses enabled.';
+            stLog.info(`Skipping assignment with existing bonus ${asst.AsstId}`);
           } else {
+            stLog.info(`REQ Mturk: sendBonus ${asst.AsstId}`);
             const resp = await mturk
               .sendBonus({
                 AssignmentId: asst.AsstId,
@@ -440,26 +453,25 @@
                 WorkerId: asst.WorkerId,
               })
               .promise();
-            if (resp.$response.httpResponse.statusCode === 200) {
-              const dbResp = await updateDoc(
-                'assts',
-                { AsstId: asst.AsstId },
-                {
-                  $set: {
-                    Bonus: bonusAmount,
-                    BonusReason: requesterFeedback,
-                    BonusTime: new Date().toString(),
-                  },
-                }
-              );
-              await wait(1000);
-            }
-            modalText = 'All bonus granted successfully!';
+            stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+            const dbResp = await updateDoc(
+              'assts',
+              { AsstId: asst.AsstId },
+              {
+                $set: {
+                  Bonus: bonusAmount,
+                  BonusReason: requesterFeedback,
+                  BonusTime: new Date().toString(),
+                },
+              }
+            );
+            await wait(1000);
           }
         }
         modalType = 'success';
+        stLog.info(modalText);
       } catch (err) {
-        console.error(err);
+        stLog.error(err);
         modalText = err;
         modalType = 'error';
       }
@@ -470,10 +482,12 @@
       refreshIcon.classList.add('text-gray-600');
     } else {
       bonusError = true;
+      userLog.error('Bonus validation error');
     }
   };
 
   const bonusFromFile = async () => {
+    userLog.info('Bonus from file');
     showDialogue = false;
     const refreshIcon = document.getElementById('refresh-icon');
     refreshIcon.classList.remove('text-gray-600');
@@ -482,6 +496,7 @@
       // for of instead of Promise.all because we don't want single failures to block bonus attempts and db writes for the other successfull assignments
       for (const asst of uploadedBonuses) {
         if (asst.Bonus) {
+          stLog.info(`REQ Mturk: sendBonus ${asst.AsstId}`);
           const resp = await mturk
             .sendBonus({
               AssignmentId: asst.AsstId,
@@ -490,26 +505,26 @@
               WorkerId: asst.WorkerId,
             })
             .promise();
-          if (resp.$response.httpResponse.statusCode === 200) {
-            const dbResp = await updateDoc(
-              'assts',
-              { AsstId: asst.AsstId },
-              {
-                $set: {
-                  Bonus: asst.Bonus,
-                  BonusTime: new Date().toString(),
-                  BonusReason: asst.Feedback,
-                },
-              }
-            );
-            await wait(1000);
-          }
+          stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
+          const dbResp = await updateDoc(
+            'assts',
+            { AsstId: asst.AsstId },
+            {
+              $set: {
+                Bonus: asst.Bonus,
+                BonusTime: new Date().toString(),
+                BonusReason: asst.Feedback,
+              },
+            }
+          );
+          await wait(1000);
         }
       }
       modalText = 'All assignments bonused successfully!';
       modalType = 'success';
+      stLog.info(modalText);
     } catch (err) {
-      console.error(err);
+      stLog.error(err);
       modalText = err;
       modalType = 'error';
     }
@@ -530,15 +545,18 @@
   };
 
   const deleteAsst = async () => {
+    userLog.info(`Delete assignment ${selectedAsst._id}`);
     const resp = await deleteDoc('assts', selectedAsst._id);
     modalText = resp.text;
     modalType = resp.type;
+    stLog.info(modalText);
     showModal = true;
     clearSelection();
     await getAssts();
   };
 
   const changeHIT = async (hit) => {
+    userLog.info(`Change HIT to ${hit.HITId}`);
     selectedHIT = hit;
     toggleHITSelect();
     await getAssts();
@@ -554,12 +572,12 @@
     // await refreshAssts();
     // Start auto-refreshing
     refreshFromAWS = setInterval(refreshAssts, $userSettings.refreshFrequency * 1000);
-    console.log(`Auto Assignments rereshing started on: ${new Date().toString()}`);
+    stLog.info(`Auto Assignments refreshing started`);
   });
 
   onDestroy(() => {
     clearInterval(refreshFromAWS);
-    console.log(`Auto Assignments refreshing ended on: ${new Date().toString()}`);
+    stLog.info(`Auto Assignments refreshing ended`);
   });
 </script>
 
@@ -586,7 +604,7 @@
     @apply mt-2;
   }
   .tooltip .tooltip-text {
-    @apply invisible p-1 absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -ml-48 -mt-16 max-w-md;
+    @apply invisible p-1 absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -ml-48 -mt-16 max-w-sm;
   }
   .tooltip:hover .tooltip-text {
     @apply visible;
@@ -781,28 +799,53 @@
     </div>
     <div class="inline-flex items-center px-4 py-2 space-x-4 font-quantico">
       {#if rowSelected}
-        <button class="button" on:click|preventDefault={approveAsst}>Approve</button>
+        <div class="tooltip">
+          <button
+            class="button"
+            on:click|preventDefault={approveAsst}
+            disabled={approveAsstDisabled}>Approve</button>
+          <span class="tooltip-text">This assignment has already been reviewed</span>
+        </div>
         <div class="tooltip">
           <button
             class="button"
             on:click|preventDefault={showBonusAsst}
             disabled={bonusAsstDisabled}>Bonus</button>
-          <span class="tooltip-text">This assignment has a bonus and repeat bonuses is disabled. You
-            can change this in settings</span>
+          <span class="tooltip-text">This assignment has a bonus and repeat bonuses are disabled.
+            You can change this in settings</span>
         </div>
-        <button class="button" on:click|preventDefault={showRejectAsst}>Reject</button>
+        <div class="tooltip">
+          <button
+            class="button"
+            on:click|preventDefault={showRejectAsst}
+            disabled={approveAsstDisabled}>Reject</button>
+          <span class="tooltip-text">This assignment has already been reviewed</span>
+        </div>
         <button class="button" on:click|preventDefault={deleteAsst}>Delete</button>
       {:else}
-        <button class="button" on:click|preventDefault={approveAll}>Approve All</button>
+        <div class="tooltip">
+          <button
+            class="button"
+            on:click|preventDefault={approveAll}
+            disabled={approveAllDisabled}>Approve All</button>
+          <span class="tooltip-text">All assignments have already been reviewed</span>
+        </div>
         <div class="tooltip">
           <button
             class="button"
             on:click|preventDefault={showBonusAll}
             disabled={bonusAllDisabled}>Bonus All</button>
-          <span class="tooltip-text">All assignments have bonuses and repeat bonuses is disabled.You
-            can change this in settings.</span>
+          <span class="tooltip-text">All assignments have bonuses and repeat bonuses are
+            disabled.You can change this in settings.</span>
         </div>
-        <button class="button" on:click|preventDefault={showBonusViaFile}>Bonus from File</button>
+        <div class="tooltip">
+          <button
+            class="button"
+            on:click|preventDefault={showBonusViaFile}
+            disabled={bonusAllDisabled}>Bonus from File</button>
+          <span class="tooltip-text">All assignments have bonuses and repeat bonuses are
+            disabled.You can change this in settings.</span>
+        </div>
       {/if}
     </div>
     <div class="inline-flex items-center h-10 px-4 py-2 mt-1 bg-gray-200 rounded">
