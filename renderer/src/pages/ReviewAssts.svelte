@@ -726,7 +726,7 @@
   in:fly={{ y: 200, duration: 250 }}
   on:click|self={closeHITSelect}>
   <div class="flex justify-between mb-2" on:click|self={closeHITSelect}>
-    <div class="inline-flex items-center px-4 py-2">
+    <div class="inline-flex items-center px-4 py-2 truncate">
       <!-- Dropdown selector -->
       <div class="relative inline-block">
         <div on:click={toggleHITSelect}>
@@ -748,7 +748,7 @@
         </div>
         {#if HITDrawerOpen}
           <div
-            class="absolute z-50 w-56 mt-2 origin-top-right rounded shadow font-quantico"
+            class="fixed z-50 w-56 mt-2 origin-top-right rounded shadow font-quantico"
             transition:slide={{ easing: cubicInOut, duration: 200 }}>
             <div class="bg-white rounded shadow">
               <div

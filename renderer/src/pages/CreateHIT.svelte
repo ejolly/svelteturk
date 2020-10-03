@@ -232,6 +232,7 @@
             maxAssignments: hitParams.maxAssignments,
             externalURL: hitParams.externalURL,
             selectedQuals: hitParams.selectedQuals,
+            numHITs: hitParams.numHITs,
           });
           modalText = dbResp.text;
           modalType = dbResp.type;
@@ -286,6 +287,19 @@
   const clearForm = () => {
     userLog.info('Clear createHIT form');
     errors = {};
+    hitParams = {
+      assignmentDuration: '',
+      description: '',
+      lifetime: 86400,
+      reward: '',
+      title: '',
+      autoApprovalDelay: '',
+      keywords: '',
+      maxAssignments: '',
+      numHITs: '',
+      externalURL: '',
+      selectedQuals: ['--Unselect All--'],
+    };
   };
 </script>
 
@@ -513,7 +527,7 @@
       </button>
       <button class="button" on:click|preventDefault={openLoad}> Load Template </button>
       <button class="button" on:click|preventDefault={openSave}> Save Template </button>
-      <button class="button" type="reset" on:click|preventDefault={clearForm}> Clear </button>
+      <button class="button" on:click|preventDefault={clearForm}> Clear </button>
     </div>
   </form>
 </div>

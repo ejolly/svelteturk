@@ -1,11 +1,13 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import { fly } from 'svelte/transition';
+  import { fly, slide } from 'svelte/transition';
+  import { cubicInOut } from 'svelte/easing';
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
   import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
   import { userSettings } from '../components/store';
   import { stLog, userLog } from '../components/logger';
+  import { get } from 'http';
 
   const { ipcRenderer } = require('electron');
 
@@ -18,7 +20,7 @@
     'HITTypeId',
     'Created',
     'Expiration',
-    'Max Assts',
+    'Unique Workers',
     'Pending',
     'Available',
     'Completed',
@@ -29,10 +31,13 @@
   let timer;
   let hits = [];
   let hitsFiltered = [];
+  let hitTypes = [];
   let showModal = false;
   let modalText;
   let modalType;
   let showDialogue = false;
+  let HITDrawerOpen = false;
+  let selectedHITType = 'all';
   let whichDialogue = '';
   let extendTime = 60;
   let extendError = false;
@@ -55,7 +60,12 @@
   const getHITs = async () => {
     stLog.info('REQ findHITs');
     hits = await ipcRenderer.invoke('findHits');
-    hitsFiltered = hits;
+    hitTypes = [...new Set(hits.map((e) => e.HITTypeId))];
+    if (selectedHITType === 'all') {
+      hitsFiltered = hits;
+    } else {
+      hitsFiltered = hits.filter((e) => e.HITTypeId === selectedHITType);
+    }
   };
 
   const refreshHITs = async () => {
@@ -353,6 +363,20 @@
     filterEntries();
   };
 
+  const toggleHITTypeSelect = () => {
+    HITDrawerOpen = !HITDrawerOpen;
+  };
+  // Because on some elements outside the dropdown we always just want to close thise dropdown
+  const closeHITTypeSelect = () => {
+    HITDrawerOpen = false;
+  };
+
+  const changeHITType = async (hitTypeId) => {
+    userLog.info(`Change HITType to ${hitTypeId}`);
+    selectedHITType = hitTypeId;
+    toggleHITTypeSelect();
+    await getHITs();
+  };
   onMount(async () => {
     // Load hits from local db
     await getHITs();
@@ -374,6 +398,12 @@
   .header {
     @apply mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase sticky border-b border-gray-200 px-4 py-3 bg-gray-100;
   }
+  .selected {
+    @apply text-purple-600;
+  }
+  .selected:hover {
+    @apply bg-transparent;
+  }
   .hoverable:hover {
     @apply bg-purple-100;
   }
@@ -384,9 +414,15 @@
     @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
   }
   .tooltip .tooltip-text {
-    @apply invisible p-1 absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -ml-48 -mt-16 max-w-md;
+    @apply invisible p-1 absolute z-50 inline-block font-quantico text-sm rounded-lg bg-gray-700 text-white -ml-48 -mt-16 max-w-md;
   }
   .tooltip:hover .tooltip-text {
+    @apply visible;
+  }
+  .tooltip .tooltip-text-toggle {
+    @apply invisible p-1 font-quantico absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -mt-10;
+  }
+  .tooltip:hover .tooltip-text-toggle {
     @apply visible;
   }
 </style>
@@ -479,7 +515,7 @@
             <input type="text" readonly bind:value={selectedHIT.LifetimeInSeconds} />
           </div>
           <div class="w-1/5 px-3">
-            <label>Max Assignments</label>
+            <label>Unique Workers</label>
             <input type="text" readonly bind:value={selectedHIT.MaxAssignments} />
           </div>
         </div>
@@ -507,9 +543,65 @@
     </div>
   {/if}
 </Dialogue>
-<div class="w-full h-screen" in:fly={{ y: 200, duration: 250 }}>
-  <div class="flex justify-between mb-2">
+<div
+  class="container w-full h-screen"
+  in:fly={{ y: 200, duration: 250 }}
+  on:click|self={closeHITTypeSelect}>
+  <div class="flex justify-between mb-2" on:click|self={closeHITTypeSelect}>
     <div class="inline-flex items-center px-4 py-2 truncate">
+      <!-- Dropdown selector -->
+      <div class="tooltip">
+        <span class="tooltip-text-toggle">HITTypeIds group repeat participation HITs and are controlled by the Repeat Participation field when creating a HIT </span>
+      <div class="relative inline-block">
+        <div on:click={toggleHITTypeSelect}>
+          <span class="rounded shadow">
+            <button
+              type="button"
+              class="inline-flex justify-center w-full px-4 py-2 text-sm font-bold leading-5 tracking-wide text-gray-700 uppercase bg-white border border-gray-300 rounded-md hover:text-purple-600 focus:outline-none focus:none active:bg-gray-500 active:text-gray-800"
+              id="options-menu"
+              aria-haspopup="true"
+              aria-expanded="true">
+              Choose HIT Type Id <svg class="w-5 h-5 ml-2 -mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
+          </span>
+        </div>
+        {#if HITDrawerOpen}
+          <div
+            class="fixed z-50 w-56 mt-2 origin-top-right rounded shadow font-quantico"
+            transition:slide={{ easing: cubicInOut, duration: 200 }}>
+            <div class="bg-white rounded shadow">
+              <div
+                class="py-1"
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="options-menu">
+                <div
+                  class="block px-4 py-2 leading-5 text-gray-700 outline-none cursor-pointer hover:bg-purple-100"
+                  class:selected={selectedHITType === 'all'}
+                  role="menuitem"
+                  on:click={() => changeHITType('all')}>
+                  <p class="text-base uppercase">Show All</p>
+                </div>
+                {#each hitTypes as hitType}
+                  <div
+                    class="block px-4 py-2 leading-5 text-gray-700 outline-none cursor-pointer hover:bg-purple-100"
+                    class:selected={hitType === selectedHITType}
+                    role="menuitem"
+                    on:click={() => changeHITType(hitType)}>
+                    <p class="text-sm">{hitType.slice(0, 6)}</p>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          </div>
+        {/if}
+      </div>
+    </div>
       <p class="py-2 pl-4 pr-2 font-bold tracking-wide text-gray-700 uppercase">
         Total:
         {hitsFiltered.length}

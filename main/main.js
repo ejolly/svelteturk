@@ -258,6 +258,7 @@ ipcMain.handle('insertHIT', async (ev, hit) => {
 });
 
 // Insert or modify worker
+// NOTE: This isn't an ipc handler because no front-end UI every directly interacts with the workers db. Instead we're mocking a relational db store, as any calls to the *assignments db* will automatically invoke this function
 // FIXME: at somepoint rewrite this logic because it assums that updateDoc('asst') on the client only every contains a WorkerId field when being called from withing ReviewAssts > updateAsstsinDB()
 // If that ever changes in the future the logic could break
 const upsertWorker = async (query, update) => {
