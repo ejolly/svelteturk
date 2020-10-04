@@ -19,7 +19,10 @@
   const { ipcRenderer } = require('electron');
 
   // VARIABLES
+  let loading = true;
   let ready = false;
+  let updating = false;
+  let updateComplete = false;
   // credentials passed from ipcMain "backend"
   let awsKey;
   let awsSecret;
@@ -113,16 +116,20 @@
   const initialize = async () => {
     stLog.info('REQ: initialize');
     const resp = await ipcRenderer.invoke('initialize');
-    awsKey = resp.awsCredentials.accessKeyId;
-    awsSecret = resp.awsCredentials.secretAccessKey;
-    userSettings.set(resp.userSettings);
-    initMTurk();
-    bindAPI();
-    if (!$userSettings.hideSplash) {
-      await wait(4000);
+    if (resp.userWantsToUpdate) {
+      updating = true;
+    } else {
+      awsKey = resp.awsCredentials.accessKeyId;
+      awsSecret = resp.awsCredentials.secretAccessKey;
+      userSettings.set(resp.userSettings);
+      initMTurk();
+      bindAPI();
+      if (!$userSettings.hideSplash) {
+        await wait(3000);
+      }
+      ready = true;
+      stLog.info('app ready');
     }
-    ready = true;
-    stLog.info('app ready');
   };
 
   // Change the app view ("state"); triggered by Sidebar
@@ -142,6 +149,9 @@
   // Get credentials on component load
   onMount(async () => {
     await initialize();
+    ipcRenderer.on('updateComplete', (ev, msg) => {
+      updateComplete = true;
+    });
   });
 </script>
 
@@ -191,7 +201,7 @@
 <Modal bind:showModal bind:modalType bind:modalText />
 <!-- Main app container full window size not responsive-->
 {#if !ready && !$userSettings.hideSplash}
-<Splash/>
+<Splash {updating} {updateComplete} />
 {:else}
 <div class="w-screen h-screen">
     <!-- Sidebar, fixed position and width-->

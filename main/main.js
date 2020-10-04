@@ -5,8 +5,10 @@ const fs = require('fs');
 const Papa = require('papaparse');
 const log = require('electron-log');
 const isDev = require('electron-is-dev');
+const fetch = require('node-fetch');
+const downloadRelease = require('download-github-release');
 
-// FIXME: COMMENT OUT THIS LINE WHEN PACKAGING THE APP SO ELECTRON RELOAD DOESNT GET BUNDLED
+
 if (isDev) {
   console.log('Running in dev mode...hot-reloading enabled');
   require('electron-reload')(path.join(__dirname, '..', 'renderer'));
@@ -57,7 +59,7 @@ log.catchErrors({
 // Scope main process logs so that 'main' appears in the log file next to messages
 const mainLog = log.scope('main');
 
-mainLog.info('---SVELTE TURK STARTUP---');
+
 
 // INIT VARIABLES
 // create a global reference to the window object
@@ -121,7 +123,94 @@ db.hitTemplates = Datastore.create({
   autoload: true,
 });
 
+mainLog.info('---SVELTE TURK STARTUP---');
+mainLog.info(`---VERSION: ${app.getVersion()}---`);
 mainLog.info('Databases initialized');
+
+// Custom update checker because we can't use electron native auto-updating cause the code isn't signed and I'd have to pay for an Apple Developer Account....
+let latestRelease;
+const userDesktop = path.join(app.getPath('home'), 'Desktop');
+
+// Recrusively delete the unzipped release download
+const deleteFolderRecursive = (folderPath) => {
+  if (fs.existsSync(folderPath)) {
+    fs.readdirSync(folderPath).forEach((file, index) => {
+      const curPath = `${folderPath}/${file}`;
+      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(folderPath);
+  }
+};
+
+// Move the .app file from the unzipped release download to the desktop
+// then call deleteFolderRecursive
+const completeUpdate = () => {
+  fs.rename(
+    path.join(userDesktop, 'SvelteTurk-darwin-x64', 'SvelteTurk.app'),
+    path.join(userDesktop, 'SvelteTurk.app'),
+    (err) => {
+      if (err) mainLog.error(err);
+      deleteFolderRecursive(path.join(userDesktop, 'SvelteTurk-darwin-x64'));
+      mainWindow.webContents.send('updateComplete');
+      mainLog.info('Update complete');
+    }
+  );
+};
+
+// Actually download the latest release
+const getUpdate = () => {
+  const filterRelease = (release) => release.tag_name === latestRelease;
+  downloadRelease('ejolly', 'svelteturk', userDesktop, filterRelease)
+    .then(completeUpdate)
+    .catch((err) => console.error(err));
+};
+
+// Ask the user if they want to update
+const promptForUpdate = async () => {
+  const dialogOpts = {
+    type: 'info',
+    buttons: ['Download', 'Later'],
+    title: 'SvelteTurk Update Available',
+    message: 'A new version of SvelteTurk is available. Would you like to download it?',
+    details: 'The new version will be saved to your Desktop'
+  };
+  const returnValue = await dialog.showMessageBox(dialogOpts);
+  const userAccepted = returnValue.response === 0;
+  if (userAccepted) {
+    getUpdate();
+    mainLog.info('Downloading update...');
+  } else {
+    mainLog.info('User declined to update');
+  }
+  return userAccepted;
+};
+
+
+// Check for the latest version against the latest github release
+const checkForLatestVersion = async () => {
+  // Read from package.json
+  const currentVersion = `v${app.getVersion()}`;
+  let updateAvailable;
+  try {
+    const resp = await fetch('https://api.github.com/repos/ejolly/svelteturk/releases/latest');
+    const json = await resp.json();
+    if (currentVersion !== json.tag_name) {
+      mainLog.info(`UPDATE AVAILABLE: App version is ${currentVersion}. Update is ${json.tag_name}`);
+      updateAvailable = true;
+      latestRelease = json.tag_name;
+    } else {
+      mainLog.info('No new updates');
+      updateAvailable = false;
+    }
+  } catch (err) {
+    mainLog.error(err);
+  }
+  return updateAvailable;
+};
 
 // LOAD AWS CREDENTIALS
 if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
@@ -191,17 +280,27 @@ app.on('activate', () => {
 // Send aws credentials and user settings
 ipcMain.handle('initialize', async (ev) => {
   mainLog.info('<--API: intialize');
+  let updateAvailable;
+  let userWantsToUpdate = false;
   try {
     const data = await fs.promises.readFile(settingsFile);
     userSettings = JSON.parse(data);
     mainLog.info('Read user settings from file');
+    if (!isDev) {
+      mainLog.info('Checking for updates');
+      updateAvailable = await checkForLatestVersion();
+      if (updateAvailable) {
+        userWantsToUpdate = await promptForUpdate();
+      }
+    }
   } catch (err) {
-    mainLog.error(`Failed to read .svelteturkrc: ${err}`);
+    mainLog.error(err);
   }
   mainLog.info('API: intialize-->');
   return {
     userSettings,
-    awsCredentials
+    awsCredentials,
+    userWantsToUpdate
   };
 });
 

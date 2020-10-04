@@ -1,7 +1,7 @@
 {
-  "name": "svelte-turk",
-  "productName": "svelte-turk",
-  "version": "1.0.0",
+  "name": "SvelteTurk",
+  "productName": "SvelteTurk",
+  "version": "0.1.1",
   "description": "Control mturk via a simple gui app",
   "main": "main/main.js",
   "scripts": {
@@ -51,10 +51,12 @@
     }
   },
   "dependencies": {
+    "download-github-release": "^0.3.2",
     "electron-is-dev": "^1.2.0",
     "electron-log": "^4.2.4",
     "electron-squirrel-startup": "^1.0.0",
     "nedb-promises": "^4.0.4",
+    "node-fetch": "^2.6.1",
     "papaparse": "^5.3.0",
     "sirv-cli": "^1.0.3",
     "typeface-quantico": "0.0.71",

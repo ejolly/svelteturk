@@ -1,7 +1,16 @@
 <script>
+  import { fade } from 'svelte/transition';
   import { onMount } from 'svelte';
 
+  // INPUTS
+  export let updating;
+  export let updateComplete;
+
   let showSpinner = false;
+
+  $: if (updateComplete) {
+    showSpinner = false;
+  }
 
   onMount(() => {
     setTimeout(() => {
@@ -66,7 +75,18 @@
 
 <div class="flex items-center justify-center w-screen h-screen bg-gray-100">
   {#if showSpinner}
-    <div class="w-20 h-20 ease-linear border-8 border-purple-400 rounded-full loader" />
+    <div out:fade class="w-20 h-20 ease-linear border-8 border-purple-400 rounded-full loader" />
+  {/if}
+  {#if updating}
+    {#if updateComplete}
+      <h2 in:fade class="absolute mt-48 text-xl font-quantico">
+        Update complete! Please use the version of SvelteTurk on your Desktop.
+      </h2>
+    {:else}
+      <h2 in:fade class="absolute mt-48 text-xl font-quantico">
+        Downloading update...please don't close this window
+      </h2>
+    {/if}
   {/if}
   <div class="absolute grow">
     <div class="inline-flex items-center p-2">

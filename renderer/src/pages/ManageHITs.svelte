@@ -7,7 +7,6 @@
   import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
   import { userSettings } from '../components/store';
   import { stLog, userLog } from '../components/logger';
-  import { get } from 'http';
 
   const { ipcRenderer } = require('electron');
 
