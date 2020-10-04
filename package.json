@@ -6,7 +6,7 @@
   "main": "main/main.js",
   "scripts": {
     "start": "ls main/main.js | entr -r concurrently \"npm:svelte-dev\" \"electron-forge start\"",
-    "package": "rollup -c && electron-forge package",
+    "package": "rollup -c && electron-forge package && tar -zcf out/SvelteTurk-darwin-x64.zip out/SvelteTurk-darwin-x64",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "svelte-build": "rollup -c",
