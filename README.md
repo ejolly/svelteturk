@@ -26,10 +26,13 @@ Check out the public [development roadmap](https://trello.com/b/Ha9M431u) on Tre
 
 Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](https://tablericons.com/)  
 
-### Packaging
+### Packaging and releases
 
-1. `npm run package`
-2. Application will be generated in `out/`
+1. Make sure you have github cli tools `brew install gh`
+2. `npm run package`
+3. Application will be generated in `out/SvelteTurk-darwin-x64.zip`
+3. Upload to github: `gh release create vX.X.X out/SvelteTurk-darwin-x64.zip`
+4. Or optionally run `npm run release` to do everything
 
 ### Documentation development log
 1. Install tools: `npm install -g docsify presite serve`
