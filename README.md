@@ -62,9 +62,11 @@ Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](h
 4. Configure `npm run` commands to `scripts` in `package.json`: 
     - `"docs-dev": "docsify serve docs-dev"` 
     - `"docs-build": "rm -r docs && presite docs-dev --wait 10000 && touch docs/.nojekyll"`
-5. Launch live server to develop docs with `npm run docs-dev`
-6. Generate static files for hosting docs with `npm run docs-build`
-7. (Optional): test that pre-rendered static doc files look ok `serve docs`
+5. Launch live server to develop docs with `npm run docs`
+
+*The following additional steps are deprecated*
+- Generate static files for hosting docs with `npm run docs-build`
+- (Optional): test that pre-rendered static doc files look ok `serve docs`
 
 Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](https://tablerins.com/)  
 

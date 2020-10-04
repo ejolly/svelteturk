@@ -80,7 +80,7 @@
     </div>
     <div class="py-8 text-center">
       <div class="lg:border-r">
-        <div class="label">Number of HITs</div>
+        <div class="label">Created HITs</div>
         <div class="mb-2 text-grey-darker">
           <span class="text-xl text-purple-600 align-top">+</span>
           <span class="text-3xl">{numHITs}</span>
@@ -98,7 +98,7 @@
     </div>
     <div class="py-8 text-center">
       <div>
-        <div class="label">Number of Workers</div>
+        <div class="label">Unique Workers</div>
         <div class="mb-2 text-grey-darker">
           <span class="text-xl text-purple-600 align-top">+</span>
           <span class="text-3xl">{numWorkers}</span>

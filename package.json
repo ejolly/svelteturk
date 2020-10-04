@@ -12,7 +12,7 @@
     "svelte-build": "rollup -c",
     "svelte-dev": "rollup -c -w",
     "svelte-start": "sirv renderer",
-    "docs-dev": "docsify serve docs-dev",
+    "docs": "docsify serve docs",
     "docs-build": "rm -r docs && presite docs-dev --wait 10000 && touch docs/.nojekyll"
   },
   "presite": {

@@ -1,19 +1,34 @@
 - Getting Started
-  - [Quick Start](quick_start.md)
-  - [Getting Your Mturk Credentials](aws_credentials.md)
+  - [Quick Start](quickstart.md)
+  - [Getting Your Mturk Credentials](aws-credentials.md)
 
 ---
 
 - Usage Guide
+  - [Overview](overview.md)
+  - [Switching Modes](modes.md)
   - [Creating HITs](create.md)
-  - [Managing HITs](manage.md)
-  - [Reviewing Assignments](review.md)
-  - [Contacting Workers](contact.md)
+  - [Managing HITs](manage-hits.md)
+  - [Reviewing Assignments](review-assts.md)
+  - [Managing Workers](manage-workers.md)
 
 ---
 
-- Development
-  - [App Layout](app_layout.md)
+- Advanced
+  - [Settings and Configuration](settings.md)
+  - [Exporting data](export.md)
+
+---
+
+- General Tips
+  - [Mturk Explainer and suggested usage](mturk-basics.md)
+  - [Hosting options for your task](custom-experiments.md)
+  - [Requestor Etiquette](etiquette.md)
+
+---
+
+- Contributing and Developing
+  - [SvelteTurk Internals](development.md)
   - [Development Roadmap](https://trello.com/b/Ha9M431u)
 
 ---

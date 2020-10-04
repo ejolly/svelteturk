@@ -4,7 +4,7 @@ In order to use Svelte Turk you need to make it aware of your AWS credentials. T
 
 Once you've saved your credentials you need to make Svelte Turk aware of them. You can do this in one of two ways:
 
-1. Export them to environment variables, by running the following in a terminal. You may also want to add these lines to your `.bashrc`, `.zshrc` or equivalent to they are available across all your terminal sessions:
+1. Export them to environment variables, by running the following in a terminal. You may also want to add these lines to your `.bashrc`, `.zshrc` or equivalent so they are available across all your terminal sessions:
 
 ```
 export AWS_ACCESS_KEY_ID='yourKey'
@@ -16,7 +16,7 @@ export AWS_SECRET_ACCESS_KEY='yourSecret'
 ```
 {
     "accessKeyId": "yourKey",
-    "secreteAccessKey": "yourSecret"
+    "secretAccessKey": "yourSecret"
 }
 ```
 
