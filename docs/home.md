@@ -10,7 +10,7 @@ SvelteTurk development is open-source and rapidly on-going. It's currently being
 
 
 <div style="margin-left:auto; margin-right:auto; max-width:39rem;">
-  <img src="/assets/setup.jpg" data-origin="assets/setup.jpg" alt="" class="medium-zoom-image">
+  <img src="assets/setup.jpg" data-origin="assets/setup.jpg" alt="" class="medium-zoom-image">
 
 *Svelte-Turk only handles nodes and connections highlighted in green, namely the creation and management of HITs via communication with MTurk and a local database. It's up to you to build your experiment or survey and store appropriate data as see you see fit. (figure made with [isoflow](https://isoflow.io/))*
 </div>

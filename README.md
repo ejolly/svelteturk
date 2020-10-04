@@ -1,35 +1,12 @@
-# Svelte-Turk
+# SvelteTurk
 
 🚧 Work in Progress 🚧
 
-## [Development Roadmap](https://trello.com/b/Ha9M431u)  
+### [Official Docs and Website Here!](https://eshinjolly.com/svelteturk)
 
-### [docs and project website (in progress)](https://www.notion.so/ejolly/Svelte-Turk-6c250e6f736642b0a1271c027514d5fb)  
+SvelteTurk is a desktop application for interacting with [Amazon's Mechanical Turk](https://www.mturk.com/) service (e.g. creating HITs, contacting workers, getting HIT and Assignment meta-data etc). Designed to be a lightweight and simple tool for managing Mturk without the need to write any code, setup any servers, databases, etc. The goal of the project is to offer a modern graphical alternative to something like [PsiTurk](https://psiturk.org/).  
 
-Svelte-Turk is a desktop application for interacting with [Amazon's Mechanical Turk](https://www.mturk.com/) service (e.g. creating HITs, contacting workers, getting HIT and Assignment meta-data etc). Designed to be a lightweight and simple tool for managing Mturk without the need to write any code, setup any servers, databases, etc. The goal of the project is to offer a modern graphical alternative to something like [PsiTurk](https://psiturk.org/).  
-
-*Note: Svelte Turk is **not** an experiment/survey builder or deployment tool. Users are left to manage this themselves using whatever services they prefer. All Svelte Turk needs is an HTTPS URL pointing to your experiment/survery in order to create HITs. This is accomplished via the [External Question](https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html) option in MTurk. See the figure below for a visual explanation.*
-
-Built using [Electron](https://www.electronjs.org/) to provide cross OS compatibility. Interactivity and design is implemented using [SvelteJS](https://svelte.dev/) with styles and layouts implemented using [TailwindCSS](https://tailwindcss.com/). All data is stored **locally** using [Nedb](https://github.com/louischatriot/nedb).  
-
-![](setup.jpg)  
-**Fig 1.** *Svelte-Turk only handles nodes and connections highlighted in green, namely the creation and management of HITs via communication with MTurk and a local database. It's up to you to build your experiment or survey and store appropriate data as see you see fit. (figure made with [isoflow](https://isoflow.io/))*
-
-## Usage
-
-In order to use the app you need to obtain and make your AWS credentials available. You can follow the directions on the [psiturk website](https://psiturk.readthedocs.io/en/stable/amt_setup.html) to do this. Once you have them either:
-- export them to the environment variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
-- Save them in a `.awscredentials.json` file in your home directory (i.e. the `~` directory on macOS.) The contents of this file should look like:
-```
-{
-    "accessKeyId": "yourKey",
-    "secreteAccessKey": "yourSecret"
-}
-```
-
-Svelte-turk will look for these credentials in the order described above, i.e. will prefer environment variables if it sees them and only fall back to `.awscredentials.json` if it doesn't. If both are specified, environment variables will always take precedence.
-
-If you are unsure if you have set these credentials properly, simply start the app, as Svelte-Turk will issue an error message if it can't locate credentials through either method. Simply set them up according to the instructions above and restart the app to get going!
+Check out the public [development roadmap](https://trello.com/b/Ha9M431u) on Trello. Feel free to contribute by requesting features, filing bug reports, or making PRs against the code base!
 
 ## Project structure
 
@@ -49,7 +26,7 @@ If you are unsure if you have set these credentials properly, simply start the a
 
 Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](https://tablericons.com/)  
 
-## Packaging
+### Packaging
 
 1. Comment out the noted line in `main/main.js` to prevent electron-reloader from getting bundled with the app
 2. `npm run package`
@@ -59,12 +36,12 @@ Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](h
 1. Install tools: `npm install -g docsify presite serve`
 2. Create folder for documentation source files: `mkdir docs-dev`
 3. Configure presite to build to a `docs` folder: `"presite": { "outDir": "docs" }` to `package.json`
-4. Configure `npm run` commands to `scripts` in `package.json`: 
-    - `"docs-dev": "docsify serve docs-dev"` 
-    - `"docs-build": "rm -r docs && presite docs-dev --wait 10000 && touch docs/.nojekyll"`
+4. Configure `npm run` commands to `scripts` in `package.json`: `"docs-dev": "docsify serve docs"` 
 5. Launch live server to develop docs with `npm run docs`
 
 *The following additional steps are deprecated*
+  - `"docs-dev": "docsify serve docs-dev"` 
+  - `"docs-build": "rm -r docs && presite docs-dev --wait 10000 && touch docs/.nojekyll"`
 - Generate static files for hosting docs with `npm run docs-build`
 - (Optional): test that pre-rendered static doc files look ok `serve docs`
 
