@@ -15,6 +15,7 @@
 ---
 
 - Advanced
+  - [Programmatic API](api.md)
   - [Settings and Configuration](settings.md)
   - [Exporting data](export.md)
 
