@@ -4,9 +4,13 @@ const Datastore = require('nedb-promises');
 const fs = require('fs');
 const Papa = require('papaparse');
 const log = require('electron-log');
+const isDev = require('electron-is-dev');
 
 // FIXME: COMMENT OUT THIS LINE WHEN PACKAGING THE APP SO ELECTRON RELOAD DOESNT GET BUNDLED
-require('electron-reload')(path.join(__dirname, '..', 'renderer'));
+if (isDev) {
+  console.log('Running in dev mode...hot-reloading enabled');
+  require('electron-reload')(path.join(__dirname, '..', 'renderer'));
+}
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {

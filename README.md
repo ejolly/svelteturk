@@ -28,9 +28,8 @@ Icons are sourced from [hero icons](https://heroicons.dev/) and [tabler icons](h
 
 ### Packaging
 
-1. Comment out the noted line in `main/main.js` to prevent electron-reloader from getting bundled with the app
-2. `npm run package`
-3. Application will be generated in `out/`
+1. `npm run package`
+2. Application will be generated in `out/`
 
 ### Documentation development log
 1. Install tools: `npm install -g docsify presite serve`
