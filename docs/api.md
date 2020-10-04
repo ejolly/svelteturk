@@ -7,6 +7,9 @@ Because SvelteTurk is built on [web technologies](https://www.electronjs.org/), 
 
 ![](assets/devtools.png)
 
+
+## MTurk API
+
 In it's current form SvelteTurk makes the entire [Mturk Javascript API](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/MTurk.html) available to you right from this console! This means you can *technically* interact with Mturk almost entirely through code without ever using SvelteTurk's user interface. This can be particularly handy by writing and save [code snippets](https://medium.com/@ishwar.rimal/running-javascript-snippets-with-chrome-dev-tool-94d541b22db3) in this developer console. You can create and save snippets by clicking on the following menu options in the console: Sources > >> Arrow > Snippets. From the left you can create a new snippet and save and run it by pressing `cmd+enter`. The picture below demos asking Mturk for your account balance using the API asynchronously. This is the same thing SvelteTurk is doing behind the scenes!
 
 ![](assets/devtoolsSnippet.png)

@@ -1,6 +1,6 @@
 # Overview
 
-SvelteTurk's layout is organized with a sidebar on the left and a page view to the right. On successful startup, this view will always being on your home page.
+SvelteTurk's layout is organized with a sidebar on the left and a page view to the right. On successful startup, this view will always be the home page.
 
 ## Sidebar 
 

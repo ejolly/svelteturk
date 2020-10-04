@@ -124,9 +124,7 @@
       userSettings.set(resp.userSettings);
       initMTurk();
       bindAPI();
-      if (!$userSettings.hideSplash) {
-        await wait(3000);
-      }
+      await wait(3000);
       ready = true;
       stLog.info('app ready');
     }
@@ -200,7 +198,7 @@
 <Tailwindcss />
 <Modal bind:showModal bind:modalType bind:modalText />
 <!-- Main app container full window size not responsive-->
-{#if !ready && !$userSettings.hideSplash}
+{#if !ready}
 <Splash {updating} {updateComplete} />
 {:else}
 <div class="w-screen h-screen">

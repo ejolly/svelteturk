@@ -2,6 +2,10 @@
 
 At any point in time you can change SvelteTurk settings by clicking on the Settings button in the side bar. As development on SvelteTurk continues, the number of configurable settings will grow. If you have recommendations or suggestions feel free to [open a github issue and apply a feature request label](https://github.com/ejolly/svelte-turk/issues/new). 
 
+## Updates
+
+SvelteTurk will automatically check for updates on startup. You can also force checking for an update by reloading the window.
+
 ## Current Configurable Settings
 
 | Setting Name          | Default Value | Description                                                                                                                                                                                                                                                                                                                        |
@@ -9,7 +13,6 @@ At any point in time you can change SvelteTurk settings by clicking on the Setti
 | Refresh Frequency     | 30            | How often (*in seconds*) SvelteTurk will try to refresh HIT and Assignment data from Mturk servers. Setting this too low may produce errors as Amazon limits the total number of requests in a given period. Setting this too high will result infrequent updates. Something in the range 10-60 should provide reasonable updates. |
 | Allow Repeat Bonusing | False         | Whether SvelteTurk should allow Bonusing a Worker more than once.                                                                                                                                                                                                                                                                  |
 | Display Help Text     | True          | Whether SvelteTurk should display explanations under each input on the Create page                                                                                                                                                                                                                                                 |
-| Hide Splash Screen    | False         | Whether SvelteTurk should display its loading animation on startup. **Note:** A current bug may break the rendering other UI elements if this is turned on, so it's currently recommend to leave it at its default value.                                                                                                          |
 
 ## Svelte Data Storage
 

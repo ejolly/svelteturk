@@ -78,7 +78,6 @@ let userSettings = {
   refreshFrequency: 30,
   repeatBonuses: false,
   createHITHelpers: true,
-  hideSplash: false,
 };
 if (fs.existsSync(settingsFile)) {
   fs.readFile(settingsFile, (err, data) => {
