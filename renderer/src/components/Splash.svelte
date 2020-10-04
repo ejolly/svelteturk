@@ -75,7 +75,7 @@
 
 <div class="flex items-center justify-center w-screen h-screen bg-gray-100">
   {#if showSpinner}
-    <div out:fade class="w-20 h-20 ease-linear border-8 border-purple-400 rounded-full loader" />
+    <div class="w-20 h-20 ease-linear border-8 border-purple-400 rounded-full loader" />
   {/if}
   {#if updating}
     {#if updateComplete}
