@@ -16,7 +16,7 @@ SvelteTurk will automatically check for updates on startup. You can also force c
 
 ## Svelte Data Storage
 
-The first time you launch SvelteTurk, it will create a folder called `svelteturk` in your home directory (e.g. `~/svelteturk` on macOS). This folder contains all the configuration files and data that SvelteTurk stores. On subsequent startups, SvelteTurk will load files from this directory. 
+The first time you launch SvelteTurk, it will create a folder called `svelteturk` in your `$HOME` directory (i.e. `~/svelteturk` on macOS). This folder contains all the configuration files and data that SvelteTurk stores. On subsequent startups, SvelteTurk will load files from this directory. 
 
 | File/Folder Name  | Can you Read/Write outside of SvelteTurk without breaking something? | Description                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ----------------- | -------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
