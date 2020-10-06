@@ -23,7 +23,7 @@
 
 - General Tips
   - [Mturk Explainer and suggested usage](mturk-basics.md)
-  - [Hosting options for your task](custom-experiments.md)
+  - [Where/how to host your task](custom-experiments.md)
   - [Requestor Etiquette](etiquette.md)
 
 ---

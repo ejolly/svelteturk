@@ -4,6 +4,9 @@ Similar to the HIT table on the [managing hits page](manage-hits.md), SvelteTurk
 
 ![](/assets/manageassts.png)
 
+> [!NOTE]
+> The same information about auto-refreshing HITs also applies to auto-refreshing Assignment data.
+
 ## Filtering Assignments by HITs or Search
 
 To only see submissions for a particular task, you can use the dropdown menu to select the HIT you wish to filter by. To help you filter, the dropdown menu lists the title of the HIT and the first few letters of its HITId. You can additionally filter Assignments by using the search field, which will query your search terms against all table columns.

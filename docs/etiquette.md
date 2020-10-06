@@ -1,4 +1,4 @@
-# Requestor etiquette
+# Requestor Etiquette
 
 This page documents some generally good and respectful practices when using Mturk 
 as a Requestor.

@@ -3,7 +3,7 @@
 >[!NOTE]
 > As progress on SvelteTurk continues this page will document details about programmatically executing commands in SvelteTurk.
 
-Because SvelteTurk is built on [web technologies](https://www.electronjs.org/), you can access its console using  View > Toggle Developer Tools or by pressing `Cmd+Alt+I`. This will open up the browser console just like in Google Chrome. As SvelteTurk is running this console will print various messages. Sometimes opening this console can help you understand if something isn't quite working right. The logs are also saved to file in SvelteTurk's [data folder](settings.md#svelte-data-storage).
+Because SvelteTurk is built on [web technologies](https://www.electronjs.org/), you can access its console using  View > Toggle Developer Tools or by pressing `Cmd+Alt+I`. This will open up the browser console just like in Google Chrome. As SvelteTurk is running, it will print various messages to this console. Sometimes opening it up can help you understand if something isn't quite working right. These messages are also logged to a file in SvelteTurk's [data folder](settings.md#svelte-data-storage). If you do find any issues please open a [bug report!](https://github.com/ejolly/svelteturk/issues/new). This helps improve SvelteTurk for everyone.
 
 ![](assets/devtools.png)
 

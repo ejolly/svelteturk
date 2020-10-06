@@ -1,8 +1,11 @@
 # Managing HITs
 
-To help you manage your HITs, SvelteTurk renders a searchable table of all the HITs you've ever created via the [Create page](create.md). At the [bottom of this page](#column-descriptions) you can find a table that provides more detail about each column. 
+To help you manage your HITs, SvelteTurk renders a searchable table of all the HITs you've ever created via the [Create page](create.md). While this page is open, SvelteTurk will automatically pull the latest data about these HITs from Mturk at regular intervals. At the [bottom of this page](#column-descriptions) you can find a table that provides more detail about each column. 
 
 ![](assets/managehits.png)
+
+> [!NOTE]
+> SvelteTurk only refreshes Mturk data about the page you're **currently viewing,** rather than all data in the app. So while you're viewing the Manage HITs page, the latest data for **HITs,** but not Assignments or Workers, will be regularly refreshed. As soon as you switch to a different page, SvelteTurk will automatically start refreshing that page's data and pause refreshing data from other pages. Until Amazon offers a true realtime API, this prevents SvelteTurk from getting temporarily rate-limited from asking for new data. You can always manually refresh the data for page using the refresh icon at the top. This icon will automatically animate from time-to-time when SvelteTurk refreshes data in the background. You can control the refresh frequency from the [Settings](settings.md) (*default 30s*).
 
 ## Filtering by Repeat Participation or Search
 

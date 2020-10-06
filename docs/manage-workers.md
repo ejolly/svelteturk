@@ -4,6 +4,9 @@ Similar to the HIT and Assignment tables, the Manage Workers page allows you to 
 
 ![](assets/manageworkers.png)
 
+> [!NOTE]
+> The same information about auto-refreshing HITs and Assignments also applies to auto-refreshing Workers data.
+
 ## Contacting Workers
 
 You can also send an email to any Workers listed in this table by selecting the row containing their WorkerId and using the Contact button. You can also bulk message all workers by deselecting any rows and using the Contact All button.
@@ -11,7 +14,7 @@ You can also send an email to any Workers listed in this table by selecting the 
 Contacting a Worker(s) requires a subject and body which will be used to generate and send and email from your Requestor account, by Mturk. 
 
 > [!WARNING]
-> Do to restrictions imposed by Mturk, you can only email a Worker if they have previously submitted at least 1 Assignment for a HIT you have created. However, due to a limitation with their API, SvelteTurk will not be able to notify you if you try to contact a Worker who has never completed an Assignment for you. This will never typically happen except in 2 rare cases:
+> Due to restrictions imposed by Mturk, you can only email a Worker if they have previously submitted at least 1 Assignment for a HIT you have created. However, due to a limitation with their API, SvelteTurk will not be able to notify you if you try to contact a Worker who has never completed an Assignment for you. This will never typically happen except in 2 rare cases:
 >
 > 1. If a Worker submits an Assignment in the Mturk sandbox but not in the main marketplace, you will only be able to contact them while SvelteTurk is in [sandbox mode](modes.md) and visa versa. 
 >
