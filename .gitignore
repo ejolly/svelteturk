@@ -102,3 +102,6 @@ main/db/*.db
 
 # AF design files
 *.afdesign
+
+# Original large screenshots
+docs/assets/original_screenshots
