@@ -66,10 +66,40 @@ const mainLog = log.scope('main');
 let mainWindow;
 
 // try to load aws credentials
-let awsCredentials = {
-  accessKeyId: process.env.AWS_SECRET_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_ACCESS_KEY_ID,
+let awsCredentials;
+
+// LOAD AWS CREDENTIALS
+const loadAWS = () => {
+  awsCredentials = {
+    accessKeyId: process.env.AWS_SECRET_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_ACCESS_KEY_ID,
+  };
+  if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
+    mainLog.info('AWS credentials loaded from environment variables.');
+  } else {
+    fs.readFile(`${app.getPath('home')}/.awscredentials.json`, (err, data) => {
+      if (err) {
+        mainLog.error('AWS credentials not configured');
+        dialog
+          .showMessageBox({
+            type: 'error',
+            title: 'No AWS Credentials',
+            message:
+              "Hmm I can't seem to find your AWS credentials. Are you sure you configured them? See the directions: https://eshinjolly.com/svelteturk/#/aws-credentials",
+          })
+          .then(() => {
+            mainLog.info('Exiting...');
+            app.exit(0);
+            process.abort();
+          });
+      } else {
+        awsCredentials = JSON.parse(data);
+        mainLog.info('AWS credentials loaded from file');
+      }
+    });
+  }
 };
+
 
 // Settings file location
 const settingsFile = path.join(svelteturkPath, '.svelteturkrc');
@@ -211,34 +241,6 @@ const checkForLatestVersion = async () => {
   return updateAvailable;
 };
 
-// LOAD AWS CREDENTIALS
-if (awsCredentials.accessKeyId && awsCredentials.secretAccessKey) {
-  mainLog.info('AWS credentials loaded from environment variables.');
-} else {
-  fs.readFile(`${app.getPath('home')}/.awscredentials.json`, (err, data) => {
-    if (err) {
-      if (err.code === 'ENOENT') {
-        dialog
-          .showMessageBox({
-            type: 'error',
-            title: 'File not found',
-            message:
-              'No environment variables or config file were found for your AWS Credentials! Please configure them and restart the app',
-          })
-          .then(() => {
-            mainLog.error('No AWS environment variables or config file found. Exiting...');
-            app.exit(0);
-            process.abort();
-          });
-      } else {
-        throw err;
-      }
-    } else {
-      awsCredentials = JSON.parse(data);
-      mainLog.info('AWS credentials loaded from file');
-    }
-  });
-}
 // Create the browser window.
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -279,6 +281,7 @@ app.on('activate', () => {
 // Send aws credentials and user settings
 ipcMain.handle('initialize', async (ev) => {
   mainLog.info('<--API: intialize');
+  loadAWS();
   let updateAvailable;
   let userWantsToUpdate = false;
   try {

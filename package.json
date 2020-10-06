@@ -1,12 +1,12 @@
 {
   "name": "SvelteTurk",
   "productName": "SvelteTurk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Control mturk via a simple gui app",
   "main": "main/main.js",
   "scripts": {
     "start": "ls main/main.js | entr -r concurrently \"npm:svelte-dev\" \"electron-forge start\"",
-    "package": "rollup -c && electron-forge package && tar -zcf out/SvelteTurk-darwin-x64.zip out/SvelteTurk-darwin-x64",
+    "package": "rollup -c && electron-forge package && rm out/*.zip",
     "prep-release": "./makerelease.sh",
     "release": "npm run package && npm run prep-release",
     "make": "electron-forge make",
