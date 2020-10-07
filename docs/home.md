@@ -1,4 +1,6 @@
 # Svelte Turk
+[![GitHub version](https://badge.fury.io/gh/ejolly%2Fsvelteturk.svg)](https://github.com/ejolly/svelteturk/releases)
+[![docs site](https://img.shields.io/badge/docs-site-blue)](https://eshinjolly.com/svelteturk)
 
 🚧 *Under active development!* 🚧
 
