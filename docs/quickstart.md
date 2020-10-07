@@ -7,7 +7,7 @@
   - If you get a macOS warning about "Unidentified developer" follow the directions at the bottom of this page  
 
 
- **2. Download and configure your [ AWS MTurk credentials](aws-credentials.md)**  
+ **2. Download and configure your [AWS Mturk credentials](aws-credentials.md)**  
 
  **3. Check out the [ Overview page](overview.md) to see what SvelteTurk can and can't do and get a feel for the layout of the app**  
 
@@ -17,7 +17,7 @@
 
 ## Unidentified Developer Warning
 
-If you see this warning when you try to open up SvelteTurk for the first time, it's because Apple is protecting you from using an app that wasn't downloaded from the macOS App store or isn't code-signed, i.e. "approved" by Apple. In general this is a *good thing* because it prevents malicious programs from harming your computer. However, it also means that developers have to pay a fee and jump through a few additional hoops in order to receive Apple's blessing. The current version of SvelteTurk was not designed in this way for ease of use and updating. If you're worried that SvelteTurk is doing something malicious, don't get my word for it: check out the [source code](https://github.com/ejolly/svelteturk) to see for yourself! 
+If you see this warning when you try to open up SvelteTurk for the first time, it's because Apple is protecting you from using an app that wasn't downloaded from the macOS App store or isn't code-signed, i.e. "approved" by Apple. In general this is a *good thing* because it prevents malicious programs from harming your computer. However, it also means that developers have to pay a fee and jump through a few additional hoops in order to receive Apple's blessing. The current version of SvelteTurk was not designed in this way for ease of use and updating. If you're worried that SvelteTurk is doing something malicious, don't take my word for it: check out the [source code](https://github.com/ejolly/svelteturk) to see for yourself! 
 :
   - Search and open "System Preferences" using Spotlight
   - Go to "Security & Privacy"

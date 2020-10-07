@@ -22,7 +22,7 @@ You can replace these files with equivalent ones from another computer on which 
 
 ## Export
 
-While you can copy the `.db` files as noted above to export data, they are not saved in a format that's particularly user friendly. Instead, SvelteTurk lets you export all it's data in JSON format using the Export Data button in the sidebar. Many popular programs and languages like R and Python support reading and operating on `JSON` data. Clicking Export will create the following files in a location of your choosing, named with today's date:
+While you can copy the `.db` files as noted above to export data, they are not saved in a format that's particularly user friendly. Instead, SvelteTurk lets you export all its data in JSON format using the Export Data button in the sidebar. Many popular programs and languages like R and Python support reading and operating on `JSON` data. Clicking Export will create the following files in a location of your choosing, named with today's date:
 
 - `assts_{YYYY-MM-DD}.json` all Assignment data
 - `hits_{YYYY-MM-DD}.json` all HIT data
