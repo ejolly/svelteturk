@@ -124,29 +124,50 @@ if (fs.existsSync(settingsFile)) {
 
 // Databases
 // Create a object to hold all the dbs for easier referencing
-const db = {};
+const dbSandbox = {};
+const dbLive = {};
 const dbPath = path.join(svelteturkPath, 'db');
 if (!fs.existsSync(dbPath)) {
   mainLog.info('No databases found...performing one time setup');
   fs.mkdirSync(dbPath);
 }
 // Load databases into memory
-db.hits = Datastore.create({
+dbSandbox.hits = Datastore.create({
+  filename: path.join(dbPath, 'hits_sandbox.db'),
+  timestampData: true,
+  autoload: true,
+});
+dbSandbox.assts = Datastore.create({
+  filename: path.join(dbPath, 'assts_sandbox.db'),
+  timestampData: true,
+  autoload: true,
+});
+dbSandbox.workers = Datastore.create({
+  filename: path.join(dbPath, 'workers_sandbox.db'),
+  timestampData: true,
+  autoload: true,
+});
+dbSandbox.hitTemplates = Datastore.create({
+  filename: path.join(dbPath, 'hitTemplates_sandbox.db'),
+  timestampData: true,
+  autoload: true,
+});
+dbLive.hits = Datastore.create({
   filename: path.join(dbPath, 'hits.db'),
   timestampData: true,
   autoload: true,
 });
-db.assts = Datastore.create({
+dbLive.assts = Datastore.create({
   filename: path.join(dbPath, 'assts.db'),
   timestampData: true,
   autoload: true,
 });
-db.workers = Datastore.create({
+dbLive.workers = Datastore.create({
   filename: path.join(dbPath, 'workers.db'),
   timestampData: true,
   autoload: true,
 });
-db.hitTemplates = Datastore.create({
+dbLive.hitTemplates = Datastore.create({
   filename: path.join(dbPath, 'hitTemplates.db'),
   timestampData: true,
   autoload: true,
@@ -325,9 +346,10 @@ ipcMain.handle('updateSettings', async (ev, settingsStore) => {
 });
 
 // Count records in each db
-ipcMain.handle('countDocs', async (ev) => {
+ipcMain.handle('countDocs', async (ev, live) => {
   mainLog.info('<--API: countDocs');
   const out = {};
+  const db = live ? dbLive : dbSandbox;
   for (const dbName in db) {
     try {
       out[dbName] = await db[dbName].count({});
@@ -340,11 +362,12 @@ ipcMain.handle('countDocs', async (ev) => {
 });
 
 // Add HIT to db after it's created in mturk
-ipcMain.handle('insertHIT', async (ev, hit) => {
+ipcMain.handle('insertHIT', async (ev, hit, live) => {
   mainLog.info('<--API: insertHIT');
   mainLog.info(`HITId: ${hit.HITId}`);
   let text;
   let type;
+  const db = live ? dbLive : dbSandbox;
   try {
     await db.hits.insert(hit);
     text = 'HIT added successfully';
@@ -366,9 +389,10 @@ ipcMain.handle('insertHIT', async (ev, hit) => {
 // NOTE: This isn't an ipc handler because no front-end UI every directly interacts with the workers db. Instead we're mocking a relational db store, as any calls to the *assignments db* will automatically invoke this function
 // FIXME: at somepoint rewrite this logic because it assums that updateDoc('asst') on the client only every contains a WorkerId field when being called from withing ReviewAssts > updateAsstsinDB()
 // If that ever changes in the future the logic could break
-const upsertWorker = async (query, update) => {
+const upsertWorker = async (query, update, live) => {
   mainLog.info('<--API: upsertWorker');
   let numAffected;
+  const db = live ? dbLive : dbSandbox;
   try {
     // If an assignment has a workerId it also has a HITid because the client-side operation is refreshing data from Mturk
     const asstData = update.$set;
@@ -443,8 +467,9 @@ const upsertWorker = async (query, update) => {
 };
 
 // Export all dbs to JSON
-ipcMain.handle('export', async () => {
+ipcMain.handle('export', async (live) => {
   mainLog.info('<--API: export');
+  const db = live ? dbLive : dbSandbox;
   let text;
   let type;
   try {
@@ -566,8 +591,9 @@ ipcMain.handle('importAsstsForBonus', async () => {
 });
 
 // Delete a doc in any db
-ipcMain.handle('deleteDoc', async (ev, dbName, id) => {
+ipcMain.handle('deleteDoc', async (ev, dbName, id, live) => {
   mainLog.info('<--API: deleteDoc');
+  const db = live ? dbLive : dbSandbox;
   let text;
   let type;
   try {
@@ -590,8 +616,9 @@ ipcMain.handle('deleteDoc', async (ev, dbName, id) => {
 });
 
 // Update a doc in any db
-ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
+ipcMain.handle('updateDoc', async (ev, dbName, query, update, options, live) => {
   mainLog.info('<--API: updateDoc');
+  const db = live ? dbLive : dbSandbox;
   let text;
   let type;
   try {
@@ -618,8 +645,9 @@ ipcMain.handle('updateDoc', async (ev, dbName, query, update, options) => {
 });
 
 // Return all hits
-ipcMain.handle('findHits', async (ev) => {
+ipcMain.handle('findHits', async (ev, live) => {
   mainLog.info('<--API: findHITs');
+  const db = live ? dbLive : dbSandbox;
   const docs = await db.hits.find({}).sort({ createdAt: -1 });
   mainLog.info('API: findHITs-->');
   return docs;
@@ -627,8 +655,9 @@ ipcMain.handle('findHits', async (ev) => {
 
 // Search for hit with same exact params; useful because Mturk will assign HITs with matching params
 // the same HITTypeId
-ipcMain.handle('findDuplicateHIT', async (ev, HITTypeId) => {
+ipcMain.handle('findDuplicateHIT', async (ev, HITTypeId, live) => {
   mainLog.info('<--API: findDuplicateHIT');
+  const db = live ? dbLive : dbSandbox;
   let text;
   let type;
   try {
@@ -645,24 +674,27 @@ ipcMain.handle('findDuplicateHIT', async (ev, HITTypeId) => {
 });
 
 // Return all assts
-ipcMain.handle('findAssts', async (ev) => {
+ipcMain.handle('findAssts', async (ev, live) => {
   mainLog.info('<--API: findAssts');
+  const db = live ? dbLive : dbSandbox;
   const docs = await db.assts.find({}).sort({ createdAt: -1 });
   mainLog.info('API: findAssts-->');
   return docs;
 });
 
 // Return assts for a specific HIT
-ipcMain.handle('findAsstsForHIT', async (ev, HITId) => {
+ipcMain.handle('findAsstsForHIT', async (ev, HITId, live) => {
   mainLog.info('<--API: findAsstsForHIT');
+  const db = live ? dbLive : dbSandbox;
   const docs = await db.assts.find({ HITId }).sort({ createdAt: -1 });
   mainLog.info('API: findAsstsForHIT-->');
   return docs;
 });
 
 // Return all workers
-ipcMain.handle('findWorkers', async (ev) => {
+ipcMain.handle('findWorkers', async (ev, live) => {
   mainLog.info('<--API: findWorkers');
+  const db = live ? dbLive : dbSandbox;
   const docs = await db.workers.find({}).sort({ createdAt: -1 });
   mainLog.info('API: findWorkers-->');
   return docs;
@@ -670,15 +702,17 @@ ipcMain.handle('findWorkers', async (ev) => {
 
 // Manage hit templates
 // TODO: refactor
-ipcMain.handle('findHITTemplates', async (ev) => {
+ipcMain.handle('findHITTemplates', async (ev, live) => {
   mainLog.info('<--API: findHITTemplates');
+  const db = live ? dbLive : dbSandbox;
   const docs = await db.hitTemplates.find({}).sort({ name: 1 });
   mainLog.info('API: findHITTemplates-->');
   return docs;
 });
 
-ipcMain.handle('saveHITTemplate', async (ev, template) => {
+ipcMain.handle('saveHITTemplate', async (ev, template, live) => {
   mainLog.info('<--API: saveHITTemplate');
+  const db = live ? dbLive : dbSandbox;
   mainLog.info(`Name: ${template.name}`);
   let text;
   let type;
@@ -699,9 +733,10 @@ ipcMain.handle('saveHITTemplate', async (ev, template) => {
   };
 });
 
-ipcMain.handle('deleteHITTemplate', async (ev, name) => {
+ipcMain.handle('deleteHITTemplate', async (ev, name, live) => {
   mainLog.info('<--API: deleteHITTemplate');
   mainLog.info(`Name: ${name}`);
+  const db = live ? dbLive : dbSandbox;
   let text;
   let type;
   try {

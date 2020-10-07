@@ -5,6 +5,7 @@
   import Dialogue from '../components/Dialogue.svelte';
   import { updateDoc, formatDate } from '../components/utils.js';
   import { stLog, userLog } from '../components/logger';
+  import { live } from '../components/store';
 
   const { ipcRenderer } = require('electron');
 
@@ -24,7 +25,7 @@
   // VARIABLES
   let search = '';
   let timer;
-  let hits = [];
+  let workers = [];
   let workersFiltered = [];
   let showModal = false;
   let modalText;
@@ -39,14 +40,22 @@
   let selectedWorker;
   // Reactive boolean for styling
   $: rowSelected = !!selectedWorker;
-
+  const resetDataFromMode = async () => {
+    clearSelection();
+    clearSearch();
+    await getWorkers();
+  };
+  $: if ($live) {
+    (async () => await resetDataFromMode())();
+  } else {
+    (async () => await resetDataFromMode())();
+  }
   // FUNCTIONS
   // Get all hits from db
   const getWorkers = async () => {
     stLog.info('REQ findWorkers');
-    workers = await ipcRenderer.invoke('findWorkers');
+    workers = await ipcRenderer.invoke('findWorkers', $live);
     workersFiltered = workers;
-    console.log(workersFiltered);
   };
 
   const clearSelection = () => {
@@ -149,7 +158,7 @@
   const filterEntries = () => {
     clearTimeout(timer);
     timer = setTimeout(() => {
-      hitsFiltered = hits.filter((obj) => {
+      workersFiltered = workers.filter((obj) => {
         const vals = Object.values(obj);
         const filteredVals = vals.filter((val) => {
           let formattedVal;
@@ -169,7 +178,8 @@
   const clearSearch = () => {
     userLog.info('Clear search');
     search = '';
-    filterEntries();
+    clearTimeout(timer);
+    workersFiltered = workers;
   };
 
   onMount(async () => {

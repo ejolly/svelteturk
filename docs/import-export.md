@@ -4,12 +4,16 @@ As noted on the [settings and configuration page](settings.md), all of SvelteTur
 
 ## Import
 
-Currently, the only way to manually add data to SvelteTurk's database is to replace the files in `svelteturk/db`. SvelteTurk uses [NeDb](https://github.com/louischatriot/nedb) for its database and has 4 distinct files:
+Currently, the only way to manually add data to SvelteTurk's database is to replace the files in `svelteturk/db`. SvelteTurk uses [NeDb](https://github.com/louischatriot/nedb) for its database and because it stores data separately for [sandbox or live mode](modes.md), it has has 8 distinct files:
 
 - `assts.db`
 - `hits.db`
 - `workers.db`
 - `hitTemplates.db`
+- `assts_sandbox.db`
+- `hits_sandbox.db`
+- `workers_sandbox.db`
+- `hitTemplates_sandbox.db`
 
 You can replace these files with equivalent ones from another computer on which you have SvelteTurk running, to use that database instead.
 

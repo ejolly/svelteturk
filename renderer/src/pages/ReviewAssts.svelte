@@ -5,7 +5,7 @@
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
   import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
-  import { userSettings } from '../components/store.js';
+  import { userSettings, live } from '../components/store.js';
   import { stLog, userLog } from '../components/logger';
 
   const { ipcRenderer } = require('electron');
@@ -60,22 +60,32 @@
   $: approveAllDisabled =
     asstsFiltered && asstsFiltered.every((e) => ['Approved', 'Rejected'].includes(e.Status));
   $: approveAsstDisabled = selectedAsst && ['Approved', 'Rejected'].includes(selectedAsst.Status);
+  const resetDataFromMode = async () => {
+    clearSelection();
+    clearSearch();
+    await getAssts();
+  };
+  $: if ($live) {
+    (async () => await resetDataFromMode())();
+  } else {
+    (async () => await resetDataFromMode())();
+  }
 
   // FUNCTIONS
   const getAssts = async () => {
     if (selectedHIT === 'all') {
       stLog.info('REQ findAssts');
-      assts = await ipcRenderer.invoke('findAssts');
+      assts = await ipcRenderer.invoke('findAssts', $live);
     } else {
       stLog.info('REQ findAsstsForHIT');
-      assts = await ipcRenderer.invoke('findAsstsForHIT', selectedHIT.HITId);
+      assts = await ipcRenderer.invoke('findAsstsForHIT', selectedHIT.HITId, $live);
     }
     asstsFiltered = assts;
   };
 
   const getHITs = async () => {
     stLog.info('REQ findHITs');
-    hits = await ipcRenderer.invoke('findHits');
+    hits = await ipcRenderer.invoke('findHits', $live);
     selectedHIT = 'all';
   };
 
@@ -166,7 +176,8 @@
   const clearSearch = () => {
     userLog.info('Clear search');
     search = '';
-    filterEntries();
+    clearTimeout(timer);
+    asstsFiltered = assts;
   };
 
   const clearSelection = () => {

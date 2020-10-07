@@ -5,7 +5,7 @@
   import Modal from '../components/Modal.svelte';
   import Dialogue from '../components/Dialogue.svelte';
   import { deleteDoc, updateDoc, wait, formatDate } from '../components/utils.js';
-  import { userSettings } from '../components/store';
+  import { userSettings, live } from '../components/store';
   import { stLog, userLog } from '../components/logger';
 
   const { ipcRenderer } = require('electron');
@@ -53,12 +53,22 @@
   $: recruitable =
     rowSelected && selectedHIT.MaxAssignments !== 9 && selectedHIT.HITStatus !== 'Reviewable';
   $: endAble = rowSelected && selectedHIT.HITStatus === 'Assignable';
+  const resetDataFromMode = async () => {
+    await clearSelection();
+    await clearSearch();
+    await getHITs();
+  };
+  $: if ($live) {
+    (async () => await resetDataFromMode())();
+  } else {
+    (async () => await resetDataFromMode())();
+  }
 
   // FUNCTIONS
   // Get all hits from db
   const getHITs = async () => {
     stLog.info('REQ findHITs');
-    hits = await ipcRenderer.invoke('findHits');
+    hits = await ipcRenderer.invoke('findHits', $live);
     hitTypes = [...new Set(hits.map((e) => e.HITTypeId))];
     if (selectedHITType === 'all') {
       hitsFiltered = hits;
@@ -359,7 +369,8 @@
   const clearSearch = () => {
     userLog.info('Clear search');
     search = '';
-    filterEntries();
+    clearTimeout(timer);
+    hitsFiltered = hits;
   };
 
   const toggleHITTypeSelect = () => {

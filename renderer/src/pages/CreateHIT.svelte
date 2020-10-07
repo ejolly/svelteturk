@@ -11,7 +11,7 @@
     asyncGenerator,
     wait,
   } from '../components/utils.js';
-  import { userSettings } from '../components/store';
+  import { userSettings, live } from '../components/store';
   import { stLog, userLog } from '../components/logger';
 
   const { ipcRenderer } = require('electron');
@@ -82,12 +82,17 @@
   <ExternalURL>${hitParams.externalURL}</ExternalURL>
   <FrameHeight>900</FrameHeight>
   </ExternalQuestion>`;
+  $: if ($live) {
+    clearForm();
+  } else {
+    clearForm();
+  }
 
   // FUNCTIONS
   // Load previously saved HITs from db and refresh reactive vars
   const loadSavedHITs = async () => {
     stLog.info('REQ: findHITTemplates');
-    loadTemplates = await ipcRenderer.invoke('findHITTemplates');
+    loadTemplates = await ipcRenderer.invoke('findHITTemplates', $live);
     loadNames = loadTemplates.map((elem) => elem['name']);
     loadName = undefined;
   };
@@ -97,7 +102,7 @@
     try {
       await HITSchema.validate(hitParams, { abortEarly: false });
       errors = {};
-      const qualArray = formatQuals(hitParams.selectedQuals, mturk.live);
+      const qualArray = formatQuals(hitParams.selectedQuals, $live);
       stLog.info('REQ Mturk: createHITType');
       const resp = await mturk
         .createHITType({
@@ -162,29 +167,33 @@
       })
       .promise();
     stLog.info(`RES Mturk: ${resp.$response.httpResponse.statusCode}`);
-    const dbResp = await ipcRenderer.invoke('insertHIT', {
-      HITId: resp.HIT.HITId,
-      HITTypeId: resp.HIT.HITTypeId,
-      HITGroupId: resp.HIT.HITGroupId,
-      HITLayoutId: resp.HIT.HITLayoutId,
-      CreationTime: resp.HIT.CreationTime.toString(),
-      Title: resp.HIT.Title,
-      Description: resp.HIT.Description,
-      Keywords: resp.HIT.Keywords,
-      HITStatus: resp.HIT.HITStatus,
-      MaxAssignments: resp.HIT.MaxAssignments,
-      Reward: resp.HIT.Reward,
-      AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
-      LifetimeInSeconds: hitParams.lifetime,
-      Expiration: resp.HIT.Expiration.toString(),
-      AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
-      HITReviewStatus: resp.HIT.HITReviewStatus,
-      NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
-      NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
-      NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
-      ExternalURL: hitParams.externalURL,
-      Qualifications: hitParams.selectedQuals,
-    });
+    const dbResp = await ipcRenderer.invoke(
+      'insertHIT',
+      {
+        HITId: resp.HIT.HITId,
+        HITTypeId: resp.HIT.HITTypeId,
+        HITGroupId: resp.HIT.HITGroupId,
+        HITLayoutId: resp.HIT.HITLayoutId,
+        CreationTime: resp.HIT.CreationTime.toString(),
+        Title: resp.HIT.Title,
+        Description: resp.HIT.Description,
+        Keywords: resp.HIT.Keywords,
+        HITStatus: resp.HIT.HITStatus,
+        MaxAssignments: resp.HIT.MaxAssignments,
+        Reward: resp.HIT.Reward,
+        AutoApprovalDelayInSeconds: resp.HIT.AutoApprovalDelayInSeconds,
+        LifetimeInSeconds: hitParams.lifetime,
+        Expiration: resp.HIT.Expiration.toString(),
+        AssignmentDurationInSeconds: resp.HIT.AssignmentDurationInSeconds,
+        HITReviewStatus: resp.HIT.HITReviewStatus,
+        NumberOfAssignmentsPending: resp.HIT.NumberOfAssignmentsPending,
+        NumberOfAssignmentsAvailable: resp.HIT.NumberOfAssignmentsAvailable,
+        NumberOfAssignmentsCompleted: resp.HIT.NumberOfAssignmentsCompleted,
+        ExternalURL: hitParams.externalURL,
+        Qualifications: hitParams.selectedQuals,
+      },
+      $live
+    );
     if (type === 'single') {
       modalText = dbResp.text;
       modalType = dbResp.type;
@@ -220,20 +229,24 @@
       } else {
         try {
           stLog.info('REQ: saveHITTemplate');
-          const dbResp = await ipcRenderer.invoke('saveHITTemplate', {
-            name: saveName,
-            assignmentDuration: hitParams.assignmentDuration,
-            description: hitParams.description,
-            lifetime: hitParams.lifetime,
-            reward: hitParams.reward,
-            title: hitParams.title,
-            autoApprovalDelay: hitParams.autoApprovalDelay,
-            keywords: hitParams.keywords,
-            maxAssignments: hitParams.maxAssignments,
-            externalURL: hitParams.externalURL,
-            selectedQuals: hitParams.selectedQuals,
-            numHITs: hitParams.numHITs,
-          });
+          const dbResp = await ipcRenderer.invoke(
+            'saveHITTemplate',
+            {
+              name: saveName,
+              assignmentDuration: hitParams.assignmentDuration,
+              description: hitParams.description,
+              lifetime: hitParams.lifetime,
+              reward: hitParams.reward,
+              title: hitParams.title,
+              autoApprovalDelay: hitParams.autoApprovalDelay,
+              keywords: hitParams.keywords,
+              maxAssignments: hitParams.maxAssignments,
+              externalURL: hitParams.externalURL,
+              selectedQuals: hitParams.selectedQuals,
+              numHITs: hitParams.numHITs,
+            },
+            $live
+          );
           modalText = dbResp.text;
           modalType = dbResp.type;
           showDialogue = false;
@@ -275,7 +288,7 @@
     loadError = !!!loadName;
     if (!loadError) {
       stLog.info('REQ: deleteHITTemplate');
-      const resp = await ipcRenderer.invoke('deleteHITTemplate', loadName);
+      const resp = await ipcRenderer.invoke('deleteHITTemplate', loadName, $live);
       modalText = resp.text;
       modalType = resp.type;
       showModal = true;
@@ -298,7 +311,7 @@
       maxAssignments: '',
       numHITs: '',
       externalURL: '',
-      selectedQuals: ['--Unselect All--'],
+      selectedQuals: [],
     };
   };
 </script>

@@ -1,6 +1,6 @@
 # Svelte Turk modes of operation
 
-Using the toggle at the top of the sidebar, you can quickly switch between sandbox or live modes for interacting with Mturk.
+Using the toggle at the top of the sidebar, you can quickly switch between sandbox or live modes for interacting with Mturk. Switching modes on any page will automatically update data **for that mode.** For example, HITs created in sandbox mode won't show up in live mode. This also applies to Assignments and Workers.
 
 
 ### Sandbox mode

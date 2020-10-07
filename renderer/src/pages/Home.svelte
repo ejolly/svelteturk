@@ -3,6 +3,7 @@
   import { fly } from 'svelte/transition';
   import Modal from '../components/Modal.svelte';
   import { stLog } from '../components/logger';
+  import { live } from '../components/store';
 
   const { ipcRenderer } = require('electron');
 
@@ -37,14 +38,18 @@
   let numHITs = 'Loading...';
   let numAssts = 'Loading...';
   let numWorkers = 'Loading...';
-
+  $: if ($live) {
+    countDocs();
+  } else {
+    countDocs();
+  }
   // FUNCTIONS
   // Query mturk API for account balance
 
   // Get number of docs in each db
   const countDocs = async () => {
     stLog.info('REQ: countDocs');
-    const docs = await ipcRenderer.invoke('countDocs');
+    const docs = await ipcRenderer.invoke('countDocs', $live);
     numHITs = docs.hits || '0';
     numAssts = docs.assts || '0';
     numWorkers = docs.workers || '0';

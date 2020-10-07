@@ -13,7 +13,7 @@
   import ManageWorkers from './pages/ManageWorkers.svelte';
   import ReviewAssts from './pages/ReviewAssts.svelte';
   import { stLog, userLog } from './components/logger.js';
-  import { userSettings } from './components/store.js';
+  import { userSettings, live } from './components/store.js';
   import { wait } from './components/utils';
 
   const { ipcRenderer } = require('electron');
@@ -33,7 +33,6 @@
   // Mturk object availability status (e.g. no internet connection)
   let mturkReady = false;
   // Mturk mode
-  let live = false;
   let showModal = false;
   let modalText;
   let modalType;
@@ -74,7 +73,7 @@
   // FUNCTIONS
   // Initialize the Mturk API object
   const initMTurk = () => {
-    const endpoint = live
+    const endpoint = $live
       ? 'https://mturk-requester.us-east-1.amazonaws.com'
       : 'https://mturk-requester-sandbox.us-east-1.amazonaws.com';
     try {
@@ -87,7 +86,7 @@
         // eslint-disable-next-line no-undef
         secretAccessKey: awsSecret,
       });
-      mturk.live = live;
+      mturk.live = $live;
       mturkReady = true;
       stLog.info(`Mturk ready with endpoint: ${mturk.endpoint.host}`);
       window.mturk = mturk;
@@ -138,8 +137,7 @@
 
   // Switch Mturk modes; triggered by SidebarHeader
   const switchMode = (ev) => {
-    live = ev.detail.live;
-    userLog.info(`Mturk live changed to ${live}`);
+    userLog.info(`Mturk live changed to ${$live}`);
     mturkReady = false;
     initMTurk();
   };
@@ -204,7 +202,7 @@
 <div class="w-screen h-screen">
     <!-- Sidebar, fixed position and width-->
     <nav class="fixed top-0 left-0 w-64 p-4 ml-1">
-      <SidebarHeader {live} {mturkReady} on:switchMturkMode={switchMode} />
+      <SidebarHeader {mturkReady} on:switchMturkMode={switchMode} />
       <Sidebar {currentState} on:changeState={updateState} />
     </nav>
     <!-- Page Title fixed to prevent scrolling with content-->

@@ -2,15 +2,15 @@
   import { createEventDispatcher } from 'svelte';
   import Modal from './Modal.svelte';
   import { stLog } from './logger';
+  import { live } from './store';
 
   // INPUTS
   export let mturkReady;
-  export let live = false;
 
   // VARIABLES
   const dispatch = createEventDispatcher();
   // eslint-disable-next-line no-nested-ternary
-  $: mode = mturkReady && window.navigator.onLine ? (live ? 'Live' : 'Sandbox') : 'Error';
+  $: mode = mturkReady && window.navigator.onLine ? ($live ? 'Live' : 'Sandbox') : 'Error';
   let showModal = false;
   let modalType;
   let modalText;
@@ -19,11 +19,9 @@
   // Tell App.svelte to reinitialize Mturk object with different endpoint
   const switchMturkMode = () => {
     if (window.navigator.onLine) {
-      live = !live;
-      dispatch('switchMturkMode', {
-        live,
-      });
-      if (live) {
+      $live = !$live;
+      dispatch('switchMturkMode');
+      if ($live) {
         modalText = 'Svelte Turk is now in Live mode!';
         modalType = 'notification';
         showModal = true;
@@ -93,11 +91,11 @@
 <div class="inline-flex items-center p-2">
   <label for="toggle">
     <div class="switch" on:click={switchMturkMode}>
-      <input type="checkbox" name="toggle" class="sr-only" bind:checked={live} />
+      <input type="checkbox" name="toggle" class="sr-only" bind:checked={$live} />
       <div class="track" />
       <div class="thumb" />
     </div>
   </label>
-  <span class={live ? 'live' : 'sandbox'} id="mode">{mode}</span>
+  <span class={$live ? 'live' : 'sandbox'} id="mode">{mode}</span>
 </div>
 <hr class="w-56 mt-2 mb-4 border-t-2 border-gray-500" />
