@@ -6,6 +6,7 @@
 
 - Usage Guide
   - [Overview](overview.md)
+  - [Updating](updating.md)
   - [Switching Modes](modes.md)
   - [Creating HITs](create.md)
   - [Managing HITs](manage-hits.md)
@@ -16,7 +17,7 @@
 
 - Advanced
   - [Programmatic API](api.md)
-  - [Updates, Settings, and Configuration](settings.md)
+  - [Settings and Configuration](settings.md)
   - [Importing and Exporting Data](import-export.md)
 
 ---
