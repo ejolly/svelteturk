@@ -42,7 +42,7 @@ SvelteTurk aims to give you a high degree of control over how you bonus Workers 
 > [!NOTE]
 > To prevent costly mistakes, the default setting in SvelteTurk does not allow you to bonus a Worker more than once. To change this, use the [Settings](settings.md) panel and check Allow Repeat Bonusing. 
 
-### Using a Bonus File
+### Bonus file usage
 
 Bonusing from a file allows you to choose exactly which Assignments to Bonus and how much. By clicking on the Bonus from File Button SvelteTurk will display a set of instructions for how to use a Bonus File. In this dialogue, first press the Export button to generate an `assignments.csv` file containing rows for each visible Assignment. Then update this file by entering values in the Bonus and Reason column to decide exactly to whom and how much to Bonus. **You can skip bonusing a Worker by leaving these values blank.** When you are finished simply click the Bonus From File Button again and choose Import to import the `assignments.csv` file you edited.
 

@@ -45,7 +45,7 @@ A key decision you need to make when using SvelteTurk (and Mturk more generally)
 
 ---
 
-## How Mturk Organizes and Presents HITs to Workers
+## How Mturk organizes and presents HITs to Workers
 
 It can be helpful to understand how tasks are presented to workers by Mturk and how they are handled by Requestors for payment. Consider the following diagram:
 
@@ -83,7 +83,7 @@ At the same time, the differing number of Assignments means that in total, only 
 
 
 
-## Two Different Requestor Usage Styles
+## Two different "styles" for using Mturk
 
 These details often lead Requestors to use Mturk in two distinct ways depending on their needs and considerations regarding repeat participation:
 
