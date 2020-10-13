@@ -2,10 +2,6 @@
 
 At any point in time you can change SvelteTurk settings by clicking on the Settings button in the side bar. As development on SvelteTurk continues, the number of configurable settings will grow. If you have recommendations or suggestions feel free to [open a github issue and apply a feature request label](https://github.com/ejolly/svelte-turk/issues/new). 
 
-## Updates
-
-SvelteTurk will automatically check for updates on startup. You can also force checking for an update by reloading the window.
-
 ## Current Configurable Settings
 
 | Setting Name          | Default Value | Description                                                                                                                                                                                                                                                                                                                        |

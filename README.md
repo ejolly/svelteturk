@@ -1,5 +1,8 @@
 # SvelteTurk
 
+[![GitHub version](https://badge.fury.io/gh/ejolly%2Fsvelteturk.svg)](https://github.com/ejolly/svelteturk/releases)
+[![docs site](https://img.shields.io/badge/docs-site-blue)](https://eshinjolly.com/svelteturk)
+
 🚧 Work in Progress 🚧
 
 SvelteTurk is a desktop application for interacting with [Amazon's Mechanical Turk](https://www.mturk.com/) service (e.g. creating HITs, contacting workers, getting HIT and Assignment meta-data etc). Designed to be a lightweight and simple tool for managing Mturk without the need to write any code, setup any servers, databases, etc. The goal of the project is to offer a modern graphical alternative to something like [PsiTurk](https://psiturk.org/).  
