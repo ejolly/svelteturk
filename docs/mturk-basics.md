@@ -65,19 +65,19 @@ Illustrated above is how Mturk is approximately organized:
 
 When a Worker "accepts" a HIT for completion in actuality they are:  
 
-- "Occupying" of the available HITs in a HIT-Group. 
+- "Occupying" one of the available HITs in a HIT-Group. 
   - If a HIT-Group only contains 1 HIT, a Worker **cannot** accept your task more than once
   - The number of HITs in a HIT-Group determines the total times a Worker can complete your task
 - "Occupying" one of the available Assignments for a HIT. 
   - If a HIT has no Assignments, **no Workers** can complete your task
   - The number of Assignments for a HIT determined the number of **unique Workers** that can complete your task
 
-This means that as a Worker tries to accept and complete your task Mturk is simultaneously checking that are are enough Assignments (unique slots for each Worker) available for completion, and that this particular Worker has not exceeded the number of HITs available in that HIT group **independent** of the number of Assignments. 
+This means that as a Worker tries to accept and complete your task Mturk is simultaneously checking that there are are enough Assignments (unique slots for each Worker) available for completion, and that this particular Worker has not exceeded the number of HITs available in that HIT group **independent** of the number of Assignments. 
 
 
 ### Automatic HIT-Groups
 
-To make matters a bit more confusing, Mturk **automatically** groups HITs together if all their details are identical. To see how this interacts with Mturk's organization an example might help. Let's say you create a 1 HIT on a Monday called "My task" with 10 Assignments and then create a second HIT on the subsequent Friday with the same exact title and details, but 5 Assignments. On Monday Workers will see a HIT-Group called "My task" with 1 HIT available for completion. On Friday Workers will see **the same** HIT-Group, but now with 2 HITs available for completion. Those Workers, who already completed your task on Monday will be able to work on it again one more time on Friday. Those Workers who never completed your task on Monday will be able to complete it twice on Friday. 
+To make matters a bit more confusing, Mturk **automatically** groups HITs together if all their details are identical. To see how this interacts with Mturk's organization an example might help. Let's say you create one HIT on a Monday called "My task" with 10 Assignments and then create a second HIT on the subsequent Friday with the same exact title and details, but 5 Assignments. On Monday Workers will see a HIT-Group called "My task" with 1 HIT available for completion. On Friday Workers will see **the same** HIT-Group, but now with 2 HITs available for completion. Those Workers, who already completed your task on Monday will be able to work on it again one more time on Friday. Those Workers who never completed your task on Monday will be able to complete it twice on Friday. 
 
 At the same time, the differing number of Assignments means that in total, only **5 unique Workers** will be able to complete your task twice: 5 (of the 10) Assignments from Monday 1 HIT each, and 5 (of 5) Assignments from Friday 1 HIT each. Unless you add more Assignments to the HIT you launched on Friday, the remaining 5 unique Workers from Monday will not be able to see or complete your task. Of course, there's no guarantee that the same Workers from Monday will show up again on Friday (in all likelihood they won't unless you have specifically notified them), so you always run the risk of **fewer** than 5 unique Workers who participated 2x each.
 
