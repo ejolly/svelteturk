@@ -8,7 +8,6 @@ const isDev = require('electron-is-dev');
 const fetch = require('node-fetch');
 const downloadRelease = require('download-github-release');
 
-
 if (isDev) {
   console.log('Running in dev mode...hot-reloading enabled');
   require('electron-reload')(path.join(__dirname, '..', 'renderer'));
@@ -29,23 +28,24 @@ if (!fs.existsSync(svelteturkPath)) {
 }
 
 // SETUP LOGGING
-log.transports.file.resolvePath = (() => path.join(svelteturkPath, '.svelteturk.log'));
+log.transports.file.resolvePath = () => path.join(svelteturkPath, '.svelteturk.log');
 // Configure the logger to display an electron dialog box with an option to submit an issue on any uncaught errors
 log.catchErrors({
   showDialog: false,
   onError(error, versions, submitIssue) {
-    dialog.showMessageBox({
-      title: 'An error occurred',
-      message: error.message,
-      detail: error.stack,
-      type: 'error',
-      buttons: ['Ignore', 'Report', 'Exit'],
-    })
+    dialog
+      .showMessageBox({
+        title: 'An error occurred',
+        message: error.message,
+        detail: error.stack,
+        type: 'error',
+        buttons: ['Ignore', 'Report', 'Exit'],
+      })
       .then((result) => {
         if (result.response === 1) {
           submitIssue('https://github.com/ejolly/svelte-turk/issues/new', {
             title: `Error report for ${versions.app}`,
-            body: `Error:\n\`\`\`${error.stack}\n\`\`\`\n OS: ${versions.os}`
+            body: `Error:\n\`\`\`${error.stack}\n\`\`\`\n OS: ${versions.os}`,
           });
           return;
         }
@@ -54,12 +54,10 @@ log.catchErrors({
           app.quit();
         }
       });
-  }
+  },
 });
 // Scope main process logs so that 'main' appears in the log file next to messages
 const mainLog = log.scope('main');
-
-
 
 // INIT VARIABLES
 // create a global reference to the window object
@@ -99,7 +97,6 @@ const loadAWS = () => {
     });
   }
 };
-
 
 // Settings file location
 const settingsFile = path.join(svelteturkPath, '.svelteturkrc');
@@ -186,9 +183,11 @@ const deleteFolderRecursive = (folderPath) => {
   if (fs.existsSync(folderPath)) {
     fs.readdirSync(folderPath).forEach((file, index) => {
       const curPath = `${folderPath}/${file}`;
-      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // recurse
         deleteFolderRecursive(curPath);
-      } else { // delete file
+      } else {
+        // delete file
         fs.unlinkSync(curPath);
       }
     });
@@ -226,7 +225,7 @@ const promptForUpdate = async () => {
     buttons: ['Download', 'Later'],
     title: 'SvelteTurk Update Available',
     message: 'A new version of SvelteTurk is available. Would you like to download it?',
-    details: 'The new version will be saved to your Desktop'
+    details: 'The new version will be saved to your Desktop',
   };
   const returnValue = await dialog.showMessageBox(dialogOpts);
   const userAccepted = returnValue.response === 0;
@@ -239,7 +238,6 @@ const promptForUpdate = async () => {
   return userAccepted;
 };
 
-
 // Check for the latest version against the latest github release
 const checkForLatestVersion = async () => {
   // Read from package.json
@@ -249,7 +247,9 @@ const checkForLatestVersion = async () => {
     const resp = await fetch('https://api.github.com/repos/ejolly/svelteturk/releases/latest');
     const json = await resp.json();
     if (currentVersion !== json.tag_name) {
-      mainLog.info(`UPDATE AVAILABLE: App version is ${currentVersion}. Update is ${json.tag_name}`);
+      mainLog.info(
+        `UPDATE AVAILABLE: App version is ${currentVersion}. Update is ${json.tag_name}`
+      );
       updateAvailable = true;
       latestRelease = json.tag_name;
     } else {
@@ -272,7 +272,7 @@ const createWindow = () => {
     show: false,
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true
+      enableRemoteModule: true,
     },
   });
 
@@ -323,7 +323,7 @@ ipcMain.handle('initialize', async (ev) => {
   return {
     userSettings,
     awsCredentials,
-    userWantsToUpdate
+    userWantsToUpdate,
   };
 });
 
@@ -407,7 +407,7 @@ const upsertWorker = async (query, update, live) => {
           // Worker hasn't done this assignment before; update their record
           numAffected = await db.workers.update(
             {
-              WorkerId: asstData.WorkerId
+              WorkerId: asstData.WorkerId,
             },
             {
               $set: {
@@ -420,9 +420,9 @@ const upsertWorker = async (query, update, live) => {
                 HITs: asstData.HITId,
               },
               $inc: {
-                totalPayments: HITReward
-              }
-            },
+                totalPayments: HITReward,
+              },
+            }
           );
           mainLog.info(`Added new assignment for existing worker ${asstData.WorkerId}`);
         } else {
@@ -430,29 +430,27 @@ const upsertWorker = async (query, update, live) => {
         }
       } else {
         // Create a new worker record
-        numAffected = await db.workers.insert(
-          {
-            WorkerId: asstData.WorkerId,
-            Assignments: [asstId],
-            HITs: [asstData.HITId],
-            totalPayments: HITReward,
-            totalBonuses: 0,
-            recentHIT: asstData.HITId,
-            recentAsst: asstId
-          }
-        );
+        numAffected = await db.workers.insert({
+          WorkerId: asstData.WorkerId,
+          Assignments: [asstId],
+          HITs: [asstData.HITId],
+          totalPayments: HITReward,
+          totalBonuses: 0,
+          recentHIT: asstData.HITId,
+          recentAsst: asstId,
+        });
         mainLog.info(`New worker added ${asstData.WorkerId}`);
       }
     } else if ('Bonus' in asstData) {
       mainLog.info('Updating Bonus for worker');
       numAffected = await db.workers.update(
         {
-          Assignments: asstId
+          Assignments: asstId,
         },
         {
           $inc: {
-            totalBonuses: parseFloat(asstData.Bonus)
-          }
+            totalBonuses: parseFloat(asstData.Bonus),
+          },
         }
       );
       if (numAffected) {
@@ -477,7 +475,8 @@ ipcMain.handle('export', async (live) => {
       title: 'Export Database',
       defaultPath: `${app.getPath('home')}/Desktop/`,
       buttonLabel: 'Export',
-      message: "Where do you want to save the exported databases?\n(files will be auto-named with today's date)",
+      message:
+        "Where do you want to save the exported databases?\n(files will be auto-named with today's date)",
       showsTagField: false,
       properties: ['openDirectory', 'createDirectory'],
     });
@@ -729,7 +728,7 @@ ipcMain.handle('saveHITTemplate', async (ev, template, live) => {
   mainLog.info('API: saveHITTemplate-->');
   return {
     text,
-    type
+    type,
   };
 });
 

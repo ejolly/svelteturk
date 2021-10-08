@@ -33,9 +33,10 @@ export const updateDoc = async (dbName, query, update, options) => {
 
 // Asychronously wait which can be used within another async func
 // Args: time in ms
-export const wait = async (ms) => new Promise((resolve) => {
-  setTimeout(resolve, ms);
-});
+export const wait = async (ms) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 // Async iterable generator when we need to iterate N times, rather than over an object with a predefined length (in which case we'd use for of)
 export function* asyncGenerator(N) {
@@ -71,20 +72,45 @@ export const formatDate = (date) => {
 
 // Create HIT validation
 export const HITSchema = yup.object().shape({
-  assignmentDuration: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('Assignment Duration is required'),
+  assignmentDuration: yup
+    .number('Must be a number')
+    .positive('Must be positive')
+    .integer('Must be an integer')
+    .required('Assignment Duration is required'),
   description: yup.string().required('HIT Description is required'),
-  lifetime: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('HIT Lifetime is required'),
-  reward: yup.string().matches(/^\d{0,3}(\.\d{1,2})$/, 'Must be valid current format with dollars and cents').required('HIT Reward is required'),
+  lifetime: yup
+    .number('Must be a number')
+    .positive('Must be positive')
+    .integer('Must be an integer')
+    .required('HIT Lifetime is required'),
+  reward: yup
+    .string()
+    .matches(/^\d{0,3}(\.\d{1,2})$/, 'Must be valid current format with dollars and cents')
+    .required('HIT Reward is required'),
   title: yup.string().required('HIT Title is required'),
-  autoApprovalDelay: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer'),
-  keywords: yup.string('Must be a comma separated list of words without spaces').required('Keywords are required'),
-  maxAssignments: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('Maximum Assignments is required'),
-  numHITs: yup.number('Must be a number').positive('Must be positive').integer('Must be an integer').required('Repeat participation is required'),
+  autoApprovalDelay: yup
+    .number('Must be a number')
+    .positive('Must be positive')
+    .integer('Must be an integer'),
+  keywords: yup
+    .string('Must be a comma separated list of words without spaces')
+    .required('Keywords are required'),
+  maxAssignments: yup
+    .number('Must be a number')
+    .positive('Must be positive')
+    .integer('Must be an integer')
+    .required('Maximum Assignments is required'),
+  numHITs: yup
+    .number('Must be a number')
+    .positive('Must be positive')
+    .integer('Must be an integer')
+    .required('Repeat participation is required'),
   externalURL: yup.string().url('Must be a valid URL').required('External URL is required'),
 });
 
 // Extract yup errors into an object
-export const extractErrors = ({ inner }) => inner.reduce((acc, err) => ({ ...acc, [err.path]: err.message }), {});
+export const extractErrors = ({ inner }) =>
+  inner.reduce((acc, err) => ({ ...acc, [err.path]: err.message }), {});
 
 // Format qualifications as desired by mturk
 export const formatQuals = (qualArray, live) => {
@@ -93,43 +119,35 @@ export const formatQuals = (qualArray, live) => {
   qualArray.forEach((qual) => {
     switch (qual) {
       case '> 95% Approval':
-        out.push(
-          {
-            QualificationTypeId: '000000000000000000L0',
-            Comparator: 'GreaterThanOrEqualTo',
-            IntegerValues: [95],
-            ActionsGuarded: 'DiscoverPreviewAndAccept'
-          }
-        );
+        out.push({
+          QualificationTypeId: '000000000000000000L0',
+          Comparator: 'GreaterThanOrEqualTo',
+          IntegerValues: [95],
+          ActionsGuarded: 'DiscoverPreviewAndAccept',
+        });
         break;
       case 'Adult only':
-        out.push(
-          {
-            QualificationTypeId: '00000000000000000060',
-            Comparator: 'EqualTo',
-            IntegerValues: [1],
-            ActionsGuarded: 'DiscoverPreviewAndAccept'
-          }
-        );
+        out.push({
+          QualificationTypeId: '00000000000000000060',
+          Comparator: 'EqualTo',
+          IntegerValues: [1],
+          ActionsGuarded: 'DiscoverPreviewAndAccept',
+        });
         break;
       case 'US Only':
-        out.push(
-          {
-            QualificationTypeId: '00000000000000000071',
-            Comparator: 'EqualTo',
-            LocaleValues: [{ Country: 'US' }],
-            ActionsGuarded: 'DiscoverPreviewAndAccept'
-          }
-        );
+        out.push({
+          QualificationTypeId: '00000000000000000071',
+          Comparator: 'EqualTo',
+          LocaleValues: [{ Country: 'US' }],
+          ActionsGuarded: 'DiscoverPreviewAndAccept',
+        });
         break;
       case 'Masters':
-        out.push(
-          {
-            QualificationTypeId: mastersQualId,
-            Comparator: 'Exists',
-            ActionsGuarded: 'DiscoverPreviewAndAccept'
-          }
-        );
+        out.push({
+          QualificationTypeId: mastersQualId,
+          Comparator: 'Exists',
+          ActionsGuarded: 'DiscoverPreviewAndAccept',
+        });
         break;
       default:
         // eslint-disable-next-line no-throw-literal

@@ -561,57 +561,63 @@
     <div class="inline-flex items-center px-4 py-2 truncate">
       <!-- Dropdown selector -->
       <div class="tooltip">
-        <span class="tooltip-text-toggle">HITTypeIds group repeat participation HITs and are controlled by the Repeat Participation field when creating a HIT </span>
-      <div class="relative inline-block">
-        <div on:click={toggleHITTypeSelect}>
-          <span class="rounded shadow">
-            <button
-              type="button"
-              class="inline-flex justify-center w-full px-4 py-2 text-sm font-bold leading-5 tracking-wide text-gray-700 uppercase bg-white border border-gray-300 rounded-md hover:text-purple-600 focus:outline-none focus:none active:bg-gray-500 active:text-gray-800"
-              id="options-menu"
-              aria-haspopup="true"
-              aria-expanded="true">
-              Choose HIT Type Id <svg class="w-5 h-5 ml-2 -mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fill-rule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clip-rule="evenodd" />
-              </svg>
-            </button>
-          </span>
-        </div>
-        {#if HITDrawerOpen}
-          <div
-            class="fixed z-50 w-56 mt-2 origin-top-right rounded shadow font-quantico"
-            transition:slide={{ easing: cubicInOut, duration: 200 }}>
-            <div class="bg-white rounded shadow">
-              <div
-                class="py-1"
-                role="menu"
-                aria-orientation="vertical"
-                aria-labelledby="options-menu">
+        <span class="tooltip-text-toggle"
+          >HITTypeIds group repeat participation HITs and are controlled by the Repeat Participation
+          field when creating a HIT
+        </span>
+        <div class="relative inline-block">
+          <div on:click={toggleHITTypeSelect}>
+            <span class="rounded shadow">
+              <button
+                type="button"
+                class="inline-flex justify-center w-full px-4 py-2 text-sm font-bold leading-5 tracking-wide text-gray-700 uppercase bg-white border border-gray-300 rounded-md hover:text-purple-600 focus:outline-none focus:none active:bg-gray-500 active:text-gray-800"
+                id="options-menu"
+                aria-haspopup="true"
+                aria-expanded="true">
+                Choose HIT Type Id <svg
+                  class="w-5 h-5 ml-2 -mr-1"
+                  viewBox="0 0 20 20"
+                  fill="currentColor">
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+            </span>
+          </div>
+          {#if HITDrawerOpen}
+            <div
+              class="fixed z-50 w-56 mt-2 origin-top-right rounded shadow font-quantico"
+              transition:slide={{ easing: cubicInOut, duration: 200 }}>
+              <div class="bg-white rounded shadow">
                 <div
-                  class="block px-4 py-2 leading-5 text-gray-700 outline-none cursor-pointer hover:bg-purple-100"
-                  class:selected={selectedHITType === 'all'}
-                  role="menuitem"
-                  on:click={() => changeHITType('all')}>
-                  <p class="text-base uppercase">Show All</p>
-                </div>
-                {#each hitTypes as hitType}
+                  class="py-1"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="options-menu">
                   <div
                     class="block px-4 py-2 leading-5 text-gray-700 outline-none cursor-pointer hover:bg-purple-100"
-                    class:selected={hitType === selectedHITType}
+                    class:selected={selectedHITType === 'all'}
                     role="menuitem"
-                    on:click={() => changeHITType(hitType)}>
-                    <p class="text-sm">{hitType.slice(0, 6)}</p>
+                    on:click={() => changeHITType('all')}>
+                    <p class="text-base uppercase">Show All</p>
                   </div>
-                {/each}
+                  {#each hitTypes as hitType}
+                    <div
+                      class="block px-4 py-2 leading-5 text-gray-700 outline-none cursor-pointer hover:bg-purple-100"
+                      class:selected={hitType === selectedHITType}
+                      role="menuitem"
+                      on:click={() => changeHITType(hitType)}>
+                      <p class="text-sm">{hitType.slice(0, 6)}</p>
+                    </div>
+                  {/each}
+                </div>
               </div>
             </div>
-          </div>
-        {/if}
+          {/if}
+        </div>
       </div>
-    </div>
       <p class="py-2 pl-4 pr-2 font-bold tracking-wide text-gray-700 uppercase">
         Total:
         {hitsFiltered.length}
@@ -637,17 +643,16 @@
       class:visible={rowSelected}>
       <button on:click|preventDefault={showHITInfo} class="button">Details</button>
       <div class="tooltip">
-        <button
-          on:click|preventDefault={showAddAssts}
-          class="button"
-          disabled={!recruitable}>Recruit</button>
+        <button on:click|preventDefault={showAddAssts} class="button" disabled={!recruitable}
+          >Recruit</button>
         {#if !recruitable}
           {#if selectedHIT && selectedHIT.HITStatus === 'Reviewable'}
-            <span class="tooltip-text">This HIT has expired. Extend the HIT first in order to
-              recruit more Workers.</span>
+            <span class="tooltip-text"
+              >This HIT has expired. Extend the HIT first in order to recruit more Workers.</span>
           {:else}
-            <span class="tooltip-text">This HIT was originally created with 9 or fewer max
-              assignments. You can only create a new HIT which will be available to repeat Workers.</span>
+            <span class="tooltip-text"
+              >This HIT was originally created with 9 or fewer max assignments. You can only create
+              a new HIT which will be available to repeat Workers.</span>
           {/if}
         {/if}
       </div>

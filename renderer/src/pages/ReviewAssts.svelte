@@ -217,10 +217,10 @@
     userLog.info(`Approve assignment: ${selectedAsst.AsstId}`);
     try {
       await mturk.approveAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
-      const resp = await mturk.getAssignment({ AssignmentId: asst.AsstId }).promise();
+      const resp = await mturk.getAssignment({ AssignmentId: selectedAsst.AsstId }).promise();
       const dbResp = await updateDoc(
         'assts',
-        { AsstId: asst.AsstId },
+        { AsstId: selectedAsst.AsstId },
         {
           $set: {
             Status: resp.Assignment.AssignmentStatus,
@@ -592,36 +592,6 @@
   });
 </script>
 
-<style>
-  .header {
-    @apply mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase sticky border-b border-gray-200 px-4 py-3 bg-gray-100;
-  }
-  .selected {
-    @apply text-purple-600;
-  }
-  .selected:hover {
-    @apply bg-transparent;
-  }
-  .hoverable:hover {
-    @apply bg-purple-100;
-  }
-  label {
-    @apply block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase;
-  }
-  input {
-    @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
-  }
-  .dialogue-button {
-    @apply mt-2;
-  }
-  .tooltip .tooltip-text {
-    @apply invisible p-1 absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -ml-48 -mt-16 max-w-sm;
-  }
-  .tooltip:hover .tooltip-text {
-    @apply visible;
-  }
-</style>
-
 <Modal bind:showModal bind:modalType bind:modalText />
 <Dialogue bind:showDialogue on:close={clearSelection}>
   <div class="w-full h-full overflow-y-auto">
@@ -632,11 +602,13 @@
           <input
             type="text"
             bind:value={requesterFeedback}
-            placeholder="provide a reason for rejection" />
+            placeholder="provide a reason for rejection"
+          />
           <button
             on:click|preventDefault={rejectAsst}
             class="button dialogue-button"
-            disabled={requesterFeedback === ''}>
+            disabled={requesterFeedback === ''}
+          >
             Submit
           </button>
         </div>
@@ -673,7 +645,8 @@
             <button
               on:click|preventDefault={bonusFromFile}
               class="button dialogue-button"
-              disabled={bonusError}>
+              disabled={bonusError}
+            >
               Submit
             </button>
             <button on:click|preventDefault={importAsstsForBonus} class="button dialogue-button">
@@ -720,11 +693,14 @@
           <input
             type="text"
             bind:value={requesterFeedback}
-            placeholder="tell the worker why they're receiving a bonus" />
+            placeholder="tell the worker why they're receiving a bonus"
+          />
           <button
-            on:click|preventDefault={() => (whichDialogue === 'bonus-all' ? bonusAssts('all') : bonusAssts('single'))}
+            on:click|preventDefault={() =>
+              whichDialogue === 'bonus-all' ? bonusAssts('all') : bonusAssts('single')}
             class="button dialogue-button"
-            disabled={bonusAmount === '' || requesterFeedback === ''}>
+            disabled={bonusAmount === '' || requesterFeedback === ''}
+          >
             Submit
           </button>
         </div>
@@ -735,7 +711,8 @@
 <div
   class="container w-full h-screen"
   in:fly={{ y: 200, duration: 250 }}
-  on:click|self={closeHITSelect}>
+  on:click|self={closeHITSelect}
+>
   <div class="flex justify-between mb-2" on:click|self={closeHITSelect}>
     <div class="inline-flex items-center px-4 py-2 truncate">
       <!-- Dropdown selector -->
@@ -747,12 +724,14 @@
               class="inline-flex justify-center w-full px-4 py-2 text-sm font-bold leading-5 tracking-wide text-gray-700 uppercase bg-white border border-gray-300 rounded-md hover:text-purple-600 focus:outline-none focus:none active:bg-gray-500 active:text-gray-800"
               id="options-menu"
               aria-haspopup="true"
-              aria-expanded="true">
+              aria-expanded="true"
+            >
               Choose HIT <svg class="w-5 h-5 ml-2 -mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fill-rule="evenodd"
                   d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clip-rule="evenodd" />
+                  clip-rule="evenodd"
+                />
               </svg>
             </button>
           </span>
@@ -760,18 +739,21 @@
         {#if HITDrawerOpen}
           <div
             class="fixed z-50 w-56 mt-2 origin-top-right rounded shadow font-quantico"
-            transition:slide={{ easing: cubicInOut, duration: 200 }}>
+            transition:slide={{ easing: cubicInOut, duration: 200 }}
+          >
             <div class="bg-white rounded shadow">
               <div
                 class="py-1"
                 role="menu"
                 aria-orientation="vertical"
-                aria-labelledby="options-menu">
+                aria-labelledby="options-menu"
+              >
                 <div
                   class="block px-4 py-2 leading-5 text-gray-700 outline-none cursor-pointer hover:bg-purple-100"
                   class:selected={selectedHIT === 'all'}
                   role="menuitem"
-                  on:click={() => changeHIT('all')}>
+                  on:click={() => changeHIT('all')}
+                >
                   <p class="text-base uppercase">Show All</p>
                 </div>
                 {#each hits as hit}
@@ -779,7 +761,8 @@
                     class="block px-4 py-2 leading-5 text-gray-700 outline-none cursor-pointer hover:bg-purple-100"
                     class:selected={hit.HITId === selectedHIT.HITId}
                     role="menuitem"
-                    on:click={() => changeHIT(hit)}>
+                    on:click={() => changeHIT(hit)}
+                  >
                     <p class="text-base">{hit.Title}</p>
                     <p class="text-sm">{hit.HITId.slice(0, 6)}</p>
                   </div>
@@ -802,7 +785,8 @@
           stroke-width="2.25"
           fill="none"
           stroke-linecap="round"
-          stroke-linejoin="round">
+          stroke-linejoin="round"
+        >
           <path stroke="none" d="M0 0h24v24H0z" />
           <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
         </svg>
@@ -814,53 +798,61 @@
           <button
             class="button"
             on:click|preventDefault={approveAsst}
-            disabled={approveAsstDisabled}>Approve</button>
+            disabled={approveAsstDisabled}>Approve</button
+          >
           <span class="tooltip-text">This assignment has already been reviewed</span>
         </div>
         <div class="tooltip">
           <button
             class="button"
             on:click|preventDefault={showBonusAsst}
-            disabled={bonusAsstDisabled}>Bonus</button>
+            disabled={bonusAsstDisabled}>Bonus</button
+          >
           {#if bonusAsstDisabled}
-            <span class="tooltip-text">This assignment has a bonus and repeat bonuses are disabled.
-              You can change this in settings</span>
+            <span class="tooltip-text"
+              >This assignment has a bonus and repeat bonuses are disabled. You can change this in
+              settings</span
+            >
           {/if}
         </div>
         <div class="tooltip">
           <button
             class="button"
             on:click|preventDefault={showRejectAsst}
-            disabled={approveAsstDisabled}>Reject</button>
+            disabled={approveAsstDisabled}>Reject</button
+          >
           <span class="tooltip-text">This assignment has already been reviewed</span>
         </div>
         <button class="button" on:click|preventDefault={deleteAsst}>Delete</button>
       {:else}
         <div class="tooltip">
-          <button
-            class="button"
-            on:click|preventDefault={approveAll}
-            disabled={approveAllDisabled}>Approve All</button>
+          <button class="button" on:click|preventDefault={approveAll} disabled={approveAllDisabled}
+            >Approve All</button
+          >
           <span class="tooltip-text">All assignments have already been reviewed</span>
         </div>
         <div class="tooltip">
-          <button
-            class="button"
-            on:click|preventDefault={showBonusAll}
-            disabled={bonusAllDisabled}>Bonus All</button>
+          <button class="button" on:click|preventDefault={showBonusAll} disabled={bonusAllDisabled}
+            >Bonus All</button
+          >
           {#if bonusAllDisabled}
-            <span class="tooltip-text">All assignments have bonuses and repeat bonuses are
-              disabled.You can change this in settings.</span>
+            <span class="tooltip-text"
+              >All assignments have bonuses and repeat bonuses are disabled.You can change this in
+              settings.</span
+            >
           {/if}
         </div>
         <div class="tooltip">
           <button
             class="button"
             on:click|preventDefault={showBonusViaFile}
-            disabled={bonusAllDisabled}>Bonus from File</button>
+            disabled={bonusAllDisabled}>Bonus from File</button
+          >
           {#if bonusAllDisabled}
-            <span class="tooltip-text">All assignments have bonuses and repeat bonuses are
-              disabled.You can change this in settings.</span>
+            <span class="tooltip-text"
+              >All assignments have bonuses and repeat bonuses are disabled.You can change this in
+              settings.</span
+            >
           {/if}
         </div>
       {/if}
@@ -871,26 +863,30 @@
           fill-rule="evenodd"
           d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414
           1.414l-4.816-4.816A6 6 0 012 8z"
-          clip-rule="evenodd" />
+          clip-rule="evenodd"
+        />
       </svg>
       <input
         class="text-gray-700 bg-gray-200 border-none outline-none focus:outline-none"
         type="text"
         placeholder="Search..."
         bind:value={search}
-        on:keyup={() => filterEntries()} />
+        on:keyup={() => filterEntries()}
+      />
       <svg
         class="w-4 h-4 cursor-pointer fill-current"
         class:invisible={!search}
         class:visible={search}
         viewBox="0 0 20 20"
-        on:click={clearSearch}>
+        on:click={clearSearch}
+      >
         <path
           fill-rule="evenodd"
           d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293
           4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293
           5.707a1 1 0 010-1.414z"
-          clip-rule="evenodd" />
+          clip-rule="evenodd"
+        />
       </svg>
     </div>
   </div>
@@ -921,3 +917,33 @@
     </table>
   </div>
 </div>
+
+<style>
+  .header {
+    @apply mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase sticky border-b border-gray-200 px-4 py-3 bg-gray-100;
+  }
+  .selected {
+    @apply text-purple-600;
+  }
+  .selected:hover {
+    @apply bg-transparent;
+  }
+  .hoverable:hover {
+    @apply bg-purple-100;
+  }
+  label {
+    @apply block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase;
+  }
+  input {
+    @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
+  }
+  .dialogue-button {
+    @apply mt-2;
+  }
+  .tooltip .tooltip-text {
+    @apply invisible p-1 absolute z-50 inline-block text-sm rounded-lg bg-gray-700 text-white -ml-48 -mt-16 max-w-sm;
+  }
+  .tooltip:hover .tooltip-text {
+    @apply visible;
+  }
+</style>

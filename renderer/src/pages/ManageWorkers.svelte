@@ -199,7 +199,7 @@
     @apply block mb-2 text-xs font-bold tracking-wide text-gray-700 uppercase;
   }
   input {
-    @apply block w-full px-4 py-2 mb-2 text-gray-700 bg-gray-200 border rounded outline-none;
+    @apply block w-full px-4 py-2 text-gray-700 bg-gray-200 border rounded outline-none;
   }
   textarea {
     @apply block w-full h-40 px-4 py-2 overflow-y-auto text-gray-700 bg-gray-200 border rounded outline-none resize-none;

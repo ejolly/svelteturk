@@ -12,4 +12,10 @@
   "javascript.preferences.quoteStyle": "single",
   "editor.wordWrap": "bounded",
   "editor.wordWrapColumn": 100,
+  "[svelte]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

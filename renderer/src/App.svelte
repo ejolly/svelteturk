@@ -197,9 +197,9 @@
 <Modal bind:showModal bind:modalType bind:modalText />
 <!-- Main app container full window size not responsive-->
 {#if !ready}
-<Splash {updating} {updateComplete} />
+  <Splash {updating} {updateComplete} />
 {:else}
-<div class="w-screen h-screen">
+  <div class="w-screen h-screen">
     <!-- Sidebar, fixed position and width-->
     <nav class="fixed top-0 left-0 w-64 p-4 ml-1">
       <SidebarHeader {mturkReady} on:switchMturkMode={switchMode} />
@@ -220,4 +220,4 @@
     <!-- Footer for contact info -->
     <Footer />
   </div>
-  {/if}
+{/if}

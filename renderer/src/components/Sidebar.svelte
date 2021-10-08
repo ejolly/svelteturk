@@ -98,12 +98,14 @@
           <input class="input" type="number" min="5" bind:value={$userSettings.refreshFrequency} />
         </div>
         <div class="inline-flex px-3 space-x-4">
-          <label>Allow Repeat Bonusing
+          <label
+            >Allow Repeat Bonusing
             <input type="checkbox" class="mx-4" bind:checked={$userSettings.repeatBonuses} />
           </label>
         </div>
         <div class="inline-flex px-3 space-x-4">
-          <label>Display help text in Create HIT
+          <label
+            >Display help text in Create HIT
             <input type="checkbox" class="mx-4" bind:checked={$userSettings.createHITHelpers} />
           </label>
         </div>
@@ -141,7 +143,8 @@
         stroke="currentColor"
         stroke-width="2"
         viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"><path
+        xmlns="http://www.w3.org/2000/svg"
+        ><path
           stroke-linecap="round"
           stroke-linejoin="round"
           d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
@@ -158,7 +161,8 @@
     <li
       class:active={currentState == 'manageWorkers'}
       on:click={() => changeState('manageWorkers')}>
-      <svg fill="currentColor" viewBox="0 0 26 24" xmlns="http://www.w3.org/2000/svg"><path
+      <svg fill="currentColor" viewBox="0 0 26 24" xmlns="http://www.w3.org/2000/svg"
+        ><path
           stroke-linecap="round"
           stroke-linejoin="round"
           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -174,11 +178,8 @@
   <hr class="w-56 mt-2 mb-2 border-t-2 border-gray-500" />
   <ul>
     <li on:click={showSettings}>
-      <svg
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 22 22"
-        xmlns="http://www.w3.org/2000/svg"><path
+      <svg fill="none" stroke="currentColor" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"
+        ><path
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
