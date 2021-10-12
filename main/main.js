@@ -265,7 +265,7 @@ const checkForLatestVersion = async () => {
 // Create the browser window.
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 1400,
+    width: 1460,
     height: 1000,
     minWidth: 1210,
     minHeight: 750,

@@ -8,7 +8,7 @@
   import { userSettings, live } from '../components/store';
   import { stLog, userLog } from '../components/logger';
 
-  const { ipcRenderer } = require('electron');
+  const { ipcRenderer, shell } = require('electron');
 
   // INPUTS
   export let mturk;
@@ -48,6 +48,8 @@
   let rowDOM;
   // The specific hit in JS
   let selectedHIT;
+  // Preview URL
+  let previewURL;
   // Reactive boolean for styling
   $: rowSelected = !!selectedHIT;
   $: recruitable =
@@ -129,6 +131,7 @@
 
   const clearSelection = () => {
     selectedHIT = undefined;
+    previewURL = undefined;
     if (rowDOM) {
       rowDOM.classList.remove('bg-purple-200');
       rowDOM.classList.add('hoverable');
@@ -139,6 +142,10 @@
     additionalAssts = 1;
     addAsstsErrorReason = 'Placeholder error message';
     addAsstsError = false;
+  };
+
+  const openHITLink = () => {
+    shell.openExternal(previewURL);
   };
 
   const selectRow = (ev, hit) => {
@@ -162,6 +169,11 @@
       rowDOM.classList.add('bg-purple-200');
       rowDOM.classList.remove('hoverable');
       selectedHIT = hit;
+    }
+    if (selectedHIT) {
+      previewURL = mturk.endpoint.host.includes('sandbox')
+        ? `https://workersandbox.mturk.com/mturk/preview?groupId=${selectedHIT.HITGroupId}`
+        : `https://worker.mturk.com/mturk/preview?groupId=${selectedHIT.HITGroupId}`;
     }
   };
 
@@ -547,6 +559,17 @@
               type="text"
               readonly
               bind:value={selectedHIT.Description} />
+          </div>
+        </div>
+        <div class="flex flex-wrap mb-6">
+          <div class="w-full px-3">
+            <label for="">Link</label>
+            <input
+              type="text"
+              readonly
+              bind:value={previewURL}
+              class="cursor-pointer"
+              on:click={openHITLink} />
           </div>
         </div>
       </form>
