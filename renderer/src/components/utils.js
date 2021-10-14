@@ -165,7 +165,7 @@ export const formatQuals = (qualArray) => {
 export const checkForDuplicateHIT = async (HITTypeId) => {
   let resp;
   try {
-    resp = await ipcRenderer.invoke('findDuplicateHIT', HITTypeId);
+    resp = await ipcRenderer.invoke('findDuplicateHIT', HITTypeId, get(live));
   } catch (err) {
     resp = { text: err, type: 'error' };
   }
