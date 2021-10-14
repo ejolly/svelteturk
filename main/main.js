@@ -389,10 +389,9 @@ ipcMain.handle('insertHIT', async (ev, hit, live) => {
 // NOTE: This isn't an ipc handler because no front-end UI every directly interacts with the workers db. Instead we're mocking a relational db store, as any calls to the *assignments db* will automatically invoke this function
 // FIXME: at somepoint rewrite this logic because it assums that updateDoc('asst') on the client only every contains a WorkerId field when being called from withing ReviewAssts > updateAsstsinDB()
 // If that ever changes in the future the logic could break
-const upsertWorker = async (query, update, live) => {
+const upsertWorker = async (query, update, db) => {
   mainLog.info('<--API: upsertWorker');
   let numAffected;
-  const db = live ? dbLive : dbSandbox;
   try {
     // If an assignment has a workerId it also has a HITid because the client-side operation is refreshing data from Mturk
     const asstData = update.$set;
@@ -401,7 +400,6 @@ const upsertWorker = async (query, update, live) => {
       const HIT = await db.hits.findOne({ HITId: asstData.HITId });
       const HITReward = parseFloat(HIT.Reward);
       const worker = await db.workers.findOne({ WorkerId: asstData.WorkerId });
-      console.log(worker);
       if (worker) {
         if (!worker.Assignments.includes(asstId)) {
           // Worker hasn't done this assignment before; update their record
@@ -618,6 +616,7 @@ ipcMain.handle('deleteDoc', async (ev, dbName, id, live) => {
 ipcMain.handle('updateDoc', async (ev, dbName, query, update, options, live) => {
   mainLog.info('<--API: updateDoc');
   const db = live ? dbLive : dbSandbox;
+  console.log(`Using live DB: ${live}`);
   let text;
   let type;
   try {
@@ -628,11 +627,11 @@ ipcMain.handle('updateDoc', async (ev, dbName, query, update, options, live) => 
       type = 'success';
     } else {
       text = 'Document not found';
-      type = 'erorr';
+      type = 'error';
     }
     mainLog.info(text);
     if (dbName === 'assts') {
-      await upsertWorker(query, update);
+      await upsertWorker(query, update, db);
     }
   } catch (err) {
     text = err;

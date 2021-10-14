@@ -1,4 +1,6 @@
 import * as yup from 'yup';
+import { get } from 'svelte/store';
+import { live } from './store';
 import { stLog } from './logger';
 
 const { ipcRenderer } = require('electron');
@@ -24,7 +26,7 @@ export const updateDoc = async (dbName, query, update, options) => {
   let resp;
   try {
     stLog.info('REQ: updateDoc');
-    resp = await ipcRenderer.invoke('updateDoc', dbName, query, update, options);
+    resp = await ipcRenderer.invoke('updateDoc', dbName, query, update, options, get(live));
   } catch (err) {
     resp = { text: err, type: 'error' };
   }
@@ -113,9 +115,11 @@ export const extractErrors = ({ inner }) =>
   inner.reduce((acc, err) => ({ ...acc, [err.path]: err.message }), {});
 
 // Format qualifications as desired by mturk
-export const formatQuals = (qualArray, live) => {
+export const formatQuals = (qualArray) => {
   const out = [];
-  const mastersQualId = live ? '2F1QJWKUDD8XADTFD2Q0G6UTO95ALH' : '2ARFPLSP75KLA8M8DH1HTEQVJT3SY6';
+  const mastersQualId = get(live)
+    ? '2F1QJWKUDD8XADTFD2Q0G6UTO95ALH'
+    : '2ARFPLSP75KLA8M8DH1HTEQVJT3SY6';
   qualArray.forEach((qual) => {
     switch (qual) {
       case '> 95% Approval':

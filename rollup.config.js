@@ -8,18 +8,20 @@ import sveltePreprocess from 'svelte-preprocess';
 const production = !process.env.ROLLUP_WATCH;
 
 function serve() {
-  let started = false;
+  let server;
+  function toExit() {
+    if (server) server.kill(0);
+  }
 
   return {
     writeBundle() {
-      if (!started) {
-        started = true;
-
-        require('child_process').spawn('npm', ['run', 'svelte-start', '--', '--dev'], {
-          stdio: ['ignore', 'inherit', 'inherit'],
-          shell: true,
-        });
-      }
+      if (server) return;
+      server = require('child_process').spawn('npm', ['run', 'svelte-start', '--', '--dev'], {
+        stdio: ['ignore', 'inherit', 'inherit'],
+        shell: true,
+      });
+      process.on('SIGTERM', toExit);
+      process.on('exit', toExit);
     },
   };
 }
@@ -49,10 +51,10 @@ export default {
         if (warning.code === 'a11y-invalid-attribute') return;
         // but let Rollup handle all other warnings normally
         handler(warning);
-      }
+      },
     }),
     production && terser(),
-    !production && livereload('renderer'),
+    !production && livereload('renderer/dist'),
     !production && serve(),
     resolve(),
     // postcss(),
@@ -62,4 +64,3 @@ export default {
     clearScreen: false,
   },
 };
-

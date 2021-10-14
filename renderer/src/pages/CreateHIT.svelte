@@ -102,7 +102,7 @@
     try {
       await HITSchema.validate(hitParams, { abortEarly: false });
       errors = {};
-      const qualArray = formatQuals(hitParams.selectedQuals, $live);
+      const qualArray = formatQuals(hitParams.selectedQuals);
       stLog.info('REQ Mturk: createHITType');
       const resp = await mturk
         .createHITType({
