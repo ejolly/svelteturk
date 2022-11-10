@@ -75,7 +75,7 @@
     "@fullhuman/postcss-purgecss": "^2.3.0",
     "bulma": "^0.9.0",
     "concurrently": "^5.2.0",
-    "electron": "9.3.1",
+    "electron": "18.3.7",
     "electron-reload": "^1.5.0",
     "eslint": "^7.5.0",
     "eslint-config-airbnb": "^18.2.0",
